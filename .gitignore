@@ -76,3 +76,7 @@ DerivedDataCache/*
 # Asset Files
 Content/Assets/Static/*
 !Content/Assets/Static/.gitkeep
+
+# Temp folder
+Content/Temporary
+!Content/Temporary/.gitkeep
