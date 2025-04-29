@@ -74,4 +74,5 @@ Plugins/*/Intermediate/*
 DerivedDataCache/*
 
 # Asset Files
-Content/Assets/*
+Content/Assets/Static/*
+!Content/Assets/Static/.gitkeep
