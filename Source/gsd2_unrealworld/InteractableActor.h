@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-// Delphinium04 (202311099 Lee Yuchan)
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -16,6 +13,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* StaticMeshComponent;
 
+	// For player detection
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USphereComponent* SphereComponent;
+
 public:
 	AInteractableActor();
 
@@ -28,7 +29,7 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnInteract();
 
-	UFUNCTION(BlueprintCallable, meta=(BlueprintProtected="true"))
+	UFUNCTION(BlueprintCallable, meta = (BlueprintProtected = "true"))
 	void BroadcastOnInteracted();
 
 public:

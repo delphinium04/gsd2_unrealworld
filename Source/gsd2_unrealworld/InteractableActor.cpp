@@ -1,5 +1,5 @@
-
 #include "InteractableActor.h"
+#include "Components/SphereComponent.h"
 
 AInteractableActor::AInteractableActor()
 {
@@ -7,6 +7,8 @@ AInteractableActor::AInteractableActor()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Static Mesh Component");
 	RootComponent = StaticMeshComponent;
+	SphereComponent = CreateDefaultSubobject<USphereComponent>("Player Detect Sphere");
+	SphereComponent->SetupAttachment(RootComponent);
 }
 
 void AInteractableActor::OnInteract_Implementation()
