@@ -7,7 +7,12 @@
 		{
 			"Name": "gsd2_unrealworld",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"UMG",
+				"AIModule"
+			]
 		}
 	],
 	"Plugins": [
