@@ -20,15 +20,24 @@ void AMonsterBase::Die()
 	if (bIsDead) return;
 	bIsDead = true;
 
+	UE_LOG(LogTemp, Warning, TEXT("Monster Die() Called: %s"), *GetName());
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && DeathMontage)
 	{
 		AnimInstance->Montage_Play(DeathMontage); // 죽음 애니메이션 재생
 	}
 
-	GetCharacterMovement()->StopMovementImmediately(); // 즉시 멈춤
+	AMonsterAIControllerBase* AIController = Cast<AMonsterAIControllerBase>(GetController());
+	if (AIController)
+	{
+		AIController->StopMovement();
+		AIController->UnPossess(); // AI 컨트롤러 떠나기
+	}
+
+	GetCharacterMovement()->DisableMovement(); //움직임 비활성화
 	HealthBarWidget->SetVisibility(false); // 체력바 숨김
-	SetLifeSpan(5.0f); // 5초 후에 삭제
+	SetLifeSpan(5.0f); // 5초 후에 자동 삭제
+	
 }
 // 몬스터가 피해를 입었을 때
 void AMonsterBase::ReceiveDamage(float DamageAmount)
@@ -56,25 +65,30 @@ void AMonsterBase::ReceiveDamage(float DamageAmount)
 
 void AMonsterBase::MonsterBreakParts() //몬스터 산산조각 노티파이로 애니메이션에서 호출
 {
-	if (USkeletalMeshComponent* SkeletalMesh_Mesh = GetMesh())
+	UE_LOG(LogTemp, Warning, TEXT("broken"));
+	if (USkeletalMeshComponent* SkeletalMesh = GetMesh())
 	{
-		SkeletalMesh_Mesh->SetAllBodiesBelowSimulatePhysics("pelvis", true, true); // 상체 분리
-		SkeletalMesh_Mesh->SetAllBodiesBelowSimulatePhysics("thigh_l", true, true); // 왼쪽 다리 분리
-		SkeletalMesh_Mesh->SetAllBodiesBelowSimulatePhysics("thigh_r", true, true); // 오른쪽 다리 분리
 
-		SkeletalMesh_Mesh->SetAllBodiesBelowPhysicsBlendWeight("pelvis", 1.0f); // 물리 적용
-		SkeletalMesh_Mesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_l", 1.0f);
-		SkeletalMesh_Mesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_r", 1.0f);
+		SkeletalMesh->SetSimulatePhysics(false); 
 
-		SkeletalMesh_Mesh->SetCollisionProfileName(TEXT("Ragdoll")); // 파츠들을 통통 튀는 파츠들로 설정
+		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("pelvis", true, true); // 상체만
+		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("upperarm_l", true, true);
+		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("upperarm_r", true, true);
+		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("thigh_l", true, true);
+		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("thigh_r", true, true);
+		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("spine_03", true, true);
 
-		for (FConstraintInstance* Constraint : GetMesh()->Constraints)
-		{
-			if (Constraint)
-			{
-				Constraint->TermConstraint();
-			}
-		}
+		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("pelvis", 1.0f);
+		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("spine_03", 1.0f);
+		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("upperarm_l", 1.0f);
+		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("upperarm_r", 1.0f);
+		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_l", 1.0f);
+		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_r", 1.0f);
+		// 튐방지..?(안됨)
+		SkeletalMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
+		SkeletalMesh->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+
+		SkeletalMesh->SetCollisionProfileName(TEXT("Ragdoll"));
 	}
 }
 

@@ -13,7 +13,7 @@ class GSD2_UNREALWORLD_API AMonsterBase : public ACharacter
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	AMonsterBase();
 
 	//몬스터 상태 변수
@@ -64,4 +64,5 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void MonsterBreakParts(); // 몬스터 산산조각
+
 };

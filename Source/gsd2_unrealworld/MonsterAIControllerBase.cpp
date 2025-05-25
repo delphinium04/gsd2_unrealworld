@@ -160,7 +160,7 @@ void AMonsterAIControllerBase::OnPossess(APawn* InPawn) {
 		{
 			PatrolOrigin = Projected.Location;
 			UE_LOG(LogTemp, Warning, TEXT("PatrolOrigin Success %s"), *PatrolOrigin.ToString());
-			SetState(EMonsterState::Patrolling);
+			SetState(EMonsterState::Dead);
 		}
 		else
 		{
