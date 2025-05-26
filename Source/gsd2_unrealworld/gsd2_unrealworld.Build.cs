@@ -14,7 +14,11 @@ public class gsd2_unrealworld : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"EnhancedInput",
-			"Niagara"
+			"Niagara",
+			"AIModule",
+			"GameplayTasks",
+			"NavigationSystem",
+			"UMG"
 		});
 	}
 }
