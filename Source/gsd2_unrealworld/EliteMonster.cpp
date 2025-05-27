@@ -2,10 +2,12 @@
 
 
 #include "EliteMonster.h"
-#include "Kismet/GameplayStatics.h" // 플레이어 액터, 사운드, 이펙트
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimInstance.h" // 애니메이션 인스턴스
 #include "MonsterHealthWidget.h" // 몬스터 체력 위젯
+#include "PhysicsEngine/ConstraintInstance.h" // 물리 제약 인스턴스
+#include "MonsterAIControllerBase.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AEliteMonster::AEliteMonster() {
@@ -32,45 +34,8 @@ AEliteMonster::AEliteMonster() {
 	HealthBarWidget->SetPivot(FVector2D(0.38f, 0.5f)); // 중앙에 위치(원래는 0.5f, 0.5f여야 하지만...)
 }
 
-void AEliteMonster::BeginPlay() {
-	Super::BeginPlay();
-	// 몬스터의 초기 상태 설정
-	CurrentHealth = MaxHealth; // 현재 체력 초기화
-	bIsDead = false; // 죽음 상태 초기화
-	PlayerCameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-	AIController = Cast<AMonsterAIControllerBase>(GetController());
-}
-
-void AEliteMonster::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (PlayerCameraManager && HealthBarWidget) {
-		FVector CameraLocation = PlayerCameraManager->GetCameraLocation();
-		FRotator LookAtRotation = (CameraLocation - HealthBarWidget->GetComponentLocation()).Rotation();
-		LookAtRotation.Pitch = 0.f;
-		HealthBarWidget->SetWorldRotation(LookAtRotation);
-	}
-}
-
-void AEliteMonster::UpdateHealthBar()
-{
-	Super::UpdateHealthBar();
-
-	if (HealthBarWidget && HealthBarWidget->GetUserWidgetObject())
-	{
-		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
-		if (HealthUI)
-		{
-			float Percent = (MaxHealth > 0.f) ? (CurrentHealth / MaxHealth) : 0.f;
-			HealthUI->SetHealthPercent(Percent);
-		}
-	}
-}
-
 void AEliteMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 {
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance || !CloseAttackMontage)
 	{
 		return;
@@ -108,7 +73,6 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 	
 	FName SectionName = FName(*FString::Printf(TEXT("Attack%d"), CurrentComboIndex));
 	UE_LOG(LogTemp, Warning, TEXT("combo: %s"), *SectionName.ToString());
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (AnimInstance)
 	{
@@ -127,9 +91,8 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 
 void AEliteMonster::PlayLongRangeAttackMontage() // 원거리 공격 몽타주 실행
 {
-	if (!LongRangeAttackMontage || bIsDead) return; //몽타주가 없거나 죽은 상태일떄
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage))
+	if (!LongRangeAttackMontage || !IsCanThrowFireball()) return; //몽타주가 없거나 원거리 공격이 불가능할 때
+	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) // 원거리 공격 몽타주가 재생 중이 아닐 때
 	{
 		AnimInstance->Montage_Play(LongRangeAttackMontage);
 	}
@@ -151,7 +114,11 @@ void AEliteMonster::SpawnFireball() { //파이어볼 생성
 		UE_LOG(LogTemp, Warning, TEXT("makeFireball"));
 		if (SpawnedFireball) {
 			SpawnedFireball->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "FireballSpawn");
-			UE_LOG(LogTemp, Warning, TEXT("makeFireball fail"));
+			// 몬스터 자신은 파이어볼의 충돌에서 무시
+			if (USphereComponent* Collision = Cast<USphereComponent>(SpawnedFireball->GetRootComponent()))
+			{
+				Collision->IgnoreActorWhenMoving(this, true); // 자신 무시 설정
+			}
 		}
 	}
 	else {
@@ -167,6 +134,7 @@ void AEliteMonster::ThrowFireball()
 {
 	if (SpawnedFireball)
 	{
+
 		SpawnedFireball->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		UE_LOG(LogTemp, Warning, TEXT("Fireball atteched"));
 		FVector FireballStart = SpawnedFireball->GetActorLocation();
@@ -178,7 +146,15 @@ void AEliteMonster::ThrowFireball()
 
 		if (UProjectileMovementComponent* Movement = SpawnedFireball->FindComponentByClass<UProjectileMovementComponent>()) //ProjectileMovementComponent를 사용해 던지기
 		{
-			Movement->Velocity = Direction * Movement->InitialSpeed;
+			Movement->SetUpdatedComponent(SpawnedFireball->GetRootComponent());
+			Movement->SetVelocityInLocalSpace(Direction * Movement->InitialSpeed);
+			Movement->Activate();
+			Movement->bIsHomingProjectile = false; // 호밍 발사체가 아니므로 false로 설정
+			UE_LOG(LogTemp, Warning, TEXT("Fireball thrown"));
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("ProjectileMovementComponent not found!")); // ProjectileMovementComponent가 없을 때 경고 로그 출력
+			return;
 		}
 
 		SpawnedFireball = nullptr;
@@ -186,5 +162,34 @@ void AEliteMonster::ThrowFireball()
 	}
 	else{
 		UE_LOG(LogTemp, Warning, TEXT("SpawnedFireball is null!")); // 파이어볼이 생성되지 않았을 때 경고 로그 출력
+		return;
 	}
+}
+
+bool AEliteMonster::IsCanThrowFireball() { //플레이어와 몬스터 사이에 장애물이 있는지 확인
+	if (!AIController || !AIController->TargetPlayer) return false;
+
+	FVector Start = GetMesh()->GetSocketLocation(FName("FireballSpawn"));
+	FVector End = AIController->TargetPlayer->GetActorLocation();
+
+	FCollisionQueryParams Params; // 어떤 오브젝트와 충돌을 검사할지 설정
+	Params.AddIgnoredActor(this); // 몬스터 자신 무시
+	Params.AddIgnoredActor(AIController->TargetPlayer); // 플레이어 무시
+
+	FHitResult Hit;
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		Hit,
+		Start,
+		End,
+		ECC_Visibility,
+		Params
+	);
+
+	if (bHit && Hit.GetActor() != AIController->TargetPlayer)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Fireball blocked by : % s"), *Hit.GetActor()->GetName());
+		return false;
+	}
+
+	return true;
 }

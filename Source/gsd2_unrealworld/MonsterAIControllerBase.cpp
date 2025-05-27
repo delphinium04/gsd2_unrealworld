@@ -160,7 +160,12 @@ void AMonsterAIControllerBase::OnPossess(APawn* InPawn) {
 		{
 			PatrolOrigin = Projected.Location;
 			UE_LOG(LogTemp, Warning, TEXT("PatrolOrigin Success %s"), *PatrolOrigin.ToString());
-			SetState(EMonsterState::Dead);
+			if (ABossMonster* Boss = Cast<ABossMonster>(GetPawn())) { // 보스 몬스터일 경우
+				SetState(EMonsterState::Chasing);
+			}
+			else { // 일반 몬스터일 경우
+				SetState(EMonsterState::Patrolling);
+			}
 		}
 		else
 		{

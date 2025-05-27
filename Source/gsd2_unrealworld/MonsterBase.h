@@ -7,7 +7,7 @@
 #include "Components/WidgetComponent.h"
 #include "MonsterBase.generated.h"
 
-
+class AMonsterAIControllerBase; // 몬스터 AI 컨트롤러 클래스
 UCLASS()
 class GSD2_UNREALWORLD_API AMonsterBase : public ACharacter
 {
@@ -15,7 +15,8 @@ class GSD2_UNREALWORLD_API AMonsterBase : public ACharacter
 
 public:
 	AMonsterBase();
-
+	virtual void BeginPlay() override; //게임 시작시 호출되는 함수
+	virtual void Tick(float DeltaTime) override; //매 프레임마다 호출되는 함수
 	//몬스터 상태 변수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	float MaxHealth; //최대 체력
@@ -46,15 +47,22 @@ public:
 	UAnimMontage* CloseAttackMontage; //공격 애니메이션 몽타주
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimMontage* LongRangeAttackMontage; //죽음 애니메이션 몽타주
+	UAnimMontage* LongRangeAttackMontage; //원거리 공격 애니메이션 몽타주
+
+	UAnimInstance* AnimInstance; // 애니메이션 인스턴스
+
+	AMonsterAIControllerBase* AIController;
 
 	virtual void PlayCloseAttackMontage(); //근거리 공격 애니메이션 재생 함수
+
 	virtual void PlayLongRangeAttackMontage(); //원거리 공격 애니메이션 재생 함수
 	void Die(); //죽음 
 
 	//몬스터 체력바 관련
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	UWidgetComponent* HealthBarWidget; //체력바 위젯 컴포넌트
+
+	APlayerCameraManager* PlayerCameraManager; // 플레이어 카메라 매니저
 
 	virtual void UpdateHealthBar(); //체력바 업데이트 함수
 

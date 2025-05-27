@@ -30,51 +30,10 @@ ANomalMonster::ANomalMonster()
 	HealthBarWidget->SetPivot(FVector2D(0.38f, 0.5f)); // 중앙에 위치(원래는 0.5f, 0.5f여야 하지만...)
 }
 
-void ANomalMonster::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// 몬스터의 초기 상태 설정
-	CurrentHealth = MaxHealth; // 현재 체력 초기화
-	bIsDead = false; // 죽음 상태 초기화
-
-	PlayerCameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-}
-
-void ANomalMonster::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	//위젯이 카메라를	 바라보도록 회전
-	if (PlayerCameraManager && HealthBarWidget) {
-		FVector CameraLocation = PlayerCameraManager->GetCameraLocation();
-		FRotator LookAtRotation = (CameraLocation - HealthBarWidget->GetComponentLocation()).Rotation();
-		LookAtRotation.Pitch = 0.f; // 위아래 회전 방지
-		HealthBarWidget->SetWorldRotation(LookAtRotation);
-	}
-}
-
-//체력바 위젯 업데이트
-void ANomalMonster::UpdateHealthBar()
-{
-	Super::UpdateHealthBar(); // 부모 클래스의 기본 로직 호출
-
-	if (HealthBarWidget && HealthBarWidget->GetUserWidgetObject())
-	{
-		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
-		if (HealthUI)
-		{
-			float Percent = (MaxHealth > 0.f) ? (CurrentHealth / MaxHealth) : 0.f;
-			HealthUI->SetHealthPercent(Percent);
-		}
-	}
-}
-
 void ANomalMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 {
 	if (!CloseAttackMontage || bIsDead) return; //몽타주가 없거나 죽은 상태일떄
 
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && !AnimInstance->Montage_IsPlaying(CloseAttackMontage))
 	{
 		AnimInstance->Montage_Play(CloseAttackMontage);

@@ -16,5 +16,5 @@ class GSD2_UNREALWORLD_API AEliteMonsterAIController : public AMonsterAIControll
 public:
 	AEliteMonsterAIController();
 
-	virtual void Attack() override; //공격 함수 재정의 
+	void Attack() override; //공격 함수 재정의 
 };

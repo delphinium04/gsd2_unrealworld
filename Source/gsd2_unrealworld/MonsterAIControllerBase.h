@@ -10,6 +10,7 @@
 #include "NavigationSystem.h"
 #include "MonsterBase.h"
 #include "MonsterAIControllerBase.generated.h"
+class ABossMonster;
 
 UENUM(BlueprintType)
 enum class EMonsterState : uint8
@@ -33,7 +34,7 @@ public:
 	AMonsterAIControllerBase();
 	virtual void Tick(float DeltaSeconds) override;
 
-	void SetState(EMonsterState NewState); // 몬스터 상태 설정
+	virtual void SetState(EMonsterState NewState); // 몬스터 상태 설정
 
 	//이 세개는 엘리트 몬스터에서 사용하기 위해
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")

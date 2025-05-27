@@ -18,15 +18,18 @@ class GSD2_UNREALWORLD_API ABossMonster : public AMonsterBase
 public:
 	ABossMonster();
 
-	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void UpdateHealthBar() override;
+	virtual void UpdateHealthBar();
 
-	virtual void PlayCloseAttackMontage() override;
-	virtual void  PlayLongRangeAttackMontage() override;
-
-	AMonsterAIControllerBase* AIController;
+	void PlayCloseAttackMontage() override;
+	void PlayLongRangeAttackMontage() override;
+	void PlayLongRangeAttackMontage2(); //원거리 공격 애니메이션 몽타주2
+	void PlayLongRangeAttackMontage3(); //원거리 공격 애니메이션 몽타주3
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimInstance* AnimInstance;
+	UAnimMontage* LongRangeAttackMontage2; //공격 애니메이션 몽타주 2
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimMontage* LongRangeAttackMontage3; //원거리 공격 애니메이션 몽타주3
+	AMonsterAIControllerBase* AIController;
 };

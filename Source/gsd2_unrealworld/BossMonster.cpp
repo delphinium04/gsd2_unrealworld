@@ -19,18 +19,9 @@ ABossMonster::ABossMonster() {
 	CloseRangeAttack = 300.f; // 근거리 공격 범위
 	LongRangeAttack = 1000.f; // 원거리 공격 범위
 	AttackCooldown = 1.0f; // 공격 쿨타임
-	GetCharacterMovement()->MaxWalkSpeed = 200.f; // 걷는 속도 설정
+	GetCharacterMovement()->MaxWalkSpeed = 300.f; // 걷는 속도 설정
 }
 
-void ABossMonster::BeginPlay() {
-	Super::BeginPlay();
-	// 몬스터의 초기 상태 설정
-	CurrentHealth = MaxHealth; // 현재 체력 초기화
-	bIsDead = false; // 죽음 상태 초기화
-	// 플레이어 카메라 매니저를 가져옴
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	AnimInstance = GetMesh()->GetAnimInstance();
-}
 
 void ABossMonster::Tick(float DeltaTime)
 {
@@ -39,17 +30,7 @@ void ABossMonster::Tick(float DeltaTime)
 
 void ABossMonster::UpdateHealthBar()
 {
-	Super::UpdateHealthBar();
-
-	if (HealthBarWidget && HealthBarWidget->GetUserWidgetObject())
-	{
-		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
-		if (HealthUI)
-		{
-			float Percent = (MaxHealth > 0.f) ? (CurrentHealth / MaxHealth) : 0.f;
-			HealthUI->SetHealthPercent(Percent);
-		}
-	}
+	
 }
 
 void ABossMonster::PlayCloseAttackMontage() {
@@ -62,8 +43,8 @@ void ABossMonster::PlayCloseAttackMontage() {
 		AnimInstance->Montage_Play(CloseAttackMontage);
 	}
 }
-
 void ABossMonster::PlayLongRangeAttackMontage() {
+
 	if (!AnimInstance || !LongRangeAttackMontage)
 	{
 		return;
@@ -71,5 +52,25 @@ void ABossMonster::PlayLongRangeAttackMontage() {
 	if (!AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) //원거리 공격이 실행하고 있지 않을 경우 
 	{
 		AnimInstance->Montage_Play(LongRangeAttackMontage);
+	}
+}
+void ABossMonster::PlayLongRangeAttackMontage2() {
+	if (!AnimInstance || !LongRangeAttackMontage2)
+	{
+		return;
+	}
+	if (!AnimInstance->Montage_IsPlaying(LongRangeAttackMontage2)) //원거리 공격이 실행하고 있지 않을 경우 
+	{
+		AnimInstance->Montage_Play(LongRangeAttackMontage2);
+	}
+}
+void ABossMonster::PlayLongRangeAttackMontage3() {
+	if (!AnimInstance || !LongRangeAttackMontage3)
+	{
+		return;
+	}
+	if (!AnimInstance->Montage_IsPlaying(LongRangeAttackMontage3)) //원거리 공격이 실행하고 있지 않을 경우 
+	{
+		AnimInstance->Montage_Play(LongRangeAttackMontage3);
 	}
 }
