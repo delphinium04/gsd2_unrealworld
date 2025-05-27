@@ -19,9 +19,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, meta = (BlueprintProtected = "true"))
-	void OnInteractableStateChanged();
-
 	UFUNCTION(BlueprintCallable, meta = (BlueprintProtected = "true"))
 	void BroadcastOnPuzzleSolved();
 
