@@ -67,7 +67,6 @@ void AMonsterBase::ReceiveDamage(float DamageAmount)
 {
 	if (bIsDead) return;
 	//AI 컨트롤러에게 상태 전달
-	AIController = Cast<AMonsterAIControllerBase>(GetController());
 	if (AIController)
 	{
 		// 체력이 0 이하가 되면 죽음 상태로 전환

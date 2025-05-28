@@ -15,7 +15,7 @@ AEliteMonster::AEliteMonster() {
 	PrimaryActorTick.bCanEverTick = true;
 	// 몬스터의 기본 속성 설정
 	GetCharacterMovement()->NavAgentProps.AgentRadius = 80.f; // 몬스터의 반지름
-	GetCharacterMovement()->NavAgentProps.AgentHeight = 350.f; // 몬스터의 높이
+	GetCharacterMovement()->NavAgentProps.AgentHeight = 260.f; // 몬스터의 높이
 
 	MaxHealth = 30.f; // 최대 체력
 	AttackDamage = 3.f; // 공격력
@@ -41,7 +41,7 @@ void AEliteMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 		return;
 	}
 
-	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage)) //근접 공격이 실행하고 있지 않을 경우 
+	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage) || !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) //근접 공격 또는 원거리 공격이 실행도고 있지 않을 경우 
 	{
 		AnimInstance->Montage_Play(CloseAttackMontage);
 		AnimInstance->Montage_JumpToSection(FName("Attack1"), CloseAttackMontage); // 몽타주의 Attack1 섹션으로 점프
@@ -56,7 +56,7 @@ void AEliteMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 }
 
 void AEliteMonster::ContineueCloseAttackmontion() {
-	if (!AIController->TargetPlayer && AIController->DistanceToPlayer <= CloseRangeAttack) // 공격 범위를 벗어나거나 플레이어가 있지 않을 때
+	if (!AIController->TargetPlayer && AIController->DistanceToPlayer >= CloseRangeAttack) // 공격 범위를 벗어나거나 플레이어가 있지 않을 때
 	{
 		CurrentComboIndex = 1;
 		return;
@@ -71,10 +71,10 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 	}
 
 	
-	FName SectionName = FName(*FString::Printf(TEXT("Attack%d"), CurrentComboIndex));
+	FName SectionName = FName(*FString::Printf(TEXT("Attack%d"), CurrentComboIndex)); // 콤보 섹션 이름 생성
 	UE_LOG(LogTemp, Warning, TEXT("combo: %s"), *SectionName.ToString());
 
-	if (AnimInstance)
+	if (AnimInstance || !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) // 원거리 공격 몽타주가 재생 중이 아닐 때
 	{
 		AnimInstance->Montage_Play(CloseAttackMontage);
 		AnimInstance->Montage_JumpToSection(SectionName, CloseAttackMontage);
@@ -92,7 +92,7 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 void AEliteMonster::PlayLongRangeAttackMontage() // 원거리 공격 몽타주 실행
 {
 	if (!LongRangeAttackMontage || !IsCanThrowFireball()) return; //몽타주가 없거나 원거리 공격이 불가능할 때
-	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) // 원거리 공격 몽타주가 재생 중이 아닐 때
+	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage) || !AnimInstance->Montage_IsPlaying(CloseAttackMontage)) // 원거리 공격 몽타주와 근거리 공격 몽타주가 재생 중이 아닐 때
 	{
 		AnimInstance->Montage_Play(LongRangeAttackMontage);
 	}

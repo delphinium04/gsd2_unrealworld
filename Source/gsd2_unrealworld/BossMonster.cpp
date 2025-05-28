@@ -22,7 +22,6 @@ ABossMonster::ABossMonster() {
 	GetCharacterMovement()->MaxWalkSpeed = 300.f; // 걷는 속도 설정
 }
 
-
 void ABossMonster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -31,6 +30,17 @@ void ABossMonster::Tick(float DeltaTime)
 void ABossMonster::UpdateHealthBar()
 {
 	
+}
+
+void ABossMonster::PlayBeginMontage() {
+	if (!AnimInstance || !BeginMontage)
+	{
+		return;
+	}
+	if (!AnimInstance->Montage_IsPlaying(BeginMontage)) //시작 애니메이션이 실행하고 있지 않을 경우 
+	{
+		AnimInstance->Montage_Play(BeginMontage);
+	}
 }
 
 void ABossMonster::PlayCloseAttackMontage() {

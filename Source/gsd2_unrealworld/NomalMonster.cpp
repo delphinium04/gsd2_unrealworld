@@ -9,9 +9,9 @@
 ANomalMonster::ANomalMonster()
 {
 	PrimaryActorTick.bCanEverTick = true; 
-	// 몬스터의 기본 속성 설정
-	GetCharacterMovement()->NavAgentProps.AgentRadius = 60.f; // 몬스터의 반지름
-	GetCharacterMovement()->NavAgentProps.AgentHeight = 240.f; // 몬스터의 높이
+	// 몬스터의 기본 속성 설정(네비에서 인식하는 몬스터의 크기 설정)
+	GetCharacterMovement()->NavAgentProps.AgentRadius = 55.f; // 몬스터의 반지름
+	GetCharacterMovement()->NavAgentProps.AgentHeight = 190.f; // 몬스터의 높이
 
 	MaxHealth = 10.f; // 최대 체력
 	AttackDamage = 1.f; // 공격력

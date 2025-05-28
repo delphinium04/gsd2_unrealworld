@@ -16,9 +16,9 @@ AMonsterAIControllerBase::AMonsterAIControllerBase() {
 
 	//시각 컴포넌트 생성
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	//각 몬스터 AI Controller에서 override하여 사용
+	//각 몬스터 AI Controller에서 override하여 사용(base는 노말 몬스터)
 	SightConfig->SightRadius = 500.f; // 기본 탐지 거리
-	SightConfig->LoseSightRadius = 1000.f; //플레이어를 놓치는 거리 
+	SightConfig->LoseSightRadius = 800.f; //플레이어를 놓치는 거리 
 	SightConfig->PeripheralVisionAngleDegrees = 90.f; // 시야각(9090 180도)
 	SightConfig->AutoSuccessRangeFromLastSeenLocation = 300.f; //시야에서 잠깐 벗어난 후에도 감지하는 거리
 
@@ -129,7 +129,6 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 
 		TargetPlayer = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0); // 플레이어 캐릭터를 타겟으로 설정
 		SetState(EMonsterState::Chasing); // 플레이어를 추적 상태로 전환
-	
 		break;
 	case EMonsterState::Dead: // 죽음
 		break;
@@ -321,7 +320,15 @@ void AMonsterAIControllerBase::ChasePlayer() {
 		return;
 	}
 
+	FVector TargetLocation = TargetPlayer->GetActorLocation();
+	if (!ControlledMonster || !TargetPlayer)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ControlledMonster or TargetPlayer is null"));
+		return;
+	}
+	
 	MoveToLocation(TargetPlayer->GetActorLocation(), 50.f, true);
+
 }
 void AMonsterAIControllerBase::ChasePlayerToAttack() {
 	if (!ControlledMonster || !TargetPlayer)

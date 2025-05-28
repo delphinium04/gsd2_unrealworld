@@ -30,13 +30,18 @@ class GSD2_UNREALWORLD_API AMonsterAIControllerBase : public AAIController
 {
 	GENERATED_BODY()
 
+
+protected:
+	//시작
+	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* InPawn) override;
+
 public:
 	AMonsterAIControllerBase();
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void SetState(EMonsterState NewState); // 몬스터 상태 설정
 
-	//이 세개는 엘리트 몬스터에서 사용하기 위해
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	APawn* TargetPlayer; // 타겟 플레이어
 
@@ -45,10 +50,6 @@ public:
 
 	void ChasePlayer();
 	void ChasePlayerToAttack();
-protected:
-	//시작
-	virtual void BeginPlay() override;
-	virtual void OnPossess(APawn* InPawn) override;
 
 	//상태 처리
 	void Patrol();                // 순찰 상태 처리
