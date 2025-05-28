@@ -28,8 +28,8 @@ AEliteMonster::AEliteMonster() {
 	HealthBarWidget->SetupAttachment(RootComponent); // 루트 컴포넌트에 부착(체력바가 몬스터를 따라다님)
 	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//크기를 월드 크기에 고정
 	HealthBarWidget->SetDrawSize(FVector2D(300.f, 30.f)); // 크기 설정
-	HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, 180.f)); // 위치 설정
-	HealthBarWidget->SetPivot(FVector2D(0.38f, 0.5f)); // 중앙에 위치(원래는 0.5f, 0.5f여야 하지만...)
+	HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, 140.f)); // 위치 설정
+	HealthBarWidget->SetPivot(FVector2D(0.5f, 0.5f)); // 중앙에 위치
 }
 
 void AEliteMonster::BeginPlay() {
@@ -75,8 +75,13 @@ void AEliteMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 	{
 		return;
 	}
+<<<<<<< Updated upstream
 
 	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage)) //근접 공격이 실행하고 있지 않을 경우 
+=======
+	CurrentComboIndex = 1;
+	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage) || !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) //근접 공격 또는 원거리 공격이 실행도고 있지 않을 경우 
+>>>>>>> Stashed changes
 	{
 		AnimInstance->Montage_Play(CloseAttackMontage);
 		AnimInstance->Montage_JumpToSection(FName("Attack1"), CloseAttackMontage); // 몽타주의 Attack1 섹션으로 점프
@@ -91,7 +96,11 @@ void AEliteMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 }
 
 void AEliteMonster::ContineueCloseAttackmontion() {
+<<<<<<< Updated upstream
 	if (!AIController->TargetPlayer && AIController->DistanceToPlayer <= CloseRangeAttack) // 공격 범위를 벗어나거나 플레이어가 있지 않을 때
+=======
+	if (!AIController->TargetPlayer) // 플레이어를 감지하지 못했을떄
+>>>>>>> Stashed changes
 	{
 		CurrentComboIndex = 1;
 		return;
@@ -110,11 +119,16 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 	UE_LOG(LogTemp, Warning, TEXT("combo: %s"), *SectionName.ToString());
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
+<<<<<<< Updated upstream
 	if (AnimInstance)
+=======
+	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) // 원거리 공격 몽타주가 재생 중이 아닐 때
+>>>>>>> Stashed changes
 	{
-		AnimInstance->Montage_Play(CloseAttackMontage);
+		if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage)) {
+			AnimInstance->Montage_Play(CloseAttackMontage); // 근접 공격 몽타주 재생	
+		}
 		AnimInstance->Montage_JumpToSection(SectionName, CloseAttackMontage);
-
 		// 다음 콤보 예약
 		GetWorld()->GetTimerManager().SetTimer(
 			ComboTimerHandle,
@@ -127,9 +141,14 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 
 void AEliteMonster::PlayLongRangeAttackMontage() // 원거리 공격 몽타주 실행
 {
+<<<<<<< Updated upstream
 	if (!LongRangeAttackMontage || bIsDead) return; //몽타주가 없거나 죽은 상태일떄
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage))
+=======
+	if (!LongRangeAttackMontage || !IsCanThrowFireball()) return; //몽타주가 없거나 원거리 공격이 불가능할 때
+	if (!AnimInstance->Montage_IsPlaying(LongRangeAttackMontage) || !AnimInstance->Montage_IsPlaying(CloseAttackMontage)) // 원거리 공격 몽타주와 근거리 공격 몽타주가 재생 중이 아닐 때
+>>>>>>> Stashed changes
 	{
 		AnimInstance->Montage_Play(LongRangeAttackMontage);
 	}
