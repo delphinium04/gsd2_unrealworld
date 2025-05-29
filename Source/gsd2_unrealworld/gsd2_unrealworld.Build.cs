@@ -19,9 +19,9 @@ public class gsd2_unrealworld : ModuleRules
 			"GameplayTasks",
 			"NavigationSystem",
 			"UMG",
-			"Slate",
+            "Slate",
 			"SlateCore"
-		});
+        });
 
 	}
 }

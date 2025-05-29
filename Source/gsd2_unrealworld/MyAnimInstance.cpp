@@ -19,5 +19,5 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
     AimYaw = DeltaRot.Yaw;
     AimPitch = FMath::Clamp(DeltaRot.Pitch, -45.0f, 45.0f);
-    UE_LOG(LogTemp, Warning, TEXT("UpdateAnim! Pitch:%f Yaw:%f"), AimPitch, AimYaw);
+    //UE_LOG(LogTemp, Warning, TEXT("UpdateAnim! Pitch:%f Yaw:%f"), AimPitch, AimYaw);
 }

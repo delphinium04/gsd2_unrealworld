@@ -58,13 +58,15 @@ void AEliteMonster::UpdateHealthBar()
 
 void AEliteMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 {
-	if (!AnimInstance || !AnimInstance->Montage_IsPlaying(CloseAttackMontage))
+	if (!AnimInstance || AnimInstance->Montage_IsPlaying(CloseAttackMontage))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("No AnimInstance")); 
 		return;
 	}
 
 	CurrentComboIndex = 1;
 
+	UE_LOG(LogTemp, Warning, TEXT("conbo Start!"));
 	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage) || !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) //근접 공격 또는 원거리 공격이 실행도고 있지 않을 경우 
 
 	{
@@ -160,6 +162,14 @@ void AEliteMonster::ThrowFireball()
 {
 	if (SpawnedFireball)
 	{
+		if (!AIController || !AIController->TargetPlayer)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ThrowFireBall Fail"));
+			SpawnedFireball->Destroy();
+			SpawnedFireball = nullptr;
+			return;
+		}
+
 		SpawnedFireball->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		UE_LOG(LogTemp, Warning, TEXT("Fireball atteched"));
 		FVector FireballStart = SpawnedFireball->GetActorLocation();

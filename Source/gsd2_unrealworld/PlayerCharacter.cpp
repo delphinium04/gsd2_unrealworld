@@ -342,7 +342,7 @@ void APlayerCharacter::OnFire()
                 if (HitActor && HitActor != this)
                 {
                     // 데미지 값 임의 지정 (예: 20)
-                    float Damage = 20.0f;
+                    float Damage = 1.0f;
 
                     UGameplayStatics::ApplyPointDamage(
                         HitActor,                        // 피해 입는 액터
@@ -536,6 +536,8 @@ float APlayerCharacter::TakeDamage(
 
     float DamageApplied = FMath::Clamp(DamageAmount, 0.f, CurrentHealth);
     CurrentHealth -= DamageApplied;
+    UE_LOG(LogTemp, Warning, TEXT("TakeDamage Damege: %.1f"), DamageAmount);
+    UE_LOG(LogTemp, Warning, TEXT("current health: %.1f → %.1f"), CurrentHealth + DamageAmount, CurrentHealth);
     if (CurrentHealth <= 0.0f)
     {
         CurrentHealth = 0.0f;

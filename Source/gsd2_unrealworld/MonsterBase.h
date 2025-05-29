@@ -41,6 +41,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	bool bIsDead = false; //죽음 상태(읽기 전용)
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	bool bCanCloseDealDamage = false; // 근접 공격 데미지 주기 가능 여부
+
 	//몬스터 애니메이션 변수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* DeathMontage; //죽음 애니메이션 몽타주
@@ -79,5 +82,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void MonsterBreakParts(); // 몬스터 산산조각
+
+	virtual float TakeDamage(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		class AActor* DamageCauser
+	) override;
 
 };

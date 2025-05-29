@@ -24,6 +24,7 @@ void AEliteMonsterAIController::Attack() {
 
 	if (DistanceToPlayer <= ControlledMonster->CloseRangeAttack) // 플레이어가 근거리에 있을 경우
 	{
+		UE_LOG(LogTemp, Warning, TEXT("conbo called"));
 		ControlledMonster->PlayCloseAttackMontage(); // 근접 공격 애니메이션 재생
 	}
 	else if (DistanceToPlayer <= ControlledMonster->LongRangeAttack) //  플레이어가 원거리 공격 범위에 있을 경우

@@ -49,10 +49,18 @@ void ANomalMonster::UpdateHealthBar()
 		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
 		if (HealthUI)
 		{
-			float Percent = (MaxHealth > 0.f) ? (CurrentHealth / MaxHealth) : 0.f;
+			float Percent = (MaxHealth > 0.f) ? FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f) : 0.f; // 체력 비율 계산 (0~1 사이로 제한)
 			HealthUI->SetHealthPercent(Percent);
+			UE_LOG(LogTemp, Warning, TEXT("Health = %.1f / %.1f (%.2f%%)"), CurrentHealth, MaxHealth, (CurrentHealth / MaxHealth) * 100.f);
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("HealthUI is null!"));
 		}
 	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("HealthBarWidget or UserWidgetObject is null!"));
+	}
+
 }
 
 void ANomalMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행

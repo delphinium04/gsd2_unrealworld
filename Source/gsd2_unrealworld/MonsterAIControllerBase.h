@@ -76,7 +76,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	FVector CurrentMoveTarget; // 현재 이동 목표 위치
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	bool bCanAttack = true; // 공격 가능 여부
 
 	//순찰 관련

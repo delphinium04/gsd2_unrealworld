@@ -25,6 +25,7 @@ void AMonsterBase::BeginPlay() {
 	PlayerCameraManager = PlayerController ? PlayerController->PlayerCameraManager : nullptr;
 	AnimInstance = GetMesh()->GetAnimInstance(); // 애니메이션 인스턴스 가져오기
 	AIController = Cast<AMonsterAIControllerBase>(GetController()); // AI 컨트롤러 가져오기
+	UpdateHealthBar(); // 체력바 위젯 업데이트
 }
 
 void AMonsterBase::Tick(float DeltaTime)
@@ -65,6 +66,13 @@ void AMonsterBase::Die()
 	SetLifeSpan(5.0f); // 5초 후에 자동 삭제
 	
 }
+
+float AMonsterBase::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	ReceiveDamage(DamageAmount);
+	return DamageAmount;
+}
+
 // 몬스터가 피해를 입었을 때
 void AMonsterBase::ReceiveDamage(float DamageAmount)
 {
