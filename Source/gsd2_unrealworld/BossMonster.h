@@ -25,8 +25,4 @@ public:
 	virtual void PlayCloseAttackMontage() override;
 	virtual void  PlayLongRangeAttackMontage() override;
 
-	AMonsterAIControllerBase* AIController;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimInstance* AnimInstance;
 };

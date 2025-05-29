@@ -30,6 +30,11 @@ AFireballActor::AFireballActor()
 void AFireballActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+    if (GetInstigator()) // 
+    {
+        Collision->IgnoreActorWhenMoving(GetInstigator(), true);
+    }
 	
 }
 

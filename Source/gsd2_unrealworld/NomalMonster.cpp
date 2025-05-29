@@ -19,7 +19,6 @@ ANomalMonster::ANomalMonster()
 	LongRangeAttack = 200.f; // 원거리 공격 범위(일반 몬스터는 근거리 공격만)
 	AttackCooldown = 1.0f; // 공격 쿨타임
 	GetCharacterMovement()->MaxWalkSpeed = 300.f; // 걷는 속도 설정
-	PlayerCameraManager = nullptr; // 플레이어 카메라 매니저 초기화
 
 	//몬스터 체력바 위젯 생성
 	HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
@@ -33,25 +32,11 @@ ANomalMonster::ANomalMonster()
 void ANomalMonster::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// 몬스터의 초기 상태 설정
-	CurrentHealth = MaxHealth; // 현재 체력 초기화
-	bIsDead = false; // 죽음 상태 초기화
-
-	PlayerCameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
 }
 
 void ANomalMonster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//위젯이 카메라를	 바라보도록 회전
-	if (PlayerCameraManager && HealthBarWidget) {
-		FVector CameraLocation = PlayerCameraManager->GetCameraLocation();
-		FRotator LookAtRotation = (CameraLocation - HealthBarWidget->GetComponentLocation()).Rotation();
-		LookAtRotation.Pitch = 0.f; // 위아래 회전 방지
-		HealthBarWidget->SetWorldRotation(LookAtRotation);
-	}
 }
 
 //체력바 위젯 업데이트
@@ -74,7 +59,6 @@ void ANomalMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 {
 	if (!CloseAttackMontage || bIsDead) return; //몽타주가 없거나 죽은 상태일떄
 
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && !AnimInstance->Montage_IsPlaying(CloseAttackMontage))
 	{
 		AnimInstance->Montage_Play(CloseAttackMontage);

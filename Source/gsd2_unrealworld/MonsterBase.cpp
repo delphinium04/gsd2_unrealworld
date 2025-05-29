@@ -2,6 +2,7 @@
 #include "MonsterBase.h"
 #include "MonsterAIControllerBase.h" // 몬스터 AI 컨트롤러
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h" // 플레이어 액터, 사운드, 이펙트
 #include "GameFramework/CharacterMovementComponent.h" // 캐릭터 이동 컴포넌트
 #include "PhysicsEngine/ConstraintInstance.h" // 물리 제약 인스턴스
 
@@ -13,17 +14,14 @@ AMonsterBase::AMonsterBase() {
 
 	GetCapsuleComponent()->SetCanEverAffectNavigation(true); // NavMesh 영향 명시
 }
-void AMonsterBase::UpdateHealthBar() {}
-// 몬스터 죽음
-<<<<<<< Updated upstream
-=======
+void AMonsterBase::UpdateHealthBar() {};
 
 void AMonsterBase::BeginPlay() {
 	Super::BeginPlay();
 	// 몬스터의 초기 상태 설정
 	CurrentHealth = MaxHealth; // 현재 체력 초기화
 	bIsDead = false; // 죽음 상태 초기화
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	PlayerCameraManager = PlayerController ? PlayerController->PlayerCameraManager : nullptr;
 	AnimInstance = GetMesh()->GetAnimInstance(); // 애니메이션 인스턴스 가져오기
 	AIController = Cast<AMonsterAIControllerBase>(GetController()); // AI 컨트롤러 가져오기
@@ -45,20 +43,17 @@ void AMonsterBase::Tick(float DeltaTime)
 	}
 }
 
->>>>>>> Stashed changes
 void AMonsterBase::Die()
 {
 	if (bIsDead) return;
 	bIsDead = true;
 
 	UE_LOG(LogTemp, Warning, TEXT("Monster Die() Called: %s"), *GetName());
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && DeathMontage)
 	{
 		AnimInstance->Montage_Play(DeathMontage); // 죽음 애니메이션 재생
 	}
 
-	AMonsterAIControllerBase* AIController = Cast<AMonsterAIControllerBase>(GetController());
 	if (AIController)
 	{
 		AIController->StopMovement();
@@ -75,7 +70,6 @@ void AMonsterBase::ReceiveDamage(float DamageAmount)
 {
 	if (bIsDead) return;
 	//AI 컨트롤러에게 상태 전달
-	AMonsterAIControllerBase* AIController = Cast<AMonsterAIControllerBase>(GetController());
 	if (AIController)
 	{
 		// 체력이 0 이하가 되면 죽음 상태로 전환

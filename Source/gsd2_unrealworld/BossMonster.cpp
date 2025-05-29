@@ -28,8 +28,6 @@ void ABossMonster::BeginPlay() {
 	CurrentHealth = MaxHealth; // 현재 체력 초기화
 	bIsDead = false; // 죽음 상태 초기화
 	// 플레이어 카메라 매니저를 가져옴
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	AnimInstance = GetMesh()->GetAnimInstance();
 }
 
 void ABossMonster::Tick(float DeltaTime)

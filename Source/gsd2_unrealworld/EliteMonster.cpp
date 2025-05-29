@@ -34,23 +34,11 @@ AEliteMonster::AEliteMonster() {
 
 void AEliteMonster::BeginPlay() {
 	Super::BeginPlay();
-	// 몬스터의 초기 상태 설정
-	CurrentHealth = MaxHealth; // 현재 체력 초기화
-	bIsDead = false; // 죽음 상태 초기화
-	PlayerCameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-	AIController = Cast<AMonsterAIControllerBase>(GetController());
 }
 
 void AEliteMonster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (PlayerCameraManager && HealthBarWidget) {
-		FVector CameraLocation = PlayerCameraManager->GetCameraLocation();
-		FRotator LookAtRotation = (CameraLocation - HealthBarWidget->GetComponentLocation()).Rotation();
-		LookAtRotation.Pitch = 0.f;
-		HealthBarWidget->SetWorldRotation(LookAtRotation);
-	}
 }
 
 void AEliteMonster::UpdateHealthBar()
@@ -70,18 +58,15 @@ void AEliteMonster::UpdateHealthBar()
 
 void AEliteMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 {
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (!AnimInstance || !CloseAttackMontage)
+	if (!AnimInstance || !AnimInstance->Montage_IsPlaying(CloseAttackMontage))
 	{
 		return;
 	}
-<<<<<<< Updated upstream
 
-	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage)) //근접 공격이 실행하고 있지 않을 경우 
-=======
 	CurrentComboIndex = 1;
+
 	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage) || !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) //근접 공격 또는 원거리 공격이 실행도고 있지 않을 경우 
->>>>>>> Stashed changes
+
 	{
 		AnimInstance->Montage_Play(CloseAttackMontage);
 		AnimInstance->Montage_JumpToSection(FName("Attack1"), CloseAttackMontage); // 몽타주의 Attack1 섹션으로 점프
@@ -96,11 +81,8 @@ void AEliteMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 }
 
 void AEliteMonster::ContineueCloseAttackmontion() {
-<<<<<<< Updated upstream
-	if (!AIController->TargetPlayer && AIController->DistanceToPlayer <= CloseRangeAttack) // 공격 범위를 벗어나거나 플레이어가 있지 않을 때
-=======
-	if (!AIController->TargetPlayer) // 플레이어를 감지하지 못했을떄
->>>>>>> Stashed changes
+
+	if (!AIController->TargetPlayer && AIController->DistanceToPlayer <= CloseRangeAttack) // 공격 범위를 벗어나거나 플레이어가 있지 않을 경우
 	{
 		CurrentComboIndex = 1;
 		return;
@@ -117,13 +99,8 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 	
 	FName SectionName = FName(*FString::Printf(TEXT("Attack%d"), CurrentComboIndex));
 	UE_LOG(LogTemp, Warning, TEXT("combo: %s"), *SectionName.ToString());
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
-<<<<<<< Updated upstream
-	if (AnimInstance)
-=======
 	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) // 원거리 공격 몽타주가 재생 중이 아닐 때
->>>>>>> Stashed changes
 	{
 		if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage)) {
 			AnimInstance->Montage_Play(CloseAttackMontage); // 근접 공격 몽타주 재생	
@@ -141,14 +118,8 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 
 void AEliteMonster::PlayLongRangeAttackMontage() // 원거리 공격 몽타주 실행
 {
-<<<<<<< Updated upstream
 	if (!LongRangeAttackMontage || bIsDead) return; //몽타주가 없거나 죽은 상태일떄
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage))
-=======
-	if (!LongRangeAttackMontage || !IsCanThrowFireball()) return; //몽타주가 없거나 원거리 공격이 불가능할 때
 	if (!AnimInstance->Montage_IsPlaying(LongRangeAttackMontage) || !AnimInstance->Montage_IsPlaying(CloseAttackMontage)) // 원거리 공격 몽타주와 근거리 공격 몽타주가 재생 중이 아닐 때
->>>>>>> Stashed changes
 	{
 		AnimInstance->Montage_Play(LongRangeAttackMontage);
 	}
@@ -166,7 +137,10 @@ void AEliteMonster::SpawnFireball() { //파이어볼 생성
 	{
 		FVector SpawnLocation = GetMesh()->GetSocketLocation(FName("FireballSpawn")); // 파이어볼 스폰 위치(소켓 위치)
 		FRotator SpawnRotation = FRotator::ZeroRotator; // 방향X
-		SpawnedFireball = GetWorld()->SpawnActor<AFireballActor>(FireballClass, SpawnLocation, SpawnRotation); //해당위치에 파이어볼 생성
+		FActorSpawnParameters Params;
+		Params.Owner = this;
+		Params.Instigator = this; // 파이어볼 생성 시 소유자와 인스티게이터 설정
+		SpawnedFireball = GetWorld()->SpawnActor<AFireballActor>(FireballClass, SpawnLocation, SpawnRotation, Params); //해당위치에 파이어볼 생성
 		UE_LOG(LogTemp, Warning, TEXT("makeFireball"));
 		if (SpawnedFireball) {
 			SpawnedFireball->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "FireballSpawn");
