@@ -8,6 +8,20 @@ public class gsd2_unrealworld : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG",  "Slate", "SlateCore", "Niagara"});
+		PublicDependencyModuleNames.AddRange(new string[] { 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"EnhancedInput",
+			"Niagara",
+			"AIModule",
+			"GameplayTasks",
+			"NavigationSystem",
+			"UMG",
+			"Slate",
+			"SlateCore"
+		});
+
 	}
 }
