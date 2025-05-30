@@ -60,6 +60,18 @@ void APlayerCharacter::BeginPlay()
                 CrosshairWidget->AddToViewport();
         }
     }
+    if (GamePlayUIWidgetClass)
+    {
+        GamePlayUIWidget = CreateWidget<UGamePlayUI>(GetWorld(), GamePlayUIWidgetClass);
+        if (GamePlayUIWidget)
+        {
+
+            GamePlayUIWidget->SetHealth(CurrentHealth, MaxHealth);
+            GamePlayUIWidget->AddToViewport();
+            UE_LOG(LogTemp, Warning, TEXT("GamePlayUIWidget AddToViewport!"));
+
+        }
+    }
 }
 
 // Tick (카메라/에임 부드러운 보간)
@@ -522,6 +534,14 @@ void APlayerCharacter::AttachPendingPickup()
     PendingPickupMesh = nullptr;
     GetWorldTimerManager().ClearTimer(PickupTimerHandle);
 }
+void APlayerCharacter::UpdateHealthUI()
+{
+    if (GamePlayUIWidget)
+    {
+        FString Args = FString::Printf(TEXT("SetHealth %d %d"), (int)CurrentHealth, (int)MaxHealth);
+        GamePlayUIWidget->CallFunctionByNameWithArguments(*Args, *GLog, nullptr, true);
+    }
+}
 
 // 데미지 처리/사망
 float APlayerCharacter::TakeDamage(
@@ -531,20 +551,49 @@ float APlayerCharacter::TakeDamage(
     AActor* DamageCauser
 )
 {
-    if (bIsDead) return 0.0f;
-    if (bIsInvincible) return 0.0f;
-
-    float DamageApplied = FMath::Clamp(DamageAmount, 0.f, CurrentHealth);
-    CurrentHealth -= DamageApplied;
-    UE_LOG(LogTemp, Warning, TEXT("TakeDamage Damege: %.1f"), DamageAmount);
-    UE_LOG(LogTemp, Warning, TEXT("current health: %.1f → %.1f"), CurrentHealth + DamageAmount, CurrentHealth);
-    if (CurrentHealth <= 0.0f)
-    {
-        CurrentHealth = 0.0f;
-        Die();
-    }
-    return DamageApplied;
+    // 엔진이 호출하면 내부적으로 ReceiveDamage만 호출!
+    ReceiveDamage(DamageAmount);
+    return DamageAmount;
 }
+
+void APlayerCharacter::ReceiveDamage(float DamageAmount)
+{
+    // 이미 죽었거나 무적이면 무시
+    if (bIsDead) return;
+    if (bIsInvincible) return;
+
+    // 1. 체력 감소
+    CurrentHealth -= DamageAmount;
+    CurrentHealth = FMath::Clamp(CurrentHealth, 0.f, MaxHealth);
+
+    // 2. 디버그 출력 (필요 없으면 생략)
+    UE_LOG(LogTemp, Warning, TEXT("maxhp: %.1f, curhp: %.1f, receive: %.1f"),
+        MaxHealth, CurrentHealth, DamageAmount);
+    
+    // 3. UI 업데이트 (BP 쪽 SetHealth 함수 호출)
+    UGamePlayUI* TypedWidget = Cast<UGamePlayUI>(GamePlayUIWidget);
+    if (TypedWidget)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UGamePlayUI casting success! SetHealth called!"));
+        TypedWidget->SetHealth(CurrentHealth, MaxHealth);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("UGamePlayUI 캐스팅 실패!! (GamePlayUIWidget 부모 클래스 문제 or BP 꼬임)"));
+    }
+
+
+    // 4. (선택) 데미지 피격 애니메이션 등
+
+    // 5. 사망 처리
+    if (CurrentHealth <= 0.f)
+    {
+        CurrentHealth = 0.f;
+        Die();   // 사망 함수 호출
+    }
+}
+
+
 void APlayerCharacter::Die()
 {
     if (bIsDead) return;
@@ -578,4 +627,3 @@ void APlayerCharacter::PlayDashAnimation()
 {
     UE_LOG(LogTemp, Warning, TEXT("PlayDashAnimation called!"));
 }
-
