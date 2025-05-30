@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GamePlayUI.h"
 #include "Sound/SoundBase.h"
 #include "GameFramework/Character.h"
 #include "Blueprint/UserWidget.h"
@@ -50,6 +51,15 @@ public:
     TSubclassOf<UUserWidget> AmmoUIWidgetClass;
     UPROPERTY()
     UUserWidget* AmmoUIWidget;
+    UPROPERTY(EditDefaultsOnly, Category = UI)
+    TSubclassOf<UGamePlayUI> GamePlayUIWidgetClass; // 타입 명확히
+
+    UPROPERTY()
+    UGamePlayUI* GamePlayUIWidget = nullptr;        // 타입 명확히
+
+
+    UPROPERTY()
+    UUserWidget* HealthUIWidget;
 
     // ▼ 상호작용(물건집기) 몽타주
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
@@ -129,10 +139,13 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimMontage* DeathMontage;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
-    float CurrentHealth = 100.0f;
+    float CurrentHealth = 5.f;      // 기본값 예시
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
+    float MaxHealth = 5.f;
+
     UFUNCTION(BlueprintCallable, Category = "Life")
     void Die();
-
+    void UpdateHealthUI();
     UPROPERTY(BlueprintReadOnly, Category = "Dash")
     bool bIsDashing = false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dash")
@@ -175,7 +188,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
     USceneComponent* MuzzleLocation;
 
-    // ▼ 데미지 처리 오버라이드
+    UFUNCTION(BlueprintCallable, Category = "Life")
+    void ReceiveDamage(float DamageAmount);
+
     virtual float TakeDamage(
         float DamageAmount,
         struct FDamageEvent const& DamageEvent,
