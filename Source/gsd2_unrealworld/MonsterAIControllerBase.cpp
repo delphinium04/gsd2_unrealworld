@@ -325,7 +325,7 @@ void AMonsterAIControllerBase::ChasePlayerToAttack() {
 		return;
 	}
 
-	MoveToActor(TargetPlayer, 50.f, true);
+	MoveToActor(TargetPlayer, 100.f, true);
 }
 
 //몬스터 마다 override하여 사용

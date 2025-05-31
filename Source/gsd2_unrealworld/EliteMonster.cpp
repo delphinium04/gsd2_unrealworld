@@ -27,9 +27,7 @@ AEliteMonster::AEliteMonster() {
 	HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
 	HealthBarWidget->SetupAttachment(RootComponent); // 루트 컴포넌트에 부착(체력바가 몬스터를 따라다님)
 	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//크기를 월드 크기에 고정
-	HealthBarWidget->SetDrawSize(FVector2D(300.f, 30.f)); // 크기 설정
-	HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, 140.f)); // 위치 설정
-	HealthBarWidget->SetPivot(FVector2D(0.5f, 0.5f)); // 중앙에 위치
+	HealthBarWidget->InitWidget(); // 위젯 초기화
 }
 
 void AEliteMonster::BeginPlay() {
@@ -50,8 +48,9 @@ void AEliteMonster::UpdateHealthBar()
 		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
 		if (HealthUI)
 		{
-			float Percent = (MaxHealth > 0.f) ? (CurrentHealth / MaxHealth) : 0.f;
+			float Percent = (MaxHealth > 0.f) ? FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f) : 0.f; // 체력 비율 계산 (0~1 사이로 제한)
 			HealthUI->SetHealthPercent(Percent);
+			UE_LOG(LogTemp, Warning, TEXT("Health = %.1f / %.1f (%.2f%%)"), CurrentHealth, MaxHealth, (CurrentHealth / MaxHealth) * 100.f);
 		}
 	}
 }

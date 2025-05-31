@@ -25,7 +25,7 @@ void AMonsterBase::BeginPlay() {
 	PlayerCameraManager = PlayerController ? PlayerController->PlayerCameraManager : nullptr;
 	AnimInstance = GetMesh()->GetAnimInstance(); // 애니메이션 인스턴스 가져오기
 	AIController = Cast<AMonsterAIControllerBase>(GetController()); // AI 컨트롤러 가져오기
-	UpdateHealthBar(); // 체력바 위젯 업데이트
+	UpdateHealthBar(); // 체력바 위젯 초기화 업데이트
 }
 
 void AMonsterBase::Tick(float DeltaTime)
@@ -93,6 +93,7 @@ void AMonsterBase::ReceiveDamage(float DamageAmount)
 	}
 
 	CurrentHealth -= DamageAmount;
+	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth after damage: %f"), CurrentHealth);
 	UpdateHealthBar(); // 체력바 업데이트
 }
 
@@ -117,7 +118,7 @@ void AMonsterBase::MonsterBreakParts() //몬스터 산산조각 노티파이로 애니메이션에
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("upperarm_r", 1.0f);
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_l", 1.0f);
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_r", 1.0f);
-		// 튐방지..?(안됨)
+		// 튐방지..?
 		SkeletalMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 		SkeletalMesh->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
 

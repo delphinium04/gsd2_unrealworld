@@ -24,9 +24,7 @@ ANomalMonster::ANomalMonster()
 	HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
 	HealthBarWidget->SetupAttachment(RootComponent); // 루트 컴포넌트에 부착(체력바가 몬스터를 따라다님)
 	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//크기를 월드 크기에 고정
-	HealthBarWidget->SetDrawSize(FVector2D(200.f, 20.f)); // 크기 설정
-	HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, 120.f)); // 위치 설정
-	HealthBarWidget->SetPivot(FVector2D(0.38f, 0.5f)); // 중앙에 위치(원래는 0.5f, 0.5f여야 하지만...)
+	HealthBarWidget->InitWidget(); // 위젯 초기화
 }
 
 void ANomalMonster::BeginPlay()
