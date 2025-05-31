@@ -42,6 +42,7 @@ void AMonsterBase::Tick(float DeltaTime)
 	else{
 		UE_LOG(LogTemp, Warning, TEXT("HealthBarWidget is null!"));
 	}
+
 }
 
 void AMonsterBase::Die()

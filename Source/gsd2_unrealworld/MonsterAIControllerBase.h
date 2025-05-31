@@ -11,6 +11,8 @@
 #include "MonsterBase.h"
 #include "MonsterAIControllerBase.generated.h"
 
+class AMonsterBgmManager;
+
 UENUM(BlueprintType)
 enum class EMonsterState : uint8
 {
@@ -34,6 +36,12 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	void SetState(EMonsterState NewState); // 몬스터 상태 설정
+
+	//bgm
+	UPROPERTY()
+	class AMonsterBgmManager* BGMManager;
+
+	bool bWasTrackingPlayer = false; // 플레이어를 추적 중인지 여부
 
 	//이 세개는 엘리트 몬스터에서 사용하기 위해
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
