@@ -32,8 +32,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	float CloseRangeAttack; //근거리 공격 범위
 
+	virtual float GetCloseRangeAttackRange() const { return CloseRangeAttack; } // 근거리 공격 범위(자식마다 다른 값을 반환할 수 있도록 가상 함수로 선언)
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	float LongRangeAttack; //원거리 공격 범위
+
+	virtual float GetLongRangeAttackRange() const { return LongRangeAttack; } // 원거리 공격 범위(자식마다 다른 값을 반환할 수 있도록 가상 함수로 선언)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	float AttackCooldown = 2.0f; // 공격 쿨타임

@@ -31,7 +31,7 @@ void AFireballActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-    if (GetInstigator()) // 
+    if (GetInstigator()) // 발사한 몬스터랑 충돌 무시
     {
         Collision->IgnoreActorWhenMoving(GetInstigator(), true);
     }
