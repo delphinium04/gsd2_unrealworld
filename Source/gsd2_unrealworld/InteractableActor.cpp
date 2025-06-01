@@ -26,7 +26,7 @@ void AInteractableActor::Interact()
 	if (!bIsInteractable) return;
 
 	OnInteract();
-	if (bAutomaticBroadcastOnInteracted)
+	if (bAutomaticBroadcastOnInteracted)	
 		BroadcastOnInteracted();
 }
 
