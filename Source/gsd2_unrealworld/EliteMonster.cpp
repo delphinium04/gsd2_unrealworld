@@ -27,30 +27,16 @@ AEliteMonster::AEliteMonster() {
 	HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
 	HealthBarWidget->SetupAttachment(RootComponent); // 루트 컴포넌트에 부착(체력바가 몬스터를 따라다님)
 	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//크기를 월드 크기에 고정
-	HealthBarWidget->SetDrawSize(FVector2D(300.f, 30.f)); // 크기 설정
-	HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, 180.f)); // 위치 설정
-	HealthBarWidget->SetPivot(FVector2D(0.38f, 0.5f)); // 중앙에 위치(원래는 0.5f, 0.5f여야 하지만...)
+	HealthBarWidget->InitWidget(); // 위젯 초기화
 }
 
 void AEliteMonster::BeginPlay() {
 	Super::BeginPlay();
-	// 몬스터의 초기 상태 설정
-	CurrentHealth = MaxHealth; // 현재 체력 초기화
-	bIsDead = false; // 죽음 상태 초기화
-	PlayerCameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-	AIController = Cast<AMonsterAIControllerBase>(GetController());
 }
 
 void AEliteMonster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (PlayerCameraManager && HealthBarWidget) {
-		FVector CameraLocation = PlayerCameraManager->GetCameraLocation();
-		FRotator LookAtRotation = (CameraLocation - HealthBarWidget->GetComponentLocation()).Rotation();
-		LookAtRotation.Pitch = 0.f;
-		HealthBarWidget->SetWorldRotation(LookAtRotation);
-	}
 }
 
 void AEliteMonster::UpdateHealthBar()
@@ -62,21 +48,26 @@ void AEliteMonster::UpdateHealthBar()
 		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
 		if (HealthUI)
 		{
-			float Percent = (MaxHealth > 0.f) ? (CurrentHealth / MaxHealth) : 0.f;
+			float Percent = (MaxHealth > 0.f) ? FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f) : 0.f; // 체력 비율 계산 (0~1 사이로 제한)
 			HealthUI->SetHealthPercent(Percent);
+			UE_LOG(LogTemp, Warning, TEXT("Health = %.1f / %.1f (%.2f%%)"), CurrentHealth, MaxHealth, (CurrentHealth / MaxHealth) * 100.f);
 		}
 	}
 }
 
 void AEliteMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 {
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (!AnimInstance || !CloseAttackMontage)
+	if (!AnimInstance || AnimInstance->Montage_IsPlaying(CloseAttackMontage))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("No AnimInstance")); 
 		return;
 	}
 
-	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage)) //근접 공격이 실행하고 있지 않을 경우 
+	CurrentComboIndex = 1;
+
+	UE_LOG(LogTemp, Warning, TEXT("conbo Start!"));
+	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage) || !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) //근접 공격 또는 원거리 공격이 실행도고 있지 않을 경우 
+
 	{
 		AnimInstance->Montage_Play(CloseAttackMontage);
 		AnimInstance->Montage_JumpToSection(FName("Attack1"), CloseAttackMontage); // 몽타주의 Attack1 섹션으로 점프
@@ -91,7 +82,8 @@ void AEliteMonster::PlayCloseAttackMontage() // 근접 공격 몽타주 실행
 }
 
 void AEliteMonster::ContineueCloseAttackmontion() {
-	if (!AIController->TargetPlayer && AIController->DistanceToPlayer <= CloseRangeAttack) // 공격 범위를 벗어나거나 플레이어가 있지 않을 때
+
+	if (!AIController->TargetPlayer && AIController->DistanceToPlayer <= CloseRangeAttack) // 공격 범위를 벗어나거나 플레이어가 있지 않을 경우
 	{
 		CurrentComboIndex = 1;
 		return;
@@ -108,13 +100,13 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 	
 	FName SectionName = FName(*FString::Printf(TEXT("Attack%d"), CurrentComboIndex));
 	UE_LOG(LogTemp, Warning, TEXT("combo: %s"), *SectionName.ToString());
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
-	if (AnimInstance)
+	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) // 원거리 공격 몽타주가 재생 중이 아닐 때
 	{
-		AnimInstance->Montage_Play(CloseAttackMontage);
+		if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage)) {
+			AnimInstance->Montage_Play(CloseAttackMontage); // 근접 공격 몽타주 재생	
+		}
 		AnimInstance->Montage_JumpToSection(SectionName, CloseAttackMontage);
-
 		// 다음 콤보 예약
 		GetWorld()->GetTimerManager().SetTimer(
 			ComboTimerHandle,
@@ -128,8 +120,7 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 void AEliteMonster::PlayLongRangeAttackMontage() // 원거리 공격 몽타주 실행
 {
 	if (!LongRangeAttackMontage || bIsDead) return; //몽타주가 없거나 죽은 상태일떄
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage))
+	if (!AnimInstance->Montage_IsPlaying(LongRangeAttackMontage) || !AnimInstance->Montage_IsPlaying(CloseAttackMontage)) // 원거리 공격 몽타주와 근거리 공격 몽타주가 재생 중이 아닐 때
 	{
 		AnimInstance->Montage_Play(LongRangeAttackMontage);
 	}
@@ -147,7 +138,10 @@ void AEliteMonster::SpawnFireball() { //파이어볼 생성
 	{
 		FVector SpawnLocation = GetMesh()->GetSocketLocation(FName("FireballSpawn")); // 파이어볼 스폰 위치(소켓 위치)
 		FRotator SpawnRotation = FRotator::ZeroRotator; // 방향X
-		SpawnedFireball = GetWorld()->SpawnActor<AFireballActor>(FireballClass, SpawnLocation, SpawnRotation); //해당위치에 파이어볼 생성
+		FActorSpawnParameters Params;
+		Params.Owner = this;
+		Params.Instigator = this; // 파이어볼 생성 시 소유자와 인스티게이터 설정
+		SpawnedFireball = GetWorld()->SpawnActor<AFireballActor>(FireballClass, SpawnLocation, SpawnRotation, Params); //해당위치에 파이어볼 생성
 		UE_LOG(LogTemp, Warning, TEXT("makeFireball"));
 		if (SpawnedFireball) {
 			SpawnedFireball->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "FireballSpawn");
@@ -167,6 +161,14 @@ void AEliteMonster::ThrowFireball()
 {
 	if (SpawnedFireball)
 	{
+		if (!AIController || !AIController->TargetPlayer)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ThrowFireBall Fail"));
+			SpawnedFireball->Destroy();
+			SpawnedFireball = nullptr;
+			return;
+		}
+
 		SpawnedFireball->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		UE_LOG(LogTemp, Warning, TEXT("Fireball atteched"));
 		FVector FireballStart = SpawnedFireball->GetActorLocation();

@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "Animation/AnimMontage.h"
 #include "MonsterBase.generated.h"
-
+class AMonsterAIControllerBase;
 
 UCLASS()
 class GSD2_UNREALWORLD_API AMonsterBase : public ACharacter
@@ -15,7 +17,8 @@ class GSD2_UNREALWORLD_API AMonsterBase : public ACharacter
 
 public:
 	AMonsterBase();
-
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	//몬스터 상태 변수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	float MaxHealth; //최대 체력
@@ -38,6 +41,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	bool bIsDead = false; //죽음 상태(읽기 전용)
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	bool bCanCloseDealDamage = false; // 근접 공격 데미지 주기 가능 여부
+
 	//몬스터 애니메이션 변수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* DeathMontage; //죽음 애니메이션 몽타주
@@ -58,11 +64,30 @@ public:
 
 	virtual void UpdateHealthBar(); //체력바 업데이트 함수
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	APlayerController* PlayerController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	APlayerCameraManager* PlayerCameraManager;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+	UAnimInstance* AnimInstance; // 애니메이션 인스턴스
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	AMonsterAIControllerBase* AIController; // 몬스터 AI 컨트롤러
+
 	//기능 함수
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ReceiveDamage(float DamageAmount); // 공격 데미지 적용
 
 	UFUNCTION(BlueprintCallable)
 	void MonsterBreakParts(); // 몬스터 산산조각
+
+	virtual float TakeDamage(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		class AActor* DamageCauser
+	) override;
 
 };

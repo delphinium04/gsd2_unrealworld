@@ -15,9 +15,6 @@ class GSD2_UNREALWORLD_API AEliteMonster : public AMonsterBase
 {
 	GENERATED_BODY()
 private:
-	UPROPERTY()
-	APlayerCameraManager* PlayerCameraManager; // 플레이어 카메라 매니저
-
 	int32 CurrentComboIndex = 1; // 현재 콤보 인덱스
 	FTimerHandle ComboTimerHandle; // 콤보 타이머 핸들
 
@@ -34,7 +31,6 @@ public:
 	void ContineueCloseAttackmontion(); // 콤보 공격을 진행하는 함수
 
 	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override; // 시점 위치 조정
-	AMonsterAIControllerBase* AIController;
 
 	//fireball
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")

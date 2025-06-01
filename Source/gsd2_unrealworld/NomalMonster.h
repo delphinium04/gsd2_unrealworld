@@ -10,12 +10,6 @@ UCLASS()
 class GSD2_UNREALWORLD_API ANomalMonster : public AMonsterBase
 {
 	GENERATED_BODY()
-
-
-private:
-	UPROPERTY()
-	APlayerCameraManager* PlayerCameraManager; // 플레이어 카메라 매니저
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

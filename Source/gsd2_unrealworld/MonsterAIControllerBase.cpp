@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
+#include "MonsterBgmManager.h"
+
+class MonstgerBgmManager* BGMManager;
 
 AMonsterAIControllerBase::AMonsterAIControllerBase() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -134,6 +137,22 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 	case EMonsterState::Dead: // 죽음
 		break;
 	}
+
+	if (BGMManager)
+	{
+		const bool bIsTrackingPlayer = (TargetPlayer != nullptr || CurrentState == EMonsterState::Attacking || CurrentState == EMonsterState::Chasing);
+
+		if (bIsTrackingPlayer && !bWasTrackingPlayer)
+		{
+			bWasTrackingPlayer = true;
+			BGMManager->OnMonsterSensePlayer();
+		}
+		else if (!bIsTrackingPlayer && bWasTrackingPlayer)
+		{
+			bWasTrackingPlayer = false;
+			BGMManager->OnMonsterLosePlayer();
+		}
+	}
 }
 
 void AMonsterAIControllerBase::BeginPlay() {
@@ -142,6 +161,14 @@ void AMonsterAIControllerBase::BeginPlay() {
 	if (AIPerceptionComponent)
 	{
 		AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AMonsterAIControllerBase::OnTargetPerceptionUpdated);
+	}
+
+	// BGMManager 찾기
+	TArray<AActor*> FoundManagers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMonsterBgmManager::StaticClass(), FoundManagers);
+	if (FoundManagers.Num() > 0)
+	{
+		BGMManager = Cast<AMonsterBgmManager>(FoundManagers[0]);
 	}
 }
 
@@ -160,7 +187,7 @@ void AMonsterAIControllerBase::OnPossess(APawn* InPawn) {
 		{
 			PatrolOrigin = Projected.Location;
 			UE_LOG(LogTemp, Warning, TEXT("PatrolOrigin Success %s"), *PatrolOrigin.ToString());
-			SetState(EMonsterState::Dead);
+			SetState(EMonsterState::Patrolling);
 		}
 		else
 		{
@@ -217,6 +244,12 @@ void AMonsterAIControllerBase::SetState(EMonsterState NewState) { // 몬스터 상태
 
 		AIPerceptionComponent->SetActive(false); // 감지 중지
 		AIPerceptionComponent->Deactivate();     // 완전 비활성화
+
+		if (BGMManager && bWasTrackingPlayer) // Bgm 매니저에게 몬스터가 죽었다고 알림
+		{
+			BGMManager->OnMonsterLosePlayer(); 
+			bWasTrackingPlayer = false;
+		}
 
 		ControlledMonster->Die(); // 몬스터 죽음 처리
 		break;
@@ -325,7 +358,7 @@ void AMonsterAIControllerBase::ChasePlayerToAttack() {
 		return;
 	}
 
-	MoveToActor(TargetPlayer, 50.f, true);
+	MoveToActor(TargetPlayer, 120.f, true);
 }
 
 //몬스터 마다 override하여 사용
