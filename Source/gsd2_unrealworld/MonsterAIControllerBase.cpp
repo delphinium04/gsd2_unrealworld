@@ -7,8 +7,8 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
 #include "MonsterBgmManager.h"
+#include "BossMonster.h"
 
-class MonstgerBgmManager* BGMManager;
 
 AMonsterAIControllerBase::AMonsterAIControllerBase() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -83,7 +83,7 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 		}
 		break;
 	case EMonsterState::Chasing: // 추적
-		if (DistanceToPlayer < ControlledMonster->LongRangeAttack)// 플레이어가 원거리 공격 범위(공격이 가능한 범위) 안에 들어있을 경우
+		if (DistanceToPlayer < ControlledMonster->GetLongRangeAttackRange())// 플레이어가 원거리 공격 범위(공격이 가능한 범위) 안에 들어있을 경우
 		{
 			SetState(EMonsterState::Attacking); 
 		}
@@ -94,7 +94,7 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 		break;
 
 	case EMonsterState::Attacking: // 공격
-		if (DistanceToPlayer >= ControlledMonster->LongRangeAttack) // 플레이어가 공격 범위 밖으로 나갔을 경우
+		if (DistanceToPlayer >= ControlledMonster->GetLongRangeAttackRange()) // 플레이어가 공격 범위 밖으로 나갔을 경우
 		{
 			SetState(EMonsterState::Chasing); // 플레이어를 추적 상태로 전환
 		}
@@ -133,8 +133,6 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 		TargetPlayer = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0); // 플레이어 캐릭터를 타겟으로 설정
 		SetState(EMonsterState::Chasing); // 플레이어를 추적 상태로 전환
 	
-		break;
-	case EMonsterState::Dead: // 죽음
 		break;
 	}
 
@@ -187,13 +185,25 @@ void AMonsterAIControllerBase::OnPossess(APawn* InPawn) {
 		{
 			PatrolOrigin = Projected.Location;
 			UE_LOG(LogTemp, Warning, TEXT("PatrolOrigin Success %s"), *PatrolOrigin.ToString());
-			SetState(EMonsterState::Patrolling);
+			if (ABossMonster * Boss= Cast<ABossMonster>(ControlledMonster)) // 몬스터가 보스 몬스터일 경우
+			{
+				Boss->PlayMontage(Boss->AppearMontage);
+				float Duration = Boss->AnimInstance->Montage_Play(Boss->AppearMontage); // 애니메이션 재생 시간 가져오기
+				GetWorld()->GetTimerManager().SetTimer(AppearDelayHandle, [this]() // 등장 애니메이션 이후 상태 변경
+					{
+						SetState(EMonsterState::Chasing);
+					}, Duration, false);
+			}
+			else {
+				UE_LOG(LogTemp, Warning, TEXT("Boss Cast Fail"));
+				SetState(EMonsterState::Patrolling);
+			}
 		}
 		else
 		{
 			UE_LOG(LogTemp, Error, TEXT("NavMesh Failed"));
 		}
-		}, 0.2f, false); // 0.2초 후에 실행(안하면 ProjectPointToNavigation 오류)
+	}, 0.2f, false); // 0.2초 후에 실행(안하면 ProjectPointToNavigation 오류)
 }
 
 void AMonsterAIControllerBase::SetState(EMonsterState NewState) { // 몬스터 상태 설정

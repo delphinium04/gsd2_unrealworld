@@ -34,8 +34,9 @@ class GSD2_UNREALWORLD_API AMonsterAIControllerBase : public AAIController
 public:
 	AMonsterAIControllerBase();
 	virtual void Tick(float DeltaSeconds) override;
-
-	void SetState(EMonsterState NewState); // 몬스터 상태 설정
+	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void SetState(EMonsterState NewState); // 몬스터 상태 설정
 
 	//bgm
 	UPROPERTY()
@@ -53,9 +54,6 @@ public:
 	void ChasePlayer();
 	void ChasePlayerToAttack();
 protected:
-	//시작
-	virtual void BeginPlay() override;
-	virtual void OnPossess(APawn* InPawn) override;
 
 	//상태 처리
 	void Patrol();                // 순찰 상태 처리
@@ -73,6 +71,7 @@ protected:
 	FTimerHandle FailedMoveHandle;
 	FTimerHandle NavDelayHandle;
 	FTimerHandle LastSeenMoveHandle;
+	FTimerHandle AppearDelayHandle;
 
 	// 상태 관련
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
