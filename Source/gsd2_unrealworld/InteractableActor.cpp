@@ -45,3 +45,13 @@ void AInteractableActor::BroadcastOnInteracted()
 	if (OnInteracted.IsBound())
 		OnInteracted.Broadcast(this);
 }
+
+void AInteractableActor::OnGrab_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s: OnGrab has not been overridden"), *GetActorNameOrLabel());
+}
+
+void AInteractableActor::OnGrabEnd_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s: OnGrabEnd has not been overridden"), *GetActorNameOrLabel());
+}

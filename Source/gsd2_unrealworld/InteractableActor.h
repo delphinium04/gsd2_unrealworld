@@ -40,6 +40,13 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnReset();
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnGrab();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnGrabEnd();
+
+
 public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteract, AInteractableActor*, Caller);
 	UPROPERTY(BlueprintAssignable)
