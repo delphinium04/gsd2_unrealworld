@@ -6,6 +6,7 @@
 #include "MonsterBase.h"
 #include "MonsterAIControllerBase.h"
 #include "Boss_Projectile.h"
+#include "MonsterHealthWidget.h"
 #include "BossMonster.generated.h"
 
 /**
@@ -27,6 +28,11 @@ public:
 	virtual float GetLongRangeAttackRange() const override { return LongRangeAttack; }
 
 	void PlayMontage(UAnimMontage* Montage); // 애니메이션 몽타주 재생
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UMonsterHealthWidget> BossHealthWidgetClass;
+
+	UMonsterHealthWidget* BossHealthUI = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* AppearMontage; // 보스 몬스터 등장 애니메이션

@@ -65,11 +65,9 @@ void APlayerCharacter::BeginPlay()
         GamePlayUIWidget = CreateWidget<UGamePlayUI>(GetWorld(), GamePlayUIWidgetClass);
         if (GamePlayUIWidget)
         {
-
             GamePlayUIWidget->SetHealth(CurrentHealth, MaxHealth);
             GamePlayUIWidget->AddToViewport();
             UE_LOG(LogTemp, Warning, TEXT("GamePlayUIWidget AddToViewport!"));
-
         }
     }
 }

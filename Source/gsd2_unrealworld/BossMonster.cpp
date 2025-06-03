@@ -26,13 +26,15 @@ ABossMonster::ABossMonster() {
 
 void ABossMonster::BeginPlay() {
 	Super::BeginPlay();
-	if (!AppearMontage)
+
+	if (BossHealthWidgetClass)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[BossMonster]AppearMontage NULL"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[BossMonster]  AppearMontage"));
+		BossHealthUI = CreateWidget<UMonsterHealthWidget>(GetWorld(), BossHealthWidgetClass);
+		if (BossHealthUI)
+		{
+			BossHealthUI->AddToViewport();
+			BossHealthUI->SetHealthPercent(1.0f);
+		}
 	}
 }
 
@@ -50,22 +52,15 @@ void ABossMonster::Tick(float DeltaTime)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Failed to project world location to screen!"));
 		}
-
 	}
 	
 }
 void ABossMonster::UpdateHealthBar()
 {
-	Super::UpdateHealthBar();
-
-	if (HealthBarWidget && HealthBarWidget->GetUserWidgetObject())
+	if (BossHealthUI)
 	{
-		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
-		if (HealthUI)
-		{
-			float Percent = (MaxHealth > 0.f) ? (CurrentHealth / MaxHealth) : 0.f;
-			HealthUI->SetHealthPercent(Percent);
-		}
+		float Percent = (MaxHealth > 0.f) ? (CurrentHealth / MaxHealth) : 0.f;
+		BossHealthUI->SetHealthPercent(Percent);
 	}
 }
 
