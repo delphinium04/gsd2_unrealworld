@@ -34,15 +34,30 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* TeleportMontage; // 보스 몬스터 텔레포트 애니메이션
 
+	//텔레포트 관련 이펙트
+	UPROPERTY(EditAnywhere, Category = "Teleport")
+	UParticleSystem* TeleportOutEffect;
+
+	UPROPERTY(EditAnywhere, Category = "Teleport")
+	UParticleSystem* TeleportInEffect;
+
+	UFUNCTION(BlueprintCallable, Category = "Teleport")
+	void TeleportToPlayer(); // 플레이어에게 텔레포트
+
+	UPROPERTY(EditAnywhere, Category = "Teleport") // 텔레포트 관련 변수들
+	float MinTeleportDistance = 1000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Teleport")
+	float MaxTeleportDistance = 1500.f;
 	//Attack1
 	//Attack1의 몽타주는 MonsterBase에서 상속받아 사용
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
 	TSubclassOf<ABoss_Projectile> Attack1Projectile; // Attack1에 사용될 발사체 클래스
 
 	UPROPERTY()
-	ABoss_Projectile* SpawnedAttack1Projectile; // 충전된 Attack1 발사체
+	TArray<ABoss_Projectile*> SpawnedAttack1Projectiles;; // 충전된 Attack1 발사체들
 
-	void SpawnAttack1Projectile(); // Attack1 발사체 생성
+	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void ShootAttack1Projectile(); // Attack1 발사체 발사
 
 	//Attack2
@@ -50,13 +65,36 @@ public:
 	UAnimMontage* LongRangeAttackMontage2;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	TSubclassOf<ABoss_Projectile> Attack2prophecy; // Attack1에 사용될 발사체 클래스
+	UParticleSystem* Attack2ProphecyEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	TSubclassOf<ABoss_Projectile> Attack2Apply; // Attack1에 사용될 발사체 클래스
+	UParticleSystem* Attack2Apply; // Attack1에 사용될 파티클	이펙트 클래스
 
-	void prophecyAttack2(); // Attack2 예언
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	UMaterialInterface* Attack2Material; // Attack2 예언 이펙트에 사용될 머티리얼
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void Attack2Doing(); //노티파이로 부를 함수
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void ProphecyAttack2(); // Attack2 예언
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void ApplyAttack2(); // Attack2 적용
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	int32 NumProphecies = 5; // 예언 이펙트 개수
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float MinRadius = 300.f; // 예언 이펙트 최소 반경
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float MaxRadius = 500.f; //예언 이펙트 최대 반경
+
+	UPROPERTY()
+	TArray<FVector> ProphecyPositions; // 예언 이펙트 위치들
+
+	FTimerHandle AttackEffectTimerHandle; // Attack2 공격 적용 타이머 핸들
 
 	//Attack3
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
@@ -68,7 +106,10 @@ public:
 	UPROPERTY()
 	ABoss_Projectile* SpawnedAttack3Projectile; // 충전된 Attack1 발사체
 
+	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void SpawnAttack3Projectile(); // Attack3 발사체 생성
+	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void ShootAttack3Projectile(); // Attack1 발사체 발사
 
+	
 };

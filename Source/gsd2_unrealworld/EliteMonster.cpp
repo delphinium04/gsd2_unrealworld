@@ -145,7 +145,7 @@ void AEliteMonster::SpawnFireball() { //파이어볼 생성
 		UE_LOG(LogTemp, Warning, TEXT("makeFireball"));
 		if (SpawnedFireball) {
 			SpawnedFireball->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "FireballSpawn");
-			UE_LOG(LogTemp, Warning, TEXT("makeFireball fail"));
+			UE_LOG(LogTemp, Warning, TEXT("makeFireball Success"));
 		}
 	}
 	else {

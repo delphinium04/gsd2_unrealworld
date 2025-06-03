@@ -39,7 +39,7 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (!ControlledMonster) return;
+	if (!ControlledMonster || Cast<ABossMonster>(ControlledMonster)) return; // 몬스터가 없거나 보스 몬스터인 경우 처리하지 않음
 
 	//몬스터의 시야 위치를 확인하고 싶을때
 	/*FVector EyesLoc;
@@ -89,7 +89,12 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 		}
 		else
 		{
-			ChasePlayer(); // 플레이어 추적
+			if (Cast<ABossMonster>(ControlledMonster)) {
+				ChasePlayerToAttack();
+			}
+			else {
+				ChasePlayer();
+			}
 		}
 		break;
 
@@ -156,8 +161,8 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 void AMonsterAIControllerBase::BeginPlay() {
 	Super::BeginPlay();
 	// AI Perception 이벤트 바인딩
-	if (AIPerceptionComponent)
-	{
+	if (AIPerceptionComponent && !Cast<ABossMonster>(GetPawn()))
+	{ // 보스 몬스터가 아닌 경우에만 이벤트 바인딩
 		AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AMonsterAIControllerBase::OnTargetPerceptionUpdated);
 	}
 
@@ -368,7 +373,14 @@ void AMonsterAIControllerBase::ChasePlayerToAttack() {
 		return;
 	}
 
-	MoveToActor(TargetPlayer, 120.f, true);
+	FAIMoveRequest MoveRequest;
+	MoveRequest.SetGoalActor(TargetPlayer);
+	MoveRequest.SetAcceptanceRadius(120.f);
+
+	FNavPathSharedPtr NavPath;
+	FPathFollowingRequestResult Result = MoveTo(MoveRequest, &NavPath);
+
+	UE_LOG(LogTemp, Warning, TEXT("MoveToActor result: %d"), (int32)Result.Code);
 }
 
 //몬스터 마다 override하여 사용

@@ -35,4 +35,7 @@ public:
 
 	float GetCooldownForAttackType(EAttackType Type); // 공격 타입에 따른 쿨타임 반환
 	EAttackType PickRandomAttackType(); // 랜덤 공격 타입 선택
+
+	void ChasePlayerToAttack() override; // 플레이어를 추적하여 공격 위치로 이동
+	FVector LastTargetLocation;
 };

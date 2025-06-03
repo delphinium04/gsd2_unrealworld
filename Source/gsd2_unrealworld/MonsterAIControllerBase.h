@@ -52,7 +52,7 @@ public:
 	float DistanceToPlayer; // 플레이어와의 거리
 
 	void ChasePlayer();
-	void ChasePlayerToAttack();
+	virtual void ChasePlayerToAttack();
 protected:
 
 	//상태 처리
