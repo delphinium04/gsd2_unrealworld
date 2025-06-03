@@ -16,5 +16,6 @@ public:
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Health")
     void SetHealth(float CurrentHealth, float MaxHealth);
 
-
+    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Health")
+    void SetBossHealthPercent(float Percent);
 };
