@@ -330,6 +330,7 @@ void ABossMonster::SpawnAttack3Projectile() // Attack3 발사체 생성
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Attack3Projectile is not set!"));
+		return;
 	}
 }
 

@@ -25,24 +25,16 @@ public:
 	void ShootProjectile(); //Attack3 발사체 발사할때 파티클 변경
 
 	virtual void BeginPlay() override;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-<<<<<<< Updated upstream
-	class USphereComponent* Collision;
-=======
 	class UCapsuleComponent* Collision;
->>>>>>> Stashed changes
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UProjectileMovementComponent* ProjectileMovement;
 
-<<<<<<< Updated upstream
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class UParticleSystemComponent* ProjectileEffect;
-=======
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class UParticleSystemComponent* ProjectileEffect;;
 
->>>>>>> Stashed changes
 
 };
