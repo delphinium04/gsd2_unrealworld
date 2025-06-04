@@ -22,10 +22,13 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "BGM")//	BGM 재생 사운드 에셋
-	USoundBase* AlertBGM;
+	USoundBase* MonsterFightBGM;
 
-	UPROPERTY()
-	UAudioComponent* BGMComponent; // BGM 재생 컴포넌트
+	UPROPERTY(BlueprintReadWrite, Category = "BGM")
+	UAudioComponent* MonsterFightBGMComponent; // BGM 재생 컴포넌트
+
+	UPROPERTY(BlueprintReadWrite, Category = "BGM")
+	UAudioComponent* StageBGMComponent; // StageBGM 컴포넌트
 
 	int32 NumMonstersSensingPlayer = 0; // 몬스터가 플레이어를 감지한 횟수
 
