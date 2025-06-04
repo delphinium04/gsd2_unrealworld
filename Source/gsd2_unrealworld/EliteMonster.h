@@ -26,8 +26,8 @@ protected:
 public:
 	AEliteMonster();
 	virtual void UpdateHealthBar();
-	virtual void PlayCloseAttackMontage(); // 근접 공격 몽타주 실행
-	virtual void  PlayLongRangeAttackMontage(); // 원거리 공격 몽타주 실행
+	virtual void PlayCloseAttackMontage() override; // 근접 공격 몽타주 실행
+	virtual void  PlayLongRangeAttackMontage() override; // 원거리 공격 몽타주 실행
 	void ContineueCloseAttackmontion(); // 콤보 공격을 진행하는 함수
 
 	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override; // 시점 위치 조정

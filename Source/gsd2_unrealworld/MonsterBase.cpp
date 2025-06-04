@@ -63,7 +63,9 @@ void AMonsterBase::Die()
 	}
 
 	GetCharacterMovement()->DisableMovement(); //움직임 비활성화
-	HealthBarWidget->SetVisibility(false); // 체력바 숨김
+	if (HealthBarWidget) {
+		HealthBarWidget->SetVisibility(false); // 체력바 숨김
+	}
 	SetLifeSpan(5.0f); // 5초 후에 자동 삭제
 	
 }

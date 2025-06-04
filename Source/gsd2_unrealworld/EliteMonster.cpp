@@ -140,8 +140,9 @@ void AEliteMonster::SpawnFireball() { //파이어볼 생성
 		FRotator SpawnRotation = FRotator::ZeroRotator; // 방향X
 		FActorSpawnParameters Params;
 		Params.Owner = this;
-		Params.Instigator = this; // 파이어볼 생성 시 소유자와 인스티게이터 설정
+		Params.Instigator = Cast<APawn>(this); // 파이어볼 생성 시 소유자와 인스티게이터 설정
 		SpawnedFireball = GetWorld()->SpawnActor<AFireballActor>(FireballClass, SpawnLocation, SpawnRotation, Params); //해당위치에 파이어볼 생성
+		SpawnedFireball->SetOwner(this); // 파이어볼의 소유자를 현재 몬스터로 설정
 		UE_LOG(LogTemp, Warning, TEXT("makeFireball"));
 		if (SpawnedFireball) {
 			SpawnedFireball->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "FireballSpawn");

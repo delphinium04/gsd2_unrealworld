@@ -64,6 +64,18 @@ void ABossMonster::UpdateHealthBar()
 	}
 }
 
+void ABossMonster::Die() // 몬스터가 죽었을 때 호출되는 함수
+{
+	Super::Die();
+
+	if (BossHealthUI)
+	{
+		BossHealthUI->RemoveFromViewport(); // 체력바 위젯 제거
+		BossHealthUI = nullptr; // 포인터 초기화
+	}
+	SetLifeSpan(3.0f);
+}
+
 void ABossMonster::PlayMontage(UAnimMontage* Montage) // 애니메이션 몽타주 재생
 {
 	if (!Montage || !AnimInstance)
@@ -74,7 +86,7 @@ void ABossMonster::PlayMontage(UAnimMontage* Montage) // 애니메이션 몽타주 재생
 		return;
 	}
 
-
+	AIController->StopMovement(); // AI 컨트롤러의 이동 중지
 	if (!AnimInstance->Montage_IsPlaying(Montage))
 	{
 		AnimInstance->Montage_Play(Montage);
@@ -175,7 +187,7 @@ void ABossMonster::ShootAttack1Projectile()
 
 			FActorSpawnParameters Params;
 			Params.Owner = this;
-			Params.Instigator = this; // 발사체가 소유자와 인스티게이터로 설정됨
+			Params.Instigator = Cast<APawn>(this); // 발사체가 소유자와 인스티게이터로 설정됨
 
 			ABoss_Projectile* SpawnedAttack1Projectile = GetWorld()->SpawnActor<ABoss_Projectile>(Attack1Projectile, SpawnLocation, SpawnRotation, Params);
 

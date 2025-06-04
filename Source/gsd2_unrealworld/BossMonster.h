@@ -23,6 +23,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	void UpdateHealthBar() override;
+	void Die() override; // 몬스터가 죽었을 때 호출되는 함수
 
 	virtual float GetCloseRangeAttackRange() const override { return CloseRangeAttack; }
 	virtual float GetLongRangeAttackRange() const override { return LongRangeAttack; }

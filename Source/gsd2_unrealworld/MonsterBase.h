@@ -60,7 +60,7 @@ public:
 
 	virtual void PlayCloseAttackMontage(); //근거리 공격 애니메이션 재생 함수
 	virtual void PlayLongRangeAttackMontage(); //원거리 공격 애니메이션 재생 함수
-	void Die(); //죽음 
+	virtual void Die(); //죽음 
 
 	//몬스터 체력바 관련
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
