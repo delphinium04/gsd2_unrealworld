@@ -1,31 +1,31 @@
 
 #include "MonsterBase.h"
-#include "MonsterAIControllerBase.h" // ¸ó½ºÅÍ AI ÄÁÆ®·Ñ·¯
+#include "MonsterAIControllerBase.h" // ï¿½ï¿½ï¿½ï¿½ AI ï¿½ï¿½Æ®ï¿½Ñ·ï¿½
 #include "Components/CapsuleComponent.h"
-#include "Kismet/GameplayStatics.h" // ÇÃ·¹ÀÌ¾î ¾×ÅÍ, »ç¿îµå, ÀÌÆåÆ®
-#include "GameFramework/CharacterMovementComponent.h" // Ä³¸¯ÅÍ ÀÌµ¿ ÄÄÆ÷³ÍÆ®
-#include "PhysicsEngine/ConstraintInstance.h" // ¹°¸® Á¦¾à ÀÎ½ºÅÏ½º
+#include "Kismet/GameplayStatics.h" // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½Æ®
+#include "GameFramework/CharacterMovementComponent.h" // Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+#include "PhysicsEngine/ConstraintInstance.h" // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½
 
 AMonsterBase::AMonsterBase() {
-	GetCharacterMovement()->SetMovementMode(MOVE_Walking); // °È±â ¸ðµå
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking); // ï¿½È±ï¿½ ï¿½ï¿½ï¿½
 
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned; // AI ÀÚµ¿ ¼ÒÈ¯
-	AIControllerClass = AMonsterAIControllerBase::StaticClass(); // AIController Á÷Á¢ ÁöÁ¤
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned; // AI ï¿½Úµï¿½ ï¿½ï¿½È¯
+	AIControllerClass = AMonsterAIControllerBase::StaticClass(); // AIController ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	GetCapsuleComponent()->SetCanEverAffectNavigation(true); // NavMesh ¿µÇâ ¸í½Ã
+	GetCapsuleComponent()->SetCanEverAffectNavigation(true); // NavMesh ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 }
 void AMonsterBase::UpdateHealthBar() {};
 
 void AMonsterBase::BeginPlay() {
 	Super::BeginPlay();
-	// ¸ó½ºÅÍÀÇ ÃÊ±â »óÅÂ ¼³Á¤
-	CurrentHealth = MaxHealth; // ÇöÀç Ã¼·Â ÃÊ±âÈ­
-	bIsDead = false; // Á×À½ »óÅÂ ÃÊ±âÈ­
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	CurrentHealth = MaxHealth; // ï¿½ï¿½ï¿½ï¿½ Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­
+	bIsDead = false; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	PlayerCameraManager = PlayerController ? PlayerController->PlayerCameraManager : nullptr;
-	AnimInstance = GetMesh()->GetAnimInstance(); // ¾Ö´Ï¸ÞÀÌ¼Ç ÀÎ½ºÅÏ½º °¡Á®¿À±â
-	AIController = Cast<AMonsterAIControllerBase>(GetController()); // AI ÄÁÆ®·Ñ·¯ °¡Á®¿À±â
-	UpdateHealthBar(); // Ã¼·Â¹Ù À§Á¬ ÃÊ±âÈ­ ¾÷µ¥ÀÌÆ®
+	AnimInstance = GetMesh()->GetAnimInstance(); // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	AIController = Cast<AMonsterAIControllerBase>(GetController()); // AI ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	UpdateHealthBar(); // Ã¼ï¿½Â¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 }
 
 void AMonsterBase::Tick(float DeltaTime)
@@ -53,20 +53,21 @@ void AMonsterBase::Die()
 	UE_LOG(LogTemp, Warning, TEXT("Monster Die() Called: %s"), *GetName());
 	if (AnimInstance && DeathMontage)
 	{
-		AnimInstance->Montage_Play(DeathMontage); // Á×À½ ¾Ö´Ï¸ÞÀÌ¼Ç Àç»ý
+		AnimInstance->Montage_Play(DeathMontage); // ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½
 	}
 
 	if (AIController)
 	{
 		AIController->StopMovement();
-		AIController->UnPossess(); // AI ÄÁÆ®·Ñ·¯ ¶°³ª±â
+		AIController->UnPossess(); // AI ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 
-	GetCharacterMovement()->DisableMovement(); //¿òÁ÷ÀÓ ºñÈ°¼ºÈ­
+	GetCharacterMovement()->DisableMovement(); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­
+
 	if (HealthBarWidget) {
-		HealthBarWidget->SetVisibility(false); // Ã¼·Â¹Ù ¼û±è
+		HealthBarWidget->SetVisibility(false); // Ã¼ï¿½Â¹ï¿½ ï¿½ï¿½ï¿½ï¿½
 	}
-	SetLifeSpan(5.0f); // 5ÃÊ ÈÄ¿¡ ÀÚµ¿ »èÁ¦
+	SetLifeSpan(5.0f); // 5ï¿½ï¿½ ï¿½Ä¿ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½
 	
 }
 
@@ -76,20 +77,20 @@ float AMonsterBase::TakeDamage(float DamageAmount, const FDamageEvent& DamageEve
 	return DamageAmount;
 }
 
-// ¸ó½ºÅÍ°¡ ÇÇÇØ¸¦ ÀÔ¾úÀ» ¶§
+// ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½Ø¸ï¿½ ï¿½Ô¾ï¿½ï¿½ï¿½ ï¿½ï¿½
 void AMonsterBase::ReceiveDamage(float DamageAmount)
 {
 	if (bIsDead) return;
-	//AI ÄÁÆ®·Ñ·¯¿¡°Ô »óÅÂ Àü´Þ
+	//AI ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (AIController)
 	{
-		// Ã¼·ÂÀÌ 0 ÀÌÇÏ°¡ µÇ¸é Á×À½ »óÅÂ·Î ÀüÈ¯
+		// Ã¼ï¿½ï¿½ï¿½ï¿½ 0 ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½È¯
 		if (CurrentHealth - DamageAmount <= 0.f)
 		{
 			AIController->SetState(EMonsterState::Dead);
 			Die(); 
 		}
-		else //¾Æ´Ï¸é ÇÇÇØ¸¦ ÀÔ´Â Áß
+		else //ï¿½Æ´Ï¸ï¿½ ï¿½ï¿½ï¿½Ø¸ï¿½ ï¿½Ô´ï¿½ ï¿½ï¿½
 		{
 			AIController->SetState(EMonsterState::BeingHit);
 		}
@@ -97,10 +98,10 @@ void AMonsterBase::ReceiveDamage(float DamageAmount)
 
 	CurrentHealth -= DamageAmount;
 	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth after damage: %f"), CurrentHealth);
-	UpdateHealthBar(); // Ã¼·Â¹Ù ¾÷µ¥ÀÌÆ®
+	UpdateHealthBar(); // Ã¼ï¿½Â¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 }
 
-void AMonsterBase::MonsterBreakParts() //¸ó½ºÅÍ »ê»êÁ¶°¢ ³ëÆ¼ÆÄÀÌ·Î ¾Ö´Ï¸ÞÀÌ¼Ç¿¡¼­ È£Ãâ
+void AMonsterBase::MonsterBreakParts() //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½Ì·ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼Ç¿ï¿½ï¿½ï¿½ È£ï¿½ï¿½
 {
 	UE_LOG(LogTemp, Warning, TEXT("broken"));
 	if (USkeletalMeshComponent* SkeletalMesh = GetMesh())
@@ -108,7 +109,7 @@ void AMonsterBase::MonsterBreakParts() //¸ó½ºÅÍ »ê»êÁ¶°¢ ³ëÆ¼ÆÄÀÌ·Î ¾Ö´Ï¸ÞÀÌ¼Ç¿¡
 
 		SkeletalMesh->SetSimulatePhysics(false); 
 
-		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("pelvis", true, true); // »óÃ¼¸¸
+		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("pelvis", true, true); // ï¿½ï¿½Ã¼ï¿½ï¿½
 		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("upperarm_l", true, true);
 		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("upperarm_r", true, true);
 		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("thigh_l", true, true);
@@ -121,7 +122,7 @@ void AMonsterBase::MonsterBreakParts() //¸ó½ºÅÍ »ê»êÁ¶°¢ ³ëÆ¼ÆÄÀÌ·Î ¾Ö´Ï¸ÞÀÌ¼Ç¿¡
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("upperarm_r", 1.0f);
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_l", 1.0f);
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_r", 1.0f);
-		// Æ¦¹æÁö..?
+		// Æ¦ï¿½ï¿½ï¿½ï¿½..?
 		SkeletalMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 		SkeletalMesh->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
 

@@ -7,16 +7,16 @@
 
 ABoss_Projectile::ABoss_Projectile()
 {
-	// Root¸¦ CapsuleComponentÀ¸·Î ¼³Á¤
+	// Rootï¿½ï¿½ CapsuleComponentï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	Collision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision"));
 	RootComponent = Collision;
 	Collision->InitCapsuleSize(30.f, 30.f);
 
-	// FX ½Ã°¢ ÀÌÆåÆ®
+	// FX ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®
 	ProjectileEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ProjectileEffect"));
 	ProjectileEffect->SetupAttachment(RootComponent);
 
-	// ÀÌµ¿ ÄÄÆ÷³ÍÆ®
+	// ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->SetUpdatedComponent(RootComponent);
 }
@@ -25,11 +25,10 @@ void ABoss_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetInstigator()) // ¹ß»çÇÑ ¸ó½ºÅÍ¶û Ãæµ¹ ¹«½Ã
+	if (GetInstigator()) // ï¿½ß»ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¶ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½
 	{
 		Collision->IgnoreActorWhenMoving(GetInstigator(), true);
 	}
-	//´Ù¸¥ ¹ß»çÃ¼¶û Ãæµ¹ ¹«½Ã
 	for (TActorIterator<ABoss_Projectile> It(GetWorld()); It; ++It)
 	{
 		if (*It != this) 

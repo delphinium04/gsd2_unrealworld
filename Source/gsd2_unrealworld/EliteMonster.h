@@ -15,8 +15,8 @@ class GSD2_UNREALWORLD_API AEliteMonster : public AMonsterBase
 {
 	GENERATED_BODY()
 private:
-	int32 CurrentComboIndex = 1; // ÇöÀç ÄÞº¸ ÀÎµ¦½º
-	FTimerHandle ComboTimerHandle; // ÄÞº¸ Å¸ÀÌ¸Ó ÇÚµé
+	int32 CurrentComboIndex = 1; // ï¿½ï¿½ï¿½ï¿½ ï¿½Þºï¿½ ï¿½Îµï¿½ï¿½ï¿½
+	FTimerHandle ComboTimerHandle; // ï¿½Þºï¿½ Å¸ï¿½Ì¸ï¿½ ï¿½Úµï¿½
 
 protected:
 
@@ -26,24 +26,24 @@ protected:
 public:
 	AEliteMonster();
 	virtual void UpdateHealthBar();
-	virtual void PlayCloseAttackMontage() override; // ±ÙÁ¢ °ø°Ý ¸ùÅ¸ÁÖ ½ÇÇà
-	virtual void  PlayLongRangeAttackMontage() override; // ¿ø°Å¸® °ø°Ý ¸ùÅ¸ÁÖ ½ÇÇà
-	void ContineueCloseAttackmontion(); // ÄÞº¸ °ø°ÝÀ» ÁøÇàÇÏ´Â ÇÔ¼ö
+	virtual void PlayCloseAttackMontage() override; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	virtual void  PlayLongRangeAttackMontage() override; // ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	void ContineueCloseAttackmontion(); // ï¿½Þºï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 
-	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override; // ½ÃÁ¡ À§Ä¡ Á¶Á¤
+	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
 
-	virtual float GetCloseRangeAttackRange() const override { return CloseRangeAttack; } // ±Ù°Å¸® °ø°Ý ¹üÀ§ ¹ÝÈ¯
-	virtual float GetLongRangeAttackRange() const override { return LongRangeAttack; } // ¿ø°Å¸® °ø°Ý ¹üÀ§ ¹ÝÈ¯
+	virtual float GetCloseRangeAttackRange() const override { return CloseRangeAttack; } // ï¿½Ù°Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+	virtual float GetLongRangeAttackRange() const override { return LongRangeAttack; } // ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
 	//fireball
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	TSubclassOf<AFireballActor> FireballClass; // ¿ø°Å¸® °ø°Ý¿¡ »ç¿ëµÉ ÆÄÀÌ¾îº¼ Å¬·¡½º
+	TSubclassOf<AFireballActor> FireballClass; // ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½Ý¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾îº¼ Å¬ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY()
-	AFireballActor* SpawnedFireball; // ÃæÀüµÈ ÆÄÀÌ¾îº¼
+	AFireballActor* SpawnedFireball; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾îº¼
 
-	//ÆÄÀÌ¾îº¼ ¹ß»ç °ü·Ã
+	//ï¿½ï¿½ï¿½Ì¾îº¼ ï¿½ß»ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UFUNCTION(BlueprintCallable, Category = "Fireball")
-	void SpawnFireball(); // ÆÄÀÌ¾îº¼ »ý¼º
+	void SpawnFireball(); // ï¿½ï¿½ï¿½Ì¾îº¼ ï¿½ï¿½ï¿½ï¿½
 	UFUNCTION(BlueprintCallable, Category = "Fireball")
-	void ThrowFireball(); // ÆÄÀÌ¾îº¼ ¹ß»ç
+	void ThrowFireball(); // ï¿½ï¿½ï¿½Ì¾îº¼ ï¿½ß»ï¿½
 };

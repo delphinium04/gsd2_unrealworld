@@ -14,7 +14,7 @@ protected:
 	class UStaticMeshComponent* StaticMeshComponent;
 
 	// For player detection
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USphereComponent* SphereComponent;
 
 public:
@@ -23,14 +23,29 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Interact();
 
+	UFUNCTION(BlueprintCallable)
+	void Reset();
+
 protected:
 	virtual void BeginPlay() override;
 
+	// Called by Interact()
 	UFUNCTION(BlueprintNativeEvent)
 	void OnInteract();
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintProtected = "true"))
 	void BroadcastOnInteracted();
+
+	// Called by Reset();
+	UFUNCTION(BlueprintNativeEvent)
+	void OnReset();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnGrab();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnGrabEnd();
+
 
 public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteract, AInteractableActor*, Caller);

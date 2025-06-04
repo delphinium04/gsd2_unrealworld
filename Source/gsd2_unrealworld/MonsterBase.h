@@ -19,54 +19,53 @@ public:
 	AMonsterBase();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	//¸ó½ºÅÍ »óÅÂ º¯¼ö
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float MaxHealth; //ÃÖ´ë Ã¼·Â
+	float MaxHealth; //ï¿½Ö´ï¿½ Ã¼ï¿½ï¿½
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	float CurrentHealth; //ÇöÀç Ã¼·Â(ÀÐ±â	 Àü¿ë)
+	float CurrentHealth; //ï¿½ï¿½ï¿½ï¿½ Ã¼ï¿½ï¿½(ï¿½Ð±ï¿½	 ï¿½ï¿½ï¿½ï¿½)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float AttackDamage; // °ø°Ý·Â
+	float AttackDamage; // ï¿½ï¿½ï¿½Ý·ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float CloseRangeAttack; //±Ù°Å¸® °ø°Ý ¹üÀ§
+	float CloseRangeAttack; //ï¿½Ù°Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	virtual float GetCloseRangeAttackRange() const { return CloseRangeAttack; } // ±Ù°Å¸® °ø°Ý ¹üÀ§(ÀÚ½Ä¸¶´Ù ´Ù¸¥ °ªÀ» ¹ÝÈ¯ÇÒ ¼ö ÀÖµµ·Ï °¡»ó ÇÔ¼ö·Î ¼±¾ð)
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float LongRangeAttack; //¿ø°Å¸® °ø°Ý ¹üÀ§
-
-	virtual float GetLongRangeAttackRange() const { return LongRangeAttack; } // ¿ø°Å¸® °ø°Ý ¹üÀ§(ÀÚ½Ä¸¶´Ù ´Ù¸¥ °ªÀ» ¹ÝÈ¯ÇÒ ¼ö ÀÖµµ·Ï °¡»ó ÇÔ¼ö·Î ¼±¾ð)
+	virtual float GetCloseRangeAttackRange() const { return CloseRangeAttack; } // ï¿½Ù°Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½Ú½Ä¸ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ ï¿½Öµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float AttackCooldown = 2.0f; // °ø°Ý ÄðÅ¸ÀÓ
+	float LongRangeAttack; //ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+
+	virtual float GetLongRangeAttackRange() const { return LongRangeAttack; } // ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½Ú½Ä¸ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ ï¿½Öµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	float AttackCooldown = 2.0f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	bool bIsDead = false; //Á×À½ »óÅÂ(ÀÐ±â Àü¿ë)
+	bool bIsDead = false; //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½Ð±ï¿½ ï¿½ï¿½ï¿½ï¿½)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	bool bCanCloseDealDamage = false; // ±ÙÁ¢ °ø°Ý µ¥¹ÌÁö ÁÖ±â °¡´É ¿©ºÎ
+	bool bCanCloseDealDamage = false; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	//¸ó½ºÅÍ ¾Ö´Ï¸ÞÀÌ¼Ç º¯¼ö
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimMontage* DeathMontage; //Á×À½ ¾Ö´Ï¸ÞÀÌ¼Ç ¸ùÅ¸ÁÖ
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimMontage* CloseAttackMontage; //°ø°Ý ¾Ö´Ï¸ÞÀÌ¼Ç ¸ùÅ¸ÁÖ
+	UAnimMontage* DeathMontage; //ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimMontage* LongRangeAttackMontage; //Á×À½ ¾Ö´Ï¸ÞÀÌ¼Ç ¸ùÅ¸ÁÖ
+	UAnimMontage* CloseAttackMontage; //ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½
 
-	virtual void PlayCloseAttackMontage(); //±Ù°Å¸® °ø°Ý ¾Ö´Ï¸ÞÀÌ¼Ç Àç»ý ÇÔ¼ö
-	virtual void PlayLongRangeAttackMontage(); //¿ø°Å¸® °ø°Ý ¾Ö´Ï¸ÞÀÌ¼Ç Àç»ý ÇÔ¼ö
-	virtual void Die(); //Á×À½ 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimMontage* LongRangeAttackMontage; //ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½
 
-	//¸ó½ºÅÍ Ã¼·Â¹Ù °ü·Ã
+	virtual void PlayCloseAttackMontage(); //ï¿½Ù°Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
+	virtual void PlayLongRangeAttackMontage(); //ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
+	virtual void Die(); //ï¿½ï¿½ï¿½ï¿½ 
+	//ï¿½ï¿½ï¿½ï¿½ Ã¼ï¿½Â¹ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
-	UWidgetComponent* HealthBarWidget; //Ã¼·Â¹Ù À§Á¬ ÄÄÆ÷³ÍÆ®
+	UWidgetComponent* HealthBarWidget; //Ã¼ï¿½Â¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 
-	virtual void UpdateHealthBar(); //Ã¼·Â¹Ù ¾÷µ¥ÀÌÆ® ÇÔ¼ö
+	virtual void UpdateHealthBar(); //Ã¼ï¿½Â¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ô¼ï¿½
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	APlayerController* PlayerController;
@@ -75,17 +74,17 @@ public:
 	APlayerCameraManager* PlayerCameraManager;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
-	UAnimInstance* AnimInstance; // ¾Ö´Ï¸ÞÀÌ¼Ç ÀÎ½ºÅÏ½º
+	UAnimInstance* AnimInstance; // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	AMonsterAIControllerBase* AIController; // ¸ó½ºÅÍ AI ÄÁÆ®·Ñ·¯
+	AMonsterAIControllerBase* AIController; // ï¿½ï¿½ï¿½ï¿½ AI ï¿½ï¿½Æ®ï¿½Ñ·ï¿½
 
-	//±â´É ÇÔ¼ö
+	//ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void ReceiveDamage(float DamageAmount); // °ø°Ý µ¥¹ÌÁö Àû¿ë
+	void ReceiveDamage(float DamageAmount); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	UFUNCTION(BlueprintCallable)
-	void MonsterBreakParts(); // ¸ó½ºÅÍ »ê»êÁ¶°¢
+	void MonsterBreakParts(); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	virtual float TakeDamage(
 		float DamageAmount,

@@ -22,7 +22,7 @@ public:
 	FVector InitialDirection;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void ShootProjectile(); //Attack3 ¹ß»çÃ¼ ¹ß»çÇÒ¶§ ÆÄÆ¼Å¬ º¯°æ
+	void ShootProjectile(); //Attack3 ï¿½ß»ï¿½Ã¼ ï¿½ß»ï¿½ï¿½Ò¶ï¿½ ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½ï¿½ï¿½
 
 	virtual void BeginPlay() override;
 
@@ -35,6 +35,4 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class UParticleSystemComponent* ProjectileEffect;;
-
-
 };

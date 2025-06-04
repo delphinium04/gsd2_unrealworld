@@ -12,8 +12,7 @@ class GSD2_UNREALWORLD_API UGamePlayUI : public UUserWidget
 {
     GENERATED_BODY()
 public:
-    // BP¿¡¼­ ¹Ýµå½Ã ±¸ÇöÇÒ ÀÌº¥Æ® ÇÔ¼ö!
+    // BPï¿½ï¿½ï¿½ï¿½ ï¿½Ýµï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½Ô¼ï¿½!
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Health")
     void SetHealth(float CurrentHealth, float MaxHealth);
-
 };

@@ -2,32 +2,32 @@
 
 
 #include "EliteMonster.h"
-#include "Kismet/GameplayStatics.h" // ÇÃ·¹ÀÌ¾î ¾×ÅÍ, »ç¿îµå, ÀÌÆåÆ®
+#include "Kismet/GameplayStatics.h" // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½Æ®
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Animation/AnimInstance.h" // ¾Ö´Ï¸ÞÀÌ¼Ç ÀÎ½ºÅÏ½º
-#include "MonsterHealthWidget.h" // ¸ó½ºÅÍ Ã¼·Â À§Á¬
+#include "Animation/AnimInstance.h" // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½
+#include "MonsterHealthWidget.h" // ï¿½ï¿½ï¿½ï¿½ Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AEliteMonster::AEliteMonster() {
 
 	PrimaryActorTick.bCanEverTick = true;
-	// ¸ó½ºÅÍÀÇ ±âº» ¼Ó¼º ¼³Á¤
-	GetCharacterMovement()->NavAgentProps.AgentRadius = 80.f; // ¸ó½ºÅÍÀÇ ¹ÝÁö¸§
-	GetCharacterMovement()->NavAgentProps.AgentHeight = 350.f; // ¸ó½ºÅÍÀÇ ³ôÀÌ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½
+	GetCharacterMovement()->NavAgentProps.AgentRadius = 80.f; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	GetCharacterMovement()->NavAgentProps.AgentHeight = 350.f; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	MaxHealth = 30.f; // ÃÖ´ë Ã¼·Â
-	AttackDamage = 3.f; // °ø°Ý·Â
-	CloseRangeAttack = 300.f; // ±Ù°Å¸® °ø°Ý ¹üÀ§
-	LongRangeAttack = 1000.f; // ¿ø°Å¸® °ø°Ý ¹üÀ§
-	AttackCooldown = 1.0f; // °ø°Ý ÄðÅ¸ÀÓ
-	GetCharacterMovement()->MaxWalkSpeed = 200.f; // °È´Â ¼Óµµ ¼³Á¤
-	PlayerCameraManager = nullptr; // ÇÃ·¹ÀÌ¾î Ä«¸Þ¶ó ¸Å´ÏÀú ÃÊ±âÈ­
+	MaxHealth = 30.f; // ï¿½Ö´ï¿½ Ã¼ï¿½ï¿½
+	AttackDamage = 3.f; // ï¿½ï¿½ï¿½Ý·ï¿½
+	CloseRangeAttack = 300.f; // ï¿½Ù°Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	LongRangeAttack = 1000.f; // ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	AttackCooldown = 1.0f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½
+	GetCharacterMovement()->MaxWalkSpeed = 200.f; // ï¿½È´ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
+	PlayerCameraManager = nullptr; // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 
-	//¸ó½ºÅÍ Ã¼·Â¹Ù À§Á¬ »ý¼º
+	//ï¿½ï¿½ï¿½ï¿½ Ã¼ï¿½Â¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
-	HealthBarWidget->SetupAttachment(RootComponent); // ·çÆ® ÄÄÆ÷³ÍÆ®¿¡ ºÎÂø(Ã¼·Â¹Ù°¡ ¸ó½ºÅÍ¸¦ µû¶ó´Ù´Ô)
-	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//Å©±â¸¦ ¿ùµå Å©±â¿¡ °íÁ¤
-	HealthBarWidget->InitWidget(); // À§Á¬ ÃÊ±âÈ­
+	HealthBarWidget->SetupAttachment(RootComponent); // ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(Ã¼ï¿½Â¹Ù°ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ù´ï¿½)
+	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//Å©ï¿½â¸¦ ï¿½ï¿½ï¿½ï¿½ Å©ï¿½â¿¡ ï¿½ï¿½ï¿½ï¿½
+	HealthBarWidget->InitWidget(); // ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 }
 
 void AEliteMonster::BeginPlay() {
@@ -48,14 +48,14 @@ void AEliteMonster::UpdateHealthBar()
 		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
 		if (HealthUI)
 		{
-			float Percent = (MaxHealth > 0.f) ? FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f) : 0.f; // Ã¼·Â ºñÀ² °è»ê (0~1 »çÀÌ·Î Á¦ÇÑ)
+			float Percent = (MaxHealth > 0.f) ? FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f) : 0.f; // Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ (0~1 ï¿½ï¿½ï¿½Ì·ï¿½ ï¿½ï¿½ï¿½ï¿½)
 			HealthUI->SetHealthPercent(Percent);
 			UE_LOG(LogTemp, Warning, TEXT("Health = %.1f / %.1f (%.2f%%)"), CurrentHealth, MaxHealth, (CurrentHealth / MaxHealth) * 100.f);
 		}
 	}
 }
 
-void AEliteMonster::PlayCloseAttackMontage() // ±ÙÁ¢ °ø°Ý ¸ùÅ¸ÁÖ ½ÇÇà
+void AEliteMonster::PlayCloseAttackMontage() // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 {
 	if (!AnimInstance || AnimInstance->Montage_IsPlaying(CloseAttackMontage))
 	{
@@ -66,13 +66,13 @@ void AEliteMonster::PlayCloseAttackMontage() // ±ÙÁ¢ °ø°Ý ¸ùÅ¸ÁÖ ½ÇÇà
 	CurrentComboIndex = 1;
 
 	UE_LOG(LogTemp, Warning, TEXT("conbo Start!"));
-	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage) || !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) //±ÙÁ¢ °ø°Ý ¶Ç´Â ¿ø°Å¸® °ø°ÝÀÌ ½ÇÇàµµ°í ÀÖÁö ¾ÊÀ» °æ¿ì 
+	if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage) || !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½àµµï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ 
 
 	{
 		AnimInstance->Montage_Play(CloseAttackMontage);
-		AnimInstance->Montage_JumpToSection(FName("Attack1"), CloseAttackMontage); // ¸ùÅ¸ÁÖÀÇ Attack1 ¼½¼ÇÀ¸·Î Á¡ÇÁ
+		AnimInstance->Montage_JumpToSection(FName("Attack1"), CloseAttackMontage); // ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ Attack1 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-		GetWorld()->GetTimerManager().SetTimer( // ´ÙÀ½ ÄÞº¸ ¿¹¾à
+		GetWorld()->GetTimerManager().SetTimer( // ï¿½ï¿½ï¿½ï¿½ ï¿½Þºï¿½ ï¿½ï¿½ï¿½ï¿½
 			ComboTimerHandle,
 			this,
 			&AEliteMonster::ContineueCloseAttackmontion,
@@ -83,7 +83,7 @@ void AEliteMonster::PlayCloseAttackMontage() // ±ÙÁ¢ °ø°Ý ¸ùÅ¸ÁÖ ½ÇÇà
 
 void AEliteMonster::ContineueCloseAttackmontion() {
 
-	if (!AIController->TargetPlayer && AIController->DistanceToPlayer <= CloseRangeAttack) // °ø°Ý ¹üÀ§¸¦ ¹þ¾î³ª°Å³ª ÇÃ·¹ÀÌ¾î°¡ ÀÖÁö ¾ÊÀ» °æ¿ì
+	if (!AIController->TargetPlayer && AIController->DistanceToPlayer <= CloseRangeAttack) // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½î³ªï¿½Å³ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î°¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	{
 		CurrentComboIndex = 1;
 		return;
@@ -91,7 +91,7 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 
 	++CurrentComboIndex;
 
-	if (CurrentComboIndex > 4) // ÄÞº¸ ÀÎµ¦½º°¡ 4¸¦ ÃÊ°úÇÏ¸é ÃÊ±âÈ­
+	if (CurrentComboIndex > 4) // ï¿½Þºï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ 4ï¿½ï¿½ ï¿½Ê°ï¿½ï¿½Ï¸ï¿½ ï¿½Ê±ï¿½È­
 	{
 		CurrentComboIndex = 1;
 		return;
@@ -101,13 +101,13 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 	FName SectionName = FName(*FString::Printf(TEXT("Attack%d"), CurrentComboIndex));
 	UE_LOG(LogTemp, Warning, TEXT("combo: %s"), *SectionName.ToString());
 
-	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) // ¿ø°Å¸® °ø°Ý ¸ùÅ¸ÁÖ°¡ Àç»ý ÁßÀÌ ¾Æ´Ò ¶§
+	if (AnimInstance && !AnimInstance->Montage_IsPlaying(LongRangeAttackMontage)) // ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½Ö°ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½
 	{
 		if (!AnimInstance->Montage_IsPlaying(CloseAttackMontage)) {
-			AnimInstance->Montage_Play(CloseAttackMontage); // ±ÙÁ¢ °ø°Ý ¸ùÅ¸ÁÖ Àç»ý	
+			AnimInstance->Montage_Play(CloseAttackMontage); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½	
 		}
 		AnimInstance->Montage_JumpToSection(SectionName, CloseAttackMontage);
-		// ´ÙÀ½ ÄÞº¸ ¿¹¾à
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½Þºï¿½ ï¿½ï¿½ï¿½ï¿½
 		GetWorld()->GetTimerManager().SetTimer(
 			ComboTimerHandle,
 			this,
@@ -117,10 +117,10 @@ void AEliteMonster::ContineueCloseAttackmontion() {
 	}
 }
 
-void AEliteMonster::PlayLongRangeAttackMontage() // ¿ø°Å¸® °ø°Ý ¸ùÅ¸ÁÖ ½ÇÇà
+void AEliteMonster::PlayLongRangeAttackMontage() // ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 {
-	if (!LongRangeAttackMontage || bIsDead) return; //¸ùÅ¸ÁÖ°¡ ¾ø°Å³ª Á×Àº »óÅÂÀÏ‹š
-	if (!AnimInstance->Montage_IsPlaying(LongRangeAttackMontage) || !AnimInstance->Montage_IsPlaying(CloseAttackMontage)) // ¿ø°Å¸® °ø°Ý ¸ùÅ¸ÁÖ¿Í ±Ù°Å¸® °ø°Ý ¸ùÅ¸ÁÖ°¡ Àç»ý ÁßÀÌ ¾Æ´Ò ¶§
+	if (!LongRangeAttackMontage || bIsDead) return; //ï¿½ï¿½Å¸ï¿½Ö°ï¿½ ï¿½ï¿½ï¿½Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï‹ï¿½
+	if (!AnimInstance->Montage_IsPlaying(LongRangeAttackMontage) || !AnimInstance->Montage_IsPlaying(CloseAttackMontage)) // ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½Ö¿ï¿½ ï¿½Ù°Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½Ö°ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½
 	{
 		AnimInstance->Montage_Play(LongRangeAttackMontage);
 	}
@@ -128,21 +128,21 @@ void AEliteMonster::PlayLongRangeAttackMontage() // ¿ø°Å¸® °ø°Ý ¸ùÅ¸ÁÖ ½ÇÇà
 
 void AEliteMonster::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
 {
-	// ½Ã¾ß ±âÁØ À§Ä¡¸¦ ¾à°£ ¾Æ·¡·Î ¼³Á¤
+	// ï¿½Ã¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½à°£ ï¿½Æ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	OutLocation = GetActorLocation() + FVector(0.f, 0.f, 0.f);
 	OutRotation = GetActorRotation();
 }
 
-void AEliteMonster::SpawnFireball() { //ÆÄÀÌ¾îº¼ »ý¼º
-	if (FireballClass) // ÆÄÀÌ¾îº¼ Å¬·¡½º°¡ À¯È¿ÇÒ °æ¿ì
+void AEliteMonster::SpawnFireball() { //ï¿½ï¿½ï¿½Ì¾îº¼ ï¿½ï¿½ï¿½ï¿½
+	if (FireballClass) // ï¿½ï¿½ï¿½Ì¾îº¼ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¿ï¿½ï¿½ ï¿½ï¿½ï¿½
 	{
-		FVector SpawnLocation = GetMesh()->GetSocketLocation(FName("FireballSpawn")); // ÆÄÀÌ¾îº¼ ½ºÆù À§Ä¡(¼ÒÄÏ À§Ä¡)
-		FRotator SpawnRotation = FRotator::ZeroRotator; // ¹æÇâX
+		FVector SpawnLocation = GetMesh()->GetSocketLocation(FName("FireballSpawn")); // ï¿½ï¿½ï¿½Ì¾îº¼ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡(ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡)
+		FRotator SpawnRotation = FRotator::ZeroRotator; // ï¿½ï¿½ï¿½ï¿½X
 		FActorSpawnParameters Params;
 		Params.Owner = this;
-		Params.Instigator = Cast<APawn>(this); // ÆÄÀÌ¾îº¼ »ý¼º ½Ã ¼ÒÀ¯ÀÚ¿Í ÀÎ½ºÆ¼°ÔÀÌÅÍ ¼³Á¤
-		SpawnedFireball = GetWorld()->SpawnActor<AFireballActor>(FireballClass, SpawnLocation, SpawnRotation, Params); //ÇØ´çÀ§Ä¡¿¡ ÆÄÀÌ¾îº¼ »ý¼º
-		SpawnedFireball->SetOwner(this); // ÆÄÀÌ¾îº¼ÀÇ ¼ÒÀ¯ÀÚ¸¦ ÇöÀç ¸ó½ºÅÍ·Î ¼³Á¤
+		Params.Instigator = Cast<APawn>(this); // ï¿½ï¿½ï¿½Ì¾îº¼ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ ï¿½Î½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		SpawnedFireball = GetWorld()->SpawnActor<AFireballActor>(FireballClass, SpawnLocation, SpawnRotation, Params); //ï¿½Ø´ï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾îº¼ ï¿½ï¿½ï¿½ï¿½
+		SpawnedFireball->SetOwner(this); // ï¿½ï¿½ï¿½Ì¾îº¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½ï¿½
 		UE_LOG(LogTemp, Warning, TEXT("makeFireball"));
 		if (SpawnedFireball) {
 			SpawnedFireball->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "FireballSpawn");
@@ -150,7 +150,7 @@ void AEliteMonster::SpawnFireball() { //ÆÄÀÌ¾îº¼ »ý¼º
 		}
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("FireballClass is not set!")); // ÆÄÀÌ¾îº¼ Å¬·¡½º°¡ ¼³Á¤µÇÁö ¾Ê¾ÒÀ» ¶§ °æ°í ·Î±× Ãâ·Â
+		UE_LOG(LogTemp, Warning, TEXT("FireballClass is not set!")); // ï¿½ï¿½ï¿½Ì¾îº¼ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ ï¿½ï¿½ï¿½
 		if (SpawnedFireball) {
 			SpawnedFireball->Destroy();
 			SpawnedFireball = nullptr;
@@ -174,12 +174,12 @@ void AEliteMonster::ThrowFireball()
 		UE_LOG(LogTemp, Warning, TEXT("Fireball atteched"));
 		FVector FireballStart = SpawnedFireball->GetActorLocation();
 		FVector FireballTarget = AIController->TargetPlayer->GetActorLocation();
-		FVector Direction = (FireballTarget - FireballStart).GetSafeNormal(); // ÇÃ·¹ÀÌ¾î ¹æÇâ º¤ÅÍ °è»ê
+		FVector Direction = (FireballTarget - FireballStart).GetSafeNormal(); // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 		
-		Direction.Z += 0.15f; // ¾à°£ À§·Î ¹ß»ç
-		Direction = Direction.GetSafeNormal(); // º¸Á¤ ÈÄ ´Ù½Ã Á¤±ÔÈ­
+		Direction.Z += 0.15f; // ï¿½à°£ ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½
+		Direction = Direction.GetSafeNormal(); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½È­
 
-		if (UProjectileMovementComponent* Movement = SpawnedFireball->FindComponentByClass<UProjectileMovementComponent>()) //ProjectileMovementComponent¸¦ »ç¿ëÇØ ´øÁö±â
+		if (UProjectileMovementComponent* Movement = SpawnedFireball->FindComponentByClass<UProjectileMovementComponent>()) //ProjectileMovementComponentï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		{
 			Movement->Velocity = Direction * Movement->InitialSpeed;
 		}
@@ -188,6 +188,6 @@ void AEliteMonster::ThrowFireball()
 		UE_LOG(LogTemp, Warning, TEXT("Fireball cut"));
 	}
 	else{
-		UE_LOG(LogTemp, Warning, TEXT("SpawnedFireball is null!")); // ÆÄÀÌ¾îº¼ÀÌ »ý¼ºµÇÁö ¾Ê¾ÒÀ» ¶§ °æ°í ·Î±× Ãâ·Â
+		UE_LOG(LogTemp, Warning, TEXT("SpawnedFireball is null!")); // ï¿½ï¿½ï¿½Ì¾îº¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ ï¿½ï¿½ï¿½
 	}
 }

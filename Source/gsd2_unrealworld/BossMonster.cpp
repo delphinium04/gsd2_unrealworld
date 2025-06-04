@@ -4,24 +4,24 @@
 #include "BossMonster.h"
 #include "CoreMinimal.h"
 #include "NavigationSystem.h"
-#include "Kismet/GameplayStatics.h" // ÇÃ·¹ÀÌ¾î ¾×ÅÍ, »ç¿îµå, ÀÌÆåÆ®
+#include "Kismet/GameplayStatics.h" // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½Æ®
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Animation/AnimInstance.h" // ¾Ö´Ï¸ÞÀÌ¼Ç ÀÎ½ºÅÏ½º
-#include "MonsterHealthWidget.h" // ¸ó½ºÅÍ Ã¼·Â À§Á¬
+#include "Animation/AnimInstance.h" // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½
+#include "MonsterHealthWidget.h" // ï¿½ï¿½ï¿½ï¿½ Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 #include "GameFramework/ProjectileMovementComponent.h"
 
 ABossMonster::ABossMonster() {
 	PrimaryActorTick.bCanEverTick = true;
-	// ¸ó½ºÅÍÀÇ ±âº» ¼Ó¼º ¼³Á¤
-	GetCharacterMovement()->NavAgentProps.AgentRadius = 35.f; // ¸ó½ºÅÍÀÇ ¹ÝÁö¸§
-	GetCharacterMovement()->NavAgentProps.AgentHeight = 220.f; // ¸ó½ºÅÍÀÇ ³ôÀÌ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½
+	GetCharacterMovement()->NavAgentProps.AgentRadius = 35.f; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	GetCharacterMovement()->NavAgentProps.AgentHeight = 220.f; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	MaxHealth = 100.f; // ÃÖ´ë Ã¼·Â
-	AttackDamage = 10.f; // °ø°Ý·Â
-	CloseRangeAttack = 1500.f; // ±Ù°Å¸® °ø°Ý ¹üÀ§
-	LongRangeAttack = 1500.f; // ¿ø°Å¸® °ø°Ý ¹üÀ§
-	AttackCooldown = 1.0f; // °ø°Ý ÄðÅ¸ÀÓ
-	GetCharacterMovement()->MaxWalkSpeed = 400.f; // °È´Â ¼Óµµ ¼³Á¤
+	MaxHealth = 100.f; // ï¿½Ö´ï¿½ Ã¼ï¿½ï¿½
+	AttackDamage = 10.f; // ï¿½ï¿½ï¿½Ý·ï¿½
+	CloseRangeAttack = 1500.f; // ï¿½Ù°Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	LongRangeAttack = 1500.f; // ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	AttackCooldown = 1.0f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½
+	GetCharacterMovement()->MaxWalkSpeed = 400.f; // ï¿½È´ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
 }
 
 void ABossMonster::BeginPlay() {
@@ -40,20 +40,19 @@ void ABossMonster::BeginPlay() {
 
 void ABossMonster::Tick(float DeltaTime)
 {
-	//º¸½ºÀÇ Ã¼·Â¹Ù´Â ÇÃ·¹ÀÌ¾î Ä«¸Þ¶ó¿¡ À§¿¡ À§Ä¡ Á¶Á¤µÊ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼ï¿½Â¹Ù´ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (PlayerController && HealthBarWidget) {
-		FVector WorldLocation = GetActorLocation() + FVector(0.f, 0.f, 200.f); // ¸Ó¸® À§ ¿ÀÇÁ¼Â
+		FVector WorldLocation = GetActorLocation() + FVector(0.f, 0.f, 200.f); // ï¿½Ó¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		FVector2D ScreenPosition;
 		if (PlayerController->ProjectWorldLocationToScreen(WorldLocation, ScreenPosition))
 		{
-			HealthBarWidget->SetRelativeLocation(FVector(ScreenPosition.X, ScreenPosition.Y, 0.f)); // È­¸é À§Ä¡·Î ¼³Á¤
+			HealthBarWidget->SetRelativeLocation(FVector(ScreenPosition.X, ScreenPosition.Y, 0.f)); // È­ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Failed to project world location to screen!"));
 		}
 	}
-	
 }
 void ABossMonster::UpdateHealthBar()
 {
@@ -64,19 +63,19 @@ void ABossMonster::UpdateHealthBar()
 	}
 }
 
-void ABossMonster::Die() // ¸ó½ºÅÍ°¡ Á×¾úÀ» ¶§ È£ÃâµÇ´Â ÇÔ¼ö
+void ABossMonster::Die() // ï¿½ï¿½ï¿½Í°ï¿½ ï¿½×¾ï¿½ï¿½ï¿½ ï¿½ï¿½ È£ï¿½ï¿½Ç´ï¿½ ï¿½Ô¼ï¿½
 {
 	Super::Die();
 
 	if (BossHealthUI)
 	{
-		BossHealthUI->RemoveFromViewport(); // Ã¼·Â¹Ù À§Á¬ Á¦°Å
-		BossHealthUI = nullptr; // Æ÷ÀÎÅÍ ÃÊ±âÈ­
+		BossHealthUI->RemoveFromViewport(); // Ã¼ï¿½Â¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		BossHealthUI = nullptr; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 	}
 	SetLifeSpan(3.0f);
 }
 
-void ABossMonster::PlayMontage(UAnimMontage* Montage) // ¾Ö´Ï¸ÞÀÌ¼Ç ¸ùÅ¸ÁÖ Àç»ý
+void ABossMonster::PlayMontage(UAnimMontage* Montage) // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½
 {
 	if (!Montage || !AnimInstance)
 	{
@@ -86,7 +85,8 @@ void ABossMonster::PlayMontage(UAnimMontage* Montage) // ¾Ö´Ï¸ÞÀÌ¼Ç ¸ùÅ¸ÁÖ Àç»ý
 		return;
 	}
 
-	AIController->StopMovement(); // AI ÄÁÆ®·Ñ·¯ÀÇ ÀÌµ¿ ÁßÁö
+	AIController->StopMovement(); // AI ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
+
 	if (!AnimInstance->Montage_IsPlaying(Montage))
 	{
 		AnimInstance->Montage_Play(Montage);
@@ -111,17 +111,17 @@ void ABossMonster::TeleportToPlayer()
 	FVector PlayerLocation = AIController->TargetPlayer->GetActorLocation();
 	FNavLocation FinalLocation;
 	const int MaxTries = 15;
-	bool bFound = false; // Ã£¾Ò³ª ¸øÃ£¾Ò	³ª ¿©ºÎ
+	bool bFound = false; // Ã£ï¿½Ò³ï¿½ ï¿½ï¿½Ã£ï¿½ï¿½	ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	//ÃÖ¼Ò °Å¸® ÀÌ»ó ¸¸Á·ÇÏ´Â À§Ä¡ Ã£±â
+	//ï¿½Ö¼ï¿½ ï¿½Å¸ï¿½ ï¿½Ì»ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½Ä¡ Ã£ï¿½ï¿½
 	for (int i = 0; i < MaxTries; ++i)
 	{
 		FNavLocation TestLocation;
 
-		if (NavSys->GetRandomReachablePointInRadius(PlayerLocation, MaxTeleportDistance, TestLocation)) // ÃÖ´ë ¹üÀ§ ¾È¿¡ ÀÖ´Â ·£´ý Àå¼Ò °ª ¹Þ±â
+		if (NavSys->GetRandomReachablePointInRadius(PlayerLocation, MaxTeleportDistance, TestLocation)) // ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½È¿ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Þ±ï¿½
 		{
 			float Distance = FVector::Dist(PlayerLocation, TestLocation.Location);
-			if (Distance >= MinTeleportDistance)  // ±× °ªÀÌ ÃÖ¼Ò °Å¸® ÀÌ»óÀÏ¶§
+			if (Distance >= MinTeleportDistance)  // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ ï¿½Å¸ï¿½ ï¿½Ì»ï¿½ï¿½Ï¶ï¿½
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Try %d: Distance = %.1f"), i, Distance);
 				FinalLocation = TestLocation;
@@ -135,10 +135,10 @@ void ABossMonster::TeleportToPlayer()
 		}
 	}
 
-	// ÃÖ¼Ò °Å¸® ÀÌ»ó ¸¸Á·ÇÏ´Â À§Ä¡¸¦ Ã£Áö ¸øÇßÀ» ¶§
+	// ï¿½Ö¼ï¿½ ï¿½Å¸ï¿½ ï¿½Ì»ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 	if (!bFound)
 	{
-		// ÃÖ´ë ¹üÀ§ ³»¿¡¼­ ·£´ýÇÑ À§Ä¡¸¦ Ã£±â
+		// ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ Ã£ï¿½ï¿½
 		FNavLocation BackupLocation;
 		if (NavSys->GetRandomReachablePointInRadius(PlayerLocation, MaxTeleportDistance, BackupLocation))
 		{
@@ -172,22 +172,22 @@ void ABossMonster::ShootAttack1Projectile()
 	FVector Up = GetActorUpVector();
 
 	TArray<FVector> Directions;
-	Directions.Add((Right * -1.f + Up * 1.f).GetSafeNormal());  // ¿ÞÂÊ À§
-	Directions.Add((Right * -1.f).GetSafeNormal());             // ¿ÞÂÊ
-	Directions.Add((Right * 1.f + Up * 1.f).GetSafeNormal());   // ¿À¸¥ÂÊ À§
+	Directions.Add((Right * -1.f + Up * 1.f).GetSafeNormal());  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+	Directions.Add((Right * -1.f).GetSafeNormal());             // ï¿½ï¿½ï¿½ï¿½
+	Directions.Add((Right * 1.f + Up * 1.f).GetSafeNormal());   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 	Directions.Add((Right * 1.f).GetSafeNormal());
 
 	if (Attack1Projectile)
 	{
-		//½ºÆù ´Ü°è
+		//ï¿½ï¿½ï¿½ï¿½ ï¿½Ü°ï¿½
 		for (int32 i = 0; i < 4; ++i) {
-			FName SocketName = FName(*FString::Printf(TEXT("Attack1Spawn%d"), i + 1)); // Attack1Spawn1, Attack1Spawn2, Attack1Spawn3, Attack1Spawn4 ¼ÒÄÏ ÀÌ¸§ »ý¼º
+			FName SocketName = FName(*FString::Printf(TEXT("Attack1Spawn%d"), i + 1)); // Attack1Spawn1, Attack1Spawn2, Attack1Spawn3, Attack1Spawn4 ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 			FVector SpawnLocation = GetMesh()->GetSocketLocation(FName(SocketName));
-			FRotator SpawnRotation = FRotator::ZeroRotator; // ¼ÒÄÏÀÇ È¸Àü°ªÀ» »ç¿ëÇÏÁö ¾Ê°í ±âº» È¸Àü°ª »ç¿ë
+			FRotator SpawnRotation = FRotator::ZeroRotator; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°ï¿½ ï¿½âº» È¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 
 			FActorSpawnParameters Params;
 			Params.Owner = this;
-			Params.Instigator = Cast<APawn>(this); // ¹ß»çÃ¼°¡ ¼ÒÀ¯ÀÚ¿Í ÀÎ½ºÆ¼°ÔÀÌÅÍ·Î ¼³Á¤µÊ
+			Params.Instigator = Cast<APawn>(this); // ï¿½ß»ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ ï¿½Î½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 			ABoss_Projectile* SpawnedAttack1Projectile = GetWorld()->SpawnActor<ABoss_Projectile>(Attack1Projectile, SpawnLocation, SpawnRotation, Params);
 
@@ -199,7 +199,7 @@ void ABossMonster::ShootAttack1Projectile()
 				UE_LOG(LogTemp, Warning, TEXT("Failed to spawn Attack1Projectile %d"), i + 1);
 			}
 		}
-		// ¹ß»ç ´Ü°è
+		// ï¿½ß»ï¿½ ï¿½Ü°ï¿½
 		for (int32 i = 0; i < SpawnedAttack1Projectiles.Num(); ++i)
 		{
 			ABoss_Projectile* Projectile = SpawnedAttack1Projectiles[i];
@@ -227,16 +227,16 @@ void ABossMonster::ShootAttack1Projectile()
 	}
 }
 
-void ABossMonster::Attack2Doing() { // Attack2 ¸ó½ºÅÍ°¡ °ø°ÝÀ» ÇÏ´Â µ¿¾È ¸ØÃã
+void ABossMonster::Attack2Doing() { // Attack2 ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	SetActorHiddenInGame(true); // ¸ó½ºÅÍ¸¦ ¼û±è
-	SetActorEnableCollision(false); // ¸ó½ºÅÍÀÇ Ãæµ¹À» ºñÈ°¼ºÈ­
-	AnimInstance->Montage_Stop(0.0f); //¸ùÅ¸ÁÖ ¸ØÃß±â
-	ProphecyAttack2(); // ¿¹¾ð ÀÌÆåÆ® + °ø°Ý ½ÃÀÛ
+	SetActorHiddenInGame(true); // ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½
+	SetActorEnableCollision(false); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­
+	AnimInstance->Montage_Stop(0.0f); //ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ß±ï¿½
+	ProphecyAttack2(); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® + ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 }
 
-void ABossMonster::ProphecyAttack2() // Attack2 ¿¹¾ð
+void ABossMonster::ProphecyAttack2() // Attack2 ï¿½ï¿½ï¿½ï¿½
 {
 	if(!AIController || !AIController->TargetPlayer || !Attack2ProphecyEffect) return;
 
@@ -250,16 +250,16 @@ void ABossMonster::ProphecyAttack2() // Attack2 ¿¹¾ð
 		float Distance = FMath::RandRange(MinRadius, MaxRadius);
 
 		FVector Offset = FVector(FMath::Cos(FMath::DegreesToRadians(Angle)), FMath::Sin(FMath::DegreesToRadians(Angle)), 0.f) * Distance;
-		FVector SpawnLocation = PlayerLocation + Offset + FVector(0.f, 0.f, 10.f); // ¾à°£ ¶ç¿ì±â
+		FVector SpawnLocation = PlayerLocation + Offset + FVector(0.f, 0.f, 10.f); // ï¿½à°£ ï¿½ï¿½ï¿½ï¿½
 		ProphecyPositions.Add(SpawnLocation);
 
 		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(
 			GetWorld(),
 			Attack2Material,
-			FVector(150.f),                         // ÀÛ°Ô ½ÃÀÛ
+			FVector(150.f),                         // ï¿½Û°ï¿½ ï¿½ï¿½ï¿½ï¿½
 			SpawnLocation,
 			FRotator(-90.f, 0.f, 0.f),
-			2.0f                                   // ¼ö¸í
+			2.0f                                   // ï¿½ï¿½ï¿½ï¿½
 		);
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Attack2ProphecyEffect, SpawnLocation);
 	}
@@ -273,7 +273,7 @@ void ABossMonster::ProphecyAttack2() // Attack2 ¿¹¾ð
 	);
 }
 
-void ABossMonster::ApplyAttack2() // Attack2 Àû¿ë
+void ABossMonster::ApplyAttack2() // Attack2 ï¿½ï¿½ï¿½ï¿½
 {
 	for (const FVector& Location : ProphecyPositions)
 	{
@@ -282,10 +282,10 @@ void ABossMonster::ApplyAttack2() // Attack2 Àû¿ë
 		TArray<AActor*> IgnoredActors;
 		UGameplayStatics::ApplyRadialDamage(
 			GetWorld(),
-			30.0f,              // µ¥¹ÌÁö
+			30.0f,              // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			Location,
-			150.0f,             // ¹üÀ§
-			nullptr,            // µ¥¹ÌÁö Å¸ÀÔ
+			150.0f,             // ï¿½ï¿½ï¿½ï¿½
+			nullptr,            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½
 			IgnoredActors,
 			this,
 			GetController(),
@@ -301,15 +301,15 @@ void ABossMonster::ApplyAttack2() // Attack2 Àû¿ë
 	AnimInstance->Montage_JumpToSection("Attack2_End", LongRangeAttackMontage2);
 }
 
-void ABossMonster::SpawnAttack3Projectile() // Attack3 ¹ß»çÃ¼ »ý¼º
+void ABossMonster::SpawnAttack3Projectile() // Attack3 ï¿½ß»ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 {
 	if (Attack3Projectile) {
-		FVector SpawnLocation = GetMesh()->GetSocketLocation(FName("Attack3Spawn")); // Attack3Spawn ¼ÒÄÏ À§Ä¡
-		FRotator SpawnRotation = GetActorRotation(); // ¸ó½ºÅÍÀÇ È¸Àü°ª »ç¿ë
+		FVector SpawnLocation = GetMesh()->GetSocketLocation(FName("Attack3Spawn")); // Attack3Spawn ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
+		FRotator SpawnRotation = GetActorRotation(); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 
 		FActorSpawnParameters Params;
 		Params.Owner = this;
-		Params.Instigator = this; // ¹ß»çÃ¼°¡ ¼ÒÀ¯ÀÚ¿Í ÀÎ½ºÆ¼°ÔÀÌÅÍ·Î ¼³Á¤µÊ
+		Params.Instigator = this; // ï¿½ß»ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ ï¿½Î½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 		SpawnedAttack3Projectile = GetWorld()->SpawnActor<ABoss_Projectile>(Attack3Projectile, SpawnLocation, SpawnRotation, Params);
 		if (SpawnedAttack3Projectile)
@@ -341,13 +341,13 @@ void ABossMonster::SpawnAttack3Projectile() // Attack3 ¹ß»çÃ¼ »ý¼º
 	}
 }
 
-void ABossMonster::ShootAttack3Projectile() // Attack3 ¹ß»çÃ¼ ¹ß»ç
+void ABossMonster::ShootAttack3Projectile() // Attack3 ï¿½ß»ï¿½Ã¼ ï¿½ß»ï¿½
 {
 	SpawnedAttack3Projectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	if (ABoss_Projectile* Casted = Cast<ABoss_Projectile>(SpawnedAttack3Projectile))
 	{
-		Casted->ShootProjectile(); //ºí·çÇÁ¸°Æ®¿¡¼­ ¹ß»çÃ¼ ¹ß»ç ÆÄÆ¼Å¬ º¯°æ
+		Casted->ShootProjectile(); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½Ã¼ ï¿½ß»ï¿½ ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½ï¿½ï¿½
 	}
 
 
@@ -361,4 +361,3 @@ void ABossMonster::ShootAttack3Projectile() // Attack3 ¹ß»çÃ¼ ¹ß»ç
 		Movement->Activate();
 	}
 }
-

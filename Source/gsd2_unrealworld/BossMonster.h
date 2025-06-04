@@ -23,12 +23,13 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	void UpdateHealthBar() override;
-	void Die() override; // ¸ó½ºÅÍ°¡ Á×¾úÀ» ¶§ È£ÃâµÇ´Â ÇÔ¼ö
+	void Die() override; // ï¿½ï¿½ï¿½Í°ï¿½ ï¿½×¾ï¿½ï¿½ï¿½ ï¿½ï¿½ È£ï¿½ï¿½Ç´ï¿½ ï¿½Ô¼ï¿½
 
 	virtual float GetCloseRangeAttackRange() const override { return CloseRangeAttack; }
 	virtual float GetLongRangeAttackRange() const override { return LongRangeAttack; }
 
-	void PlayMontage(UAnimMontage* Montage); // ¾Ö´Ï¸ÞÀÌ¼Ç ¸ùÅ¸ÁÖ Àç»ý
+	void PlayMontage(UAnimMontage* Montage); // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½
+
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UMonsterHealthWidget> BossHealthWidgetClass;
@@ -36,12 +37,12 @@ public:
 	UMonsterHealthWidget* BossHealthUI = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimMontage* AppearMontage; // º¸½º ¸ó½ºÅÍ µîÀå ¾Ö´Ï¸ÞÀÌ¼Ç
+	UAnimMontage* AppearMontage; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimMontage* TeleportMontage; // º¸½º ¸ó½ºÅÍ ÅÚ·¹Æ÷Æ® ¾Ö´Ï¸ÞÀÌ¼Ç
+	UAnimMontage* TeleportMontage; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½ï¿½ï¿½Æ® ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½
 
-	//ÅÚ·¹Æ÷Æ® °ü·Ã ÀÌÆåÆ®
+	//ï¿½Ú·ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®
 	UPROPERTY(EditAnywhere, Category = "Teleport")
 	UParticleSystem* TeleportOutEffect;
 
@@ -49,74 +50,75 @@ public:
 	UParticleSystem* TeleportInEffect;
 
 	UFUNCTION(BlueprintCallable, Category = "Teleport")
-	void TeleportToPlayer(); // ÇÃ·¹ÀÌ¾î¿¡°Ô ÅÚ·¹Æ÷Æ®
+	void TeleportToPlayer(); // ï¿½Ã·ï¿½ï¿½Ì¾î¿¡ï¿½ï¿½ ï¿½Ú·ï¿½ï¿½ï¿½Æ®
 
-	UPROPERTY(EditAnywhere, Category = "Teleport") // ÅÚ·¹Æ÷Æ® °ü·Ã º¯¼öµé
+	UPROPERTY(EditAnywhere, Category = "Teleport") // ï¿½Ú·ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	float MinTeleportDistance = 1000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Teleport")
 	float MaxTeleportDistance = 1500.f;
 	//Attack1
-	//Attack1ÀÇ ¸ùÅ¸ÁÖ´Â MonsterBase¿¡¼­ »ó¼Ó¹Þ¾Æ »ç¿ë
+	//Attack1ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½Ö´ï¿½ MonsterBaseï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ó¹Þ¾ï¿½ ï¿½ï¿½ï¿½
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	TSubclassOf<ABoss_Projectile> Attack1Projectile; // Attack1¿¡ »ç¿ëµÉ ¹ß»çÃ¼ Å¬·¡½º
+	TSubclassOf<ABoss_Projectile> Attack1Projectile; // Attack1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½Ã¼ Å¬ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY()
-	TArray<ABoss_Projectile*> SpawnedAttack1Projectiles;; // ÃæÀüµÈ Attack1 ¹ß»çÃ¼µé
+	TArray<ABoss_Projectile*> SpawnedAttack1Projectiles;; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Attack1 ï¿½ß»ï¿½Ã¼ï¿½ï¿½
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void ShootAttack1Projectile(); // Attack1 ¹ß»çÃ¼ ¹ß»ç
+	void ShootAttack1Projectile(); // Attack1 ï¿½ß»ï¿½Ã¼ ï¿½ß»ï¿½
 
 	//Attack2
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* LongRangeAttackMontage2;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+
 	UParticleSystem* Attack2ProphecyEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	UParticleSystem* Attack2Apply; // Attack1¿¡ »ç¿ëµÉ ÆÄÆ¼Å¬	ÀÌÆåÆ® Å¬·¡½º
+	UParticleSystem* Attack2Apply; // Attack1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ¼Å¬	ï¿½ï¿½ï¿½ï¿½Æ® Å¬ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	UMaterialInterface* Attack2Material; // Attack2 ¿¹¾ð ÀÌÆåÆ®¿¡ »ç¿ëµÉ ¸ÓÆ¼¸®¾ó
+	UMaterialInterface* Attack2Material; // Attack2 ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void Attack2Doing(); //³ëÆ¼ÆÄÀÌ·Î ºÎ¸¦ ÇÔ¼ö
+	void Attack2Doing(); //ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½Ì·ï¿½ ï¿½Î¸ï¿½ ï¿½Ô¼ï¿½
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void ProphecyAttack2(); // Attack2 ¿¹¾ð
+	void ProphecyAttack2(); // Attack2 ï¿½ï¿½ï¿½ï¿½
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void ApplyAttack2(); // Attack2 Àû¿ë
+	void ApplyAttack2(); // Attack2 ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	int32 NumProphecies = 5; // ¿¹¾ð ÀÌÆåÆ® °³¼ö
+	int32 NumProphecies = 5; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	float MinRadius = 300.f; // ¿¹¾ð ÀÌÆåÆ® ÃÖ¼Ò ¹Ý°æ
+	float MinRadius = 300.f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ö¼ï¿½ ï¿½Ý°ï¿½
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	float MaxRadius = 500.f; //¿¹¾ð ÀÌÆåÆ® ÃÖ´ë ¹Ý°æ
+	float MaxRadius = 500.f; //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ö´ï¿½ ï¿½Ý°ï¿½
 
 	UPROPERTY()
-	TArray<FVector> ProphecyPositions; // ¿¹¾ð ÀÌÆåÆ® À§Ä¡µé
+	TArray<FVector> ProphecyPositions; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½Ä¡ï¿½ï¿½
 
-	FTimerHandle AttackEffectTimerHandle; // Attack2 °ø°Ý Àû¿ë Å¸ÀÌ¸Ó ÇÚµé
+	FTimerHandle AttackEffectTimerHandle; // Attack2 ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸ï¿½ ï¿½Úµï¿½
 
 	//Attack3
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* LongRangeAttackMontage3;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	TSubclassOf<ABoss_Projectile> Attack3Projectile; // Attack1¿¡ »ç¿ëµÉ ¹ß»çÃ¼ Å¬·¡½º
+	TSubclassOf<ABoss_Projectile> Attack3Projectile; // Attack1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½Ã¼ Å¬ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY()
-	ABoss_Projectile* SpawnedAttack3Projectile; // ÃæÀüµÈ Attack1 ¹ß»çÃ¼
+	ABoss_Projectile* SpawnedAttack3Projectile; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Attack1 ï¿½ß»ï¿½Ã¼
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void SpawnAttack3Projectile(); // Attack3 ¹ß»çÃ¼ »ý¼º
+	void SpawnAttack3Projectile(); // Attack3 ï¿½ß»ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void ShootAttack3Projectile(); // Attack1 ¹ß»çÃ¼ ¹ß»ç
+	void ShootAttack3Projectile(); // Attack1 ï¿½ß»ï¿½Ã¼ ï¿½ß»ï¿½
 
-	
+
 };

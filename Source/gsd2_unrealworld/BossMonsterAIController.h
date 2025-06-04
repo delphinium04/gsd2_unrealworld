@@ -7,7 +7,7 @@
 #include "BossMonster.h"
 #include "BossMonsterAIController.generated.h"
 
-UENUM(BlueprintType) // º¸½º ¸ó½ºÅÍÀÇ °ø°Ý Å¸ÀÔ
+UENUM(BlueprintType) // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½
 enum class EAttackType : uint8
 {
 	Attack1,
@@ -27,15 +27,16 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
-	void SetState(EMonsterState NewState) override; // ¸ó½ºÅÍ »óÅÂ ¼³Á¤
-	void Attack() override; //°ø°Ý ÇÔ¼ö ÀçÁ¤ÀÇ
+	void SetState(EMonsterState NewState) override; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	void Attack() override; //ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY()
-	ABossMonster* BossMonster = nullptr; // º¸½º ¸ó½ºÅÍ ÂüÁ¶
+	ABossMonster* BossMonster = nullptr; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	float GetCooldownForAttackType(EAttackType Type); // °ø°Ý Å¸ÀÔ¿¡ µû¸¥ ÄðÅ¸ÀÓ ¹ÝÈ¯
-	EAttackType PickRandomAttackType(); // ·£´ý °ø°Ý Å¸ÀÔ ¼±ÅÃ
-
-	void ChasePlayerToAttack() override; // ÇÃ·¹ÀÌ¾î¸¦ ÃßÀûÇÏ¿© °ø°Ý À§Ä¡·Î ÀÌµ¿
+	float GetCooldownForAttackType(EAttackType Type); // ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ô¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½È¯
+	EAttackType PickRandomAttackType(); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	
+	void ChasePlayerToAttack() override; // ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ìµï¿½
 	FVector LastTargetLocation;
+
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-//¸ðµç ¸ó½ºÅÍ AIÀÇ ±âº» Å¬·¡½º
+//ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ AIï¿½ï¿½ ï¿½âº» Å¬ï¿½ï¿½ï¿½ï¿½
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -36,35 +36,35 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
-	virtual void SetState(EMonsterState NewState); // ¸ó½ºÅÍ »óÅÂ ¼³Á¤
+	virtual void SetState(EMonsterState NewState); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	//bgm
 	UPROPERTY()
 	class AMonsterBgmManager* BGMManager;
 
-	bool bWasTrackingPlayer = false; // ÇÃ·¹ÀÌ¾î¸¦ ÃßÀû ÁßÀÎÁö ¿©ºÎ
+	bool bWasTrackingPlayer = false; // ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	//ÀÌ ¼¼°³´Â ¿¤¸®Æ® ¸ó½ºÅÍ¿¡¼­ »ç¿ëÇÏ±â À§ÇØ
+	//ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½Í¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	APawn* TargetPlayer; // Å¸°Ù ÇÃ·¹ÀÌ¾î
+	APawn* TargetPlayer; // Å¸ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	float DistanceToPlayer; // ÇÃ·¹ÀÌ¾î¿ÍÀÇ °Å¸®
+	float DistanceToPlayer; // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½
 
 	void ChasePlayer();
 	virtual void ChasePlayerToAttack();
 protected:
 
-	//»óÅÂ Ã³¸®
-	void Patrol();                // ¼øÂû »óÅÂ Ã³¸®
-	void ResetAttackCooldown();   // °ø°Ý ÄðÅ¸ÀÓ ÃÊ±âÈ­
-	virtual void Attack(); // °ø°Ý »óÅÂ Ã³¸®
+	//ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
+	void Patrol();                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
+	void ResetAttackCooldown();   // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½Ê±ï¿½È­
+	virtual void Attack(); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 
-	//°¨Áö Ã³¸®(AI Perception)
+	//ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½(AI Perception)
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
-	//°¢Á¾ Å¸ÀÌ¸Ó
+	//ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸ï¿½
 	FTimerHandle AttackDelayHandle;
 	FTimerHandle PatrolDelayHandle;
 	FTimerHandle DestroyTimerHandle;
@@ -73,45 +73,45 @@ protected:
 	FTimerHandle LastSeenMoveHandle;
 	FTimerHandle AppearDelayHandle;
 
-	// »óÅÂ °ü·Ã
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	EMonsterState CurrentState; // ¸ó½ºÅÍ »óÅÂ
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	AMonsterBase* ControlledMonster; // Á¶Á¾ÇÏ´Â ¸ó½ºÅÍ
+	EMonsterState CurrentState; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	FVector CurrentMoveTarget; // ÇöÀç ÀÌµ¿ ¸ñÇ¥ À§Ä¡
+	AMonsterBase* ControlledMonster; // ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	FVector CurrentMoveTarget; // ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½Ç¥ ï¿½ï¿½Ä¡
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	bool bCanAttack = true; // °ø°Ý °¡´É ¿©ºÎ
+	bool bCanAttack = true; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	//¼øÂû °ü·Ã
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	float PatrolDelay = 3.0f; // ¼øÂû µô·¹ÀÌ
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	float PatrolRadius = 500.f; //¼øÂû ¹Ý°æ
+	float PatrolDelay = 3.0f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	float DetectionDistance = 300.f; //Å½Áö °Å¸®(AI PerceptionÀ¸·Î °¨ÁöÇÏ´Â °Í¿¡ ½ÇÆÐÇÏ°í ³Ê¹« °¡±î¿ï¶§)
+	float PatrolRadius = 500.f; //ï¿½ï¿½ï¿½ï¿½ ï¿½Ý°ï¿½
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float DetectionDistance = 300.f; //Å½ï¿½ï¿½ ï¿½Å¸ï¿½(AI Perceptionï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Í¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Ê¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¶§)
 
 	UPROPERTY(EditAnywhere, Category = "AI")
-	FVector PatrolOrigin; // ¼øÂû ½ÃÀÛ À§Ä¡
+	FVector PatrolOrigin; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
 
-	// È¸Àü °ü·Ã
-	FRotator LookAroundStartRotation; // È¸Àü ½ÃÀÛ °¢µµ
-	float LookAroundElapsed = 0.f; // È¸Àü °æ°ú ½Ã°£
-	bool bIsLookingAround = false; // È¸Àü ÁßÀÎÁö ¿©ºÎ
+	// È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	FRotator LookAroundStartRotation; // È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	float LookAroundElapsed = 0.f; // È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
+	bool bIsLookingAround = false; // È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	// ³×ºñ°ÔÀÌ¼Ç °ü·Ã
+	// ï¿½×ºï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	UNavigationSystemV1* NavSys; // ³×ºñ°ÔÀÌ¼Ç ½Ã½ºÅÛ
+	UNavigationSystemV1* NavSys; // ï¿½×ºï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	bool bMoveFailedHandled = false; // ÀÌµ¿ ½ÇÆÐ Ã³¸® ¿©ºÎ
+	bool bMoveFailedHandled = false; // ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	// === AI Perception (½Ã¾ß °¨Áö) ===
+	// === AI Perception (ï¿½Ã¾ï¿½ ï¿½ï¿½ï¿½ï¿½) ===
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	UAIPerceptionComponent* AIPerceptionComponent;
 

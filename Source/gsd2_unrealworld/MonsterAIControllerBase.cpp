@@ -1,7 +1,7 @@
 #include "MonsterAIControllerBase.h"
 #include "CoreMinimal.h"
 #include "MonsterBase.h"
-#include "EngineUtils.h" // TActorIterator »ç¿ë
+#include "EngineUtils.h" // TActorIterator ï¿½ï¿½ï¿½
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "Navigation/PathFollowingComponent.h"
@@ -13,24 +13,24 @@
 AMonsterAIControllerBase::AMonsterAIControllerBase() {
 	PrimaryActorTick.bCanEverTick = true;
 
-	//AI Perception ÄÄÆ÷³ÍÆ® »ý¼º
+	//AI Perception ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComponent"));
 	SetPerceptionComponent(*AIPerceptionComponent);
 
-	//½Ã°¢ ÄÄÆ÷³ÍÆ® »ý¼º
+	//ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	//°¢ ¸ó½ºÅÍ AI Controller¿¡¼­ overrideÇÏ¿© »ç¿ë
-	SightConfig->SightRadius = 500.f; // ±âº» Å½Áö °Å¸®
-	SightConfig->LoseSightRadius = 1000.f; //ÇÃ·¹ÀÌ¾î¸¦ ³õÄ¡´Â °Å¸® 
-	SightConfig->PeripheralVisionAngleDegrees = 90.f; // ½Ã¾ß°¢(9090 180µµ)
-	SightConfig->AutoSuccessRangeFromLastSeenLocation = 300.f; //½Ã¾ß¿¡¼­ Àá±ñ ¹þ¾î³­ ÈÄ¿¡µµ °¨ÁöÇÏ´Â °Å¸®
+	//ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ AI Controllerï¿½ï¿½ï¿½ï¿½ overrideï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½
+	SightConfig->SightRadius = 500.f; // ï¿½âº» Å½ï¿½ï¿½ ï¿½Å¸ï¿½
+	SightConfig->LoseSightRadius = 1000.f; //ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Å¸ï¿½ 
+	SightConfig->PeripheralVisionAngleDegrees = 90.f; // ï¿½Ã¾ß°ï¿½(9090 180ï¿½ï¿½)
+	SightConfig->AutoSuccessRangeFromLastSeenLocation = 300.f; //ï¿½Ã¾ß¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½î³­ ï¿½Ä¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Å¸ï¿½
 
-	//Àû,¾Æ±º, Áß¸³ °¨Áö ¼³Á¤
+	//ï¿½ï¿½,ï¿½Æ±ï¿½, ï¿½ß¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 
-	//½Ã°¢À» °¨Áö ¹æ½ÄÀ¸·Î ¼³Á¤
+	//ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	AIPerceptionComponent->ConfigureSense(*SightConfig);
 	AIPerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
 }
@@ -39,21 +39,21 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (!ControlledMonster || Cast<ABossMonster>(ControlledMonster)) return; // ¸ó½ºÅÍ°¡ ¾ø°Å³ª º¸½º ¸ó½ºÅÍÀÎ °æ¿ì Ã³¸®ÇÏÁö ¾ÊÀ½
+	if (!ControlledMonster || Cast<ABossMonster>(ControlledMonster)) return; // ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	//¸ó½ºÅÍÀÇ ½Ã¾ß À§Ä¡¸¦ È®ÀÎÇÏ°í ½ÍÀ»¶§
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¾ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	/*FVector EyesLoc;
 	FRotator EyesRot;
 	GetActorEyesViewPoint(EyesLoc, EyesRot);
 	DrawDebugSphere(GetWorld(), EyesLoc, 30.f, 12, FColor::Red, false, 0.1f); */
 
-	//ÇÃ·¹ÀÌ¾î¿Í ¸ó½ºÅÍÀÇ °Å¸® °è»ê
+	//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½
 	DistanceToPlayer = TargetPlayer ? FVector::Dist(ControlledMonster->GetActorLocation(), TargetPlayer->GetActorLocation()) : MAX_flt;
 
-	//»óÅÂ¿¡ µû¶ó Çàµ¿ °áÁ¤
+	//ï¿½ï¿½ï¿½Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½àµ¿ ï¿½ï¿½ï¿½ï¿½
 	switch (CurrentState)
 	{
-	case EMonsterState::Moving: // ÀÌµ¿ÀÌ ¿Ï·á µÇ¾ú´ÂÁö È®ÀÎÀÌ ÇÊ¿äÇÒ ¶§
+	case EMonsterState::Moving: // ï¿½Ìµï¿½ï¿½ï¿½ ï¿½Ï·ï¿½ ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½
 		if (GetPathFollowingComponent()->GetStatus() == EPathFollowingStatus::Idle)
 		{
 			if (GetPathFollowingComponent()->DidMoveReachGoal())
@@ -76,14 +76,14 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 					[this]()
 					{
 						SetState(EMonsterState::Patrolling);
-						bMoveFailedHandled = false; // »óÅÂ ÁøÀÔ ÈÄ ¸®¼Â
+						bMoveFailedHandled = false; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 					},
 					3.0f, false);
 			}
 		}
 		break;
-	case EMonsterState::Chasing: // ÃßÀû
-		if (DistanceToPlayer < ControlledMonster->GetLongRangeAttackRange())// ÇÃ·¹ÀÌ¾î°¡ ¿ø°Å¸® °ø°Ý ¹üÀ§(°ø°ÝÀÌ °¡´ÉÇÑ ¹üÀ§) ¾È¿¡ µé¾îÀÖÀ» °æ¿ì
+	case EMonsterState::Chasing: // ï¿½ï¿½ï¿½ï¿½
+		if (DistanceToPlayer < ControlledMonster->GetLongRangeAttackRange())// ï¿½Ã·ï¿½ï¿½Ì¾î°¡ ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½) ï¿½È¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 		{
 			SetState(EMonsterState::Attacking); 
 		}
@@ -98,13 +98,13 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 		}
 		break;
 
-	case EMonsterState::Attacking: // °ø°Ý
-		if (DistanceToPlayer >= ControlledMonster->GetLongRangeAttackRange()) // ÇÃ·¹ÀÌ¾î°¡ °ø°Ý ¹üÀ§ ¹ÛÀ¸·Î ³ª°¬À» °æ¿ì
+	case EMonsterState::Attacking: // ï¿½ï¿½ï¿½ï¿½
+		if (DistanceToPlayer >= ControlledMonster->GetLongRangeAttackRange()) // ï¿½Ã·ï¿½ï¿½Ì¾î°¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 		{
-			SetState(EMonsterState::Chasing); // ÇÃ·¹ÀÌ¾î¸¦ ÃßÀû »óÅÂ·Î ÀüÈ¯
+			SetState(EMonsterState::Chasing); // ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½È¯
 		}
 		else {
-			Attack(); // °ø°Ý
+			Attack(); // ï¿½ï¿½ï¿½ï¿½
 		}
 		break;
 	case EMonsterState::LookingAround:
@@ -132,11 +132,11 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 		break;
 	case EMonsterState::BeingHit:
 
-		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); //¼øÂû·Î µ¹¾Æ°¡´Â Å¸ÀÌ¸Óµé ÇØÁ¦ 
+		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ°ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸Óµï¿½ ï¿½ï¿½ï¿½ï¿½ 
 		GetWorld()->GetTimerManager().ClearTimer(FailedMoveHandle);
 
-		TargetPlayer = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0); // ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ¸¦ Å¸°ÙÀ¸·Î ¼³Á¤
-		SetState(EMonsterState::Chasing); // ÇÃ·¹ÀÌ¾î¸¦ ÃßÀû »óÅÂ·Î ÀüÈ¯
+		TargetPlayer = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0); // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Ä³ï¿½ï¿½ï¿½Í¸ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		SetState(EMonsterState::Chasing); // ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½È¯
 	
 		break;
 	}
@@ -160,13 +160,13 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 
 void AMonsterAIControllerBase::BeginPlay() {
 	Super::BeginPlay();
-	// AI Perception ÀÌº¥Æ® ¹ÙÀÎµù
+	// AI Perception ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½Îµï¿½
 	if (AIPerceptionComponent && !Cast<ABossMonster>(GetPawn()))
-	{ // º¸½º ¸ó½ºÅÍ°¡ ¾Æ´Ñ °æ¿ì¿¡¸¸ ÀÌº¥Æ® ¹ÙÀÎµù
+	{ // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í°ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½Îµï¿½
 		AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AMonsterAIControllerBase::OnTargetPerceptionUpdated);
 	}
 
-	// BGMManager Ã£±â
+	// BGMManager Ã£ï¿½ï¿½
 	TArray<AActor*> FoundManagers;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMonsterBgmManager::StaticClass(), FoundManagers);
 	if (FoundManagers.Num() > 0)
@@ -177,24 +177,24 @@ void AMonsterAIControllerBase::BeginPlay() {
 
 void AMonsterAIControllerBase::OnPossess(APawn* InPawn) {
 	Super::OnPossess(InPawn);
-	ControlledMonster = Cast<AMonsterBase>(InPawn); //¸ó½ºÅÍ Ä³½ºÆÃ
+	ControlledMonster = Cast<AMonsterBase>(InPawn); //ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½
 	NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 	if (!ControlledMonster || !NavSys) return;
 
 	GetWorld()->GetTimerManager().SetTimer(NavDelayHandle, [this]() {
 
-		PatrolOrigin = ControlledMonster->GetActorLocation(); //¼øÂû ½ÃÀÛ À§Ä¡´Â ¸ó½ºÅÍ ½ºÆù À§Ä¡
+		PatrolOrigin = ControlledMonster->GetActorLocation(); //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
 		FNavLocation Projected;
-		// ¸ó½ºÅÍÀÇ ¼øÂû À§Ä¡¸¦ ³×ºñ°ÔÀÌ¼Ç ¸Þ½¬¿¡ ¸Â°Ô Á¶Á¤
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½×ºï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½
 		if (NavSys->ProjectPointToNavigation(PatrolOrigin, Projected, FVector(300.f, 300.f, 1000.f)))
 		{
 			PatrolOrigin = Projected.Location;
 			UE_LOG(LogTemp, Warning, TEXT("PatrolOrigin Success %s"), *PatrolOrigin.ToString());
-			if (ABossMonster * Boss= Cast<ABossMonster>(ControlledMonster)) // ¸ó½ºÅÍ°¡ º¸½º ¸ó½ºÅÍÀÏ °æ¿ì
+			if (ABossMonster * Boss= Cast<ABossMonster>(ControlledMonster)) // ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 			{
 				Boss->PlayMontage(Boss->AppearMontage);
-				float Duration = Boss->AnimInstance->Montage_Play(Boss->AppearMontage); // ¾Ö´Ï¸ÞÀÌ¼Ç Àç»ý ½Ã°£ °¡Á®¿À±â
-				GetWorld()->GetTimerManager().SetTimer(AppearDelayHandle, [this]() // µîÀå ¾Ö´Ï¸ÞÀÌ¼Ç ÀÌÈÄ »óÅÂ º¯°æ
+				float Duration = Boss->AnimInstance->Montage_Play(Boss->AppearMontage); // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+				GetWorld()->GetTimerManager().SetTimer(AppearDelayHandle, [this]() // ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 					{
 						SetState(EMonsterState::Chasing);
 					}, Duration, false);
@@ -208,28 +208,28 @@ void AMonsterAIControllerBase::OnPossess(APawn* InPawn) {
 		{
 			UE_LOG(LogTemp, Error, TEXT("NavMesh Failed"));
 		}
-	}, 0.2f, false); // 0.2ÃÊ ÈÄ¿¡ ½ÇÇà(¾ÈÇÏ¸é ProjectPointToNavigation ¿À·ù)
+	}, 0.2f, false); // 0.2ï¿½ï¿½ ï¿½Ä¿ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½Ï¸ï¿½ ProjectPointToNavigation ï¿½ï¿½ï¿½ï¿½)
 }
 
-void AMonsterAIControllerBase::SetState(EMonsterState NewState) { // ¸ó½ºÅÍ »óÅÂ ¼³Á¤
+void AMonsterAIControllerBase::SetState(EMonsterState NewState) { // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	UE_LOG(LogTemp, Warning, TEXT("SetState called: %s ¡æ %s"),
+	UE_LOG(LogTemp, Warning, TEXT("SetState called: %s ï¿½ï¿½ %s"),
 		*UEnum::GetValueAsString(CurrentState),
 		*UEnum::GetValueAsString(NewState));
 
-	if (CurrentState == NewState) return; // Áßº¹ ¹æÁö
+	if (CurrentState == NewState) return; // ï¿½ßºï¿½ ï¿½ï¿½ï¿½ï¿½
 	CurrentState = NewState;
 
 	GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); 
 
 	switch (CurrentState)
 	{
-	case EMonsterState::Idling: //´ë±â »óÅÂ
-		StopMovement(); // ÀÌµ¿ ¸ØÃã
+	case EMonsterState::Idling: //ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		StopMovement(); // ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
 
-		PatrolDelay = FMath::RandRange(5.f, 7.f); // 3ÃÊ ~ 5ÃÊ ·£´ý ´ë±â
+		PatrolDelay = FMath::RandRange(5.f, 7.f); // 3ï¿½ï¿½ ~ 5ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 		UE_LOG(LogTemp, Warning, TEXT("Idle, after %f second Patrol change"), PatrolDelay);
-		GetWorld()->GetTimerManager().SetTimer( // PatrolDelayÃÊ ÈÄ¿¡ ¼øÂû »óÅÂ·Î ÀüÈ¯
+		GetWorld()->GetTimerManager().SetTimer( // PatrolDelayï¿½ï¿½ ï¿½Ä¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½È¯
 			PatrolDelayHandle,
 			[this]()
 			{	
@@ -238,7 +238,7 @@ void AMonsterAIControllerBase::SetState(EMonsterState NewState) { // ¸ó½ºÅÍ »óÅÂ
 			PatrolDelay, false);
 		break;
 	case EMonsterState::Moving:
-		//Tick¿¡¼­ Ã³¸®
+		//Tickï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 		break;
 	case EMonsterState::Patrolling:
 		Patrol();
@@ -247,96 +247,96 @@ void AMonsterAIControllerBase::SetState(EMonsterState NewState) { // ¸ó½ºÅÍ »óÅÂ
 		ChasePlayer();
 		break;
 	case EMonsterState::Attacking:
-		//Tick¿¡¼­ Ã³¸®
+		//Tickï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 		break;
 	case EMonsterState::LookingAround:
-		//Tick¿¡¼­ Ã³¸®
+		//Tickï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 		break;
 	case EMonsterState::Dead:
-		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); //¼øÂû·Î µ¹¾Æ°¡´Â Å¸ÀÌ¸Óµé ÇØÁ¦
+		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ°ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸Óµï¿½ ï¿½ï¿½ï¿½ï¿½
 		GetWorld()->GetTimerManager().ClearTimer(FailedMoveHandle);
-		GetWorld()->GetTimerManager().ClearTimer(AttackDelayHandle); // °ø°Ý µô·¹ÀÌ Å¸ÀÌ¸Ó ÇØÁ¦
+		GetWorld()->GetTimerManager().ClearTimer(AttackDelayHandle); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-		AIPerceptionComponent->SetActive(false); // °¨Áö ÁßÁö
-		AIPerceptionComponent->Deactivate();     // ¿ÏÀü ºñÈ°¼ºÈ­
+		AIPerceptionComponent->SetActive(false); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		AIPerceptionComponent->Deactivate();     // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­
 
-		if (BGMManager && bWasTrackingPlayer) // Bgm ¸Å´ÏÀú¿¡°Ô ¸ó½ºÅÍ°¡ Á×¾ú´Ù°í ¾Ë¸²
+		if (BGMManager && bWasTrackingPlayer) // Bgm ï¿½Å´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í°ï¿½ ï¿½×¾ï¿½ï¿½Ù°ï¿½ ï¿½Ë¸ï¿½
 		{
 			BGMManager->OnMonsterLosePlayer(); 
 			bWasTrackingPlayer = false;
 		}
 
-		ControlledMonster->Die(); // ¸ó½ºÅÍ Á×À½ Ã³¸®
+		ControlledMonster->Die(); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 		break;
 	}
 }
-// ¸ó½ºÅÍ°¡ ÇÃ·¹ÀÌ¾î¸¦ °¨ÁöÇÏ´Â ÇÔ¼ö(AI Perception)
+// ï¿½ï¿½ï¿½Í°ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½(AI Perception)
 void AMonsterAIControllerBase::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus) {
 	if (!ControlledMonster) return;
 
-	//ÇÃ·¹ÀÌ¾î¸¦ °¨ÁöÇßÀ» ¶§
+	//ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		StopMovement(); // ´Ù¸¥ ÀÌµ¿ ¸ØÃã
+		StopMovement(); // ï¿½Ù¸ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
 
-		// ÇÃ·¹ÀÌ¾î¸¦ ³õÃÆÀ» °æ¿ì ¼øÂû·Î µ¹¾Æ°¡´Â Å¸ÀÌ¸Óµé ÇØÁ¦
-		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); //handle°¡ ³²¾ÆÀÖ´Âµ¥ ÇÃ·¹ÀÌ¾î¸¦ ¹ß°ß ÇßÀ» °æ¿ì¸¦ ´ëºñ ¼øÂû·Î µ¹¾Æ°¡´Â Å¸ÀÌ¸Ó ÇØÁ¦
+		// ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ°ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸Óµï¿½ ï¿½ï¿½ï¿½ï¿½
+		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); //handleï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö´Âµï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ß°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¸¦ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ°ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 		GetWorld()->GetTimerManager().ClearTimer(FailedMoveHandle);
 
-		//°¨ÁöµÈ ÇÃ·¹ÀÌ¾î ÀúÀå
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½
 		ACharacter* Player = Cast<ACharacter>(Actor);
 		if (Player && Player == UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
 		{
 			TargetPlayer = Player;
-			SetState(EMonsterState::Chasing); // ÇÃ·¹ÀÌ¾î¸¦ °¨ÁöÇßÀ» ¶§ ÃßÀû »óÅÂ·Î ÀüÈ¯
+			SetState(EMonsterState::Chasing); // ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½È¯
 		}
 
 	}
-	else //°¨Áö ½ÇÆÐ½Ã
+	else //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ð½ï¿½
 	{
-		//ÇÃ·¹ÀÌ¾î¸¦ °¨Áö ½ÇÆÐÇØµµ ³Ê¹« °¡±îÀÌ ÀÖÀ» °æ¿ì 
+		//ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ ï¿½Ê¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ 
 		if (DistanceToPlayer < DetectionDistance) 
 		{
-			SetState(EMonsterState::Chasing); // °è¼Ó ÃßÀû
+			SetState(EMonsterState::Chasing); // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			return;
 		}
 
 		TargetPlayer = nullptr;
 
-		//ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡·Î Á¶±Ý ´õ ÀÌµ¿
-		FVector LastLocation = Stimulus.StimulusLocation; //¸¶Áö¸·À¸·Î °¨ÁöµÈ À§Ä¡
-		FVector SeenDirection = (Stimulus.StimulusLocation - Stimulus.ReceiverLocation).GetSafeNormal(); //AI°¡ ¹Ù¶óº¸´ø ¹æÇâ
-		FVector AdvancedLocation = LastLocation + SeenDirection * 200.f; //¸¶Áö¸· °¨Áö À§Ä¡ + AI°¡ ¹Ù¶óº¸´ø ¹æÇâÀ¸·Î 200¸¸Å­ ÀÌµ¿;
+		//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ìµï¿½
+		FVector LastLocation = Stimulus.StimulusLocation; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
+		FVector SeenDirection = (Stimulus.StimulusLocation - Stimulus.ReceiverLocation).GetSafeNormal(); //AIï¿½ï¿½ ï¿½Ù¶óº¸´ï¿½ ï¿½ï¿½ï¿½ï¿½
+		FVector AdvancedLocation = LastLocation + SeenDirection * 200.f; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ + AIï¿½ï¿½ ï¿½Ù¶óº¸´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 200ï¿½ï¿½Å­ ï¿½Ìµï¿½;
 
 		MoveToLocation(AdvancedLocation, 50.f, false);
-		CurrentMoveTarget = AdvancedLocation; // ÀÌµ¿ ¸ñÇ¥ À§Ä¡ ÀúÀå
-		SetState(EMonsterState::Moving); // ÀÌµ¿ »óÅÂ·Î ÀüÈ¯
+		CurrentMoveTarget = AdvancedLocation; // ï¿½Ìµï¿½ ï¿½ï¿½Ç¥ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
+		SetState(EMonsterState::Moving); // ï¿½Ìµï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½È¯
 	}
 }
-// ¸ó½ºÅÍ°¡ ¼øÂûÇÏ´Â ÇÔ¼ö
+// ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 void AMonsterAIControllerBase::Patrol() {
 	if (!ControlledMonster || !NavSys) return;
 
-	const float SeparationThreshold = 200.f; // ¸ó½ºÅÍ °£ÀÇ ÃÖ¼Ò °Å¸®
-	const int32 MaxAttempts = 10; // ÃÖ´ë ½Ãµµ È½¼ö
+	const float SeparationThreshold = 200.f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ ï¿½Å¸ï¿½
+	const int32 MaxAttempts = 10; // ï¿½Ö´ï¿½ ï¿½Ãµï¿½ È½ï¿½ï¿½
 
-	// ¼øÂû À§Ä¡¸¦ ·£´ýÀ¸·Î ¼±ÅÃ
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	for (int32 Attempt = 0; Attempt < MaxAttempts; ++Attempt) {
 		{
-			// PatrolOrigin¸¦ ±âÁØÀ¸·Î PatrolRadius ¹Ý°æ ³»ÀÇ ·£´ý À§Ä¡¸¦ ¼±ÅÃ
+			// PatrolOriginï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ PatrolRadius ï¿½Ý°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			FVector2D Rand2D = FMath::RandPointInCircle(PatrolRadius);
 			FVector TryLocation = PatrolOrigin + FVector(Rand2D.X, Rand2D.Y, 0.f);
-			TryLocation.Z = PatrolOrigin.Z; // ZÃàÀº °íÁ¤
+			TryLocation.Z = PatrolOrigin.Z; // Zï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 			FNavLocation Projected;
-			if (NavSys->ProjectPointToNavigation(TryLocation, Projected, FVector(300, 300, 1000))) //°¥ ¼ö ¾ø´Â °÷¿¡ À§Ä¡°¡ ¼±ÅÃµÉ ¼ö µµ ÀÖÀ¸´Ï Nav¿¡ ¸Â°Ô Á¶Á¤
+			if (NavSys->ProjectPointToNavigation(TryLocation, Projected, FVector(300, 300, 1000))) //ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Navï¿½ï¿½ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½
 			{
 				bool bTooClose = false;
-				// ¿ùµå¿¡ Á¸ÀçÇÏ´Â ¸ðµç MonsterBase¸¦ ¼øÈ¸
+				// ï¿½ï¿½ï¿½å¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ MonsterBaseï¿½ï¿½ ï¿½ï¿½È¸
 				for (TActorIterator<AMonsterBase> It(GetWorld()); It; ++It)
 				{
-					if (*It == ControlledMonster) continue; // ÀÚ±â ÀÚ½ÅÀº Á¦¿Ü
-					// ¸ó½ºÅÍ °£ÀÇ °Å¸® Ã¼Å©
+					if (*It == ControlledMonster) continue; // ï¿½Ú±ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+					// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ Ã¼Å©
 					if (FVector::Dist(It->GetActorLocation(), Projected.Location) < SeparationThreshold)
 					{
 						bTooClose = true;
@@ -344,12 +344,12 @@ void AMonsterAIControllerBase::Patrol() {
 					}
 				}
 
-				// ¸ó½ºÅÍ °£ÀÇ °Å¸®°¡ ÃæºÐÈ÷ ¸Ö¸é ÀÌµ¿
+				// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¸ï¿½ ï¿½Ìµï¿½
 				if (!bTooClose) 
 				{
 					MoveToLocation(Projected.Location, 5.f, false);
-					CurrentMoveTarget = Projected.Location; // ÀÌµ¿ ¸ñÇ¥ À§Ä¡ ÀúÀå
-					SetState(EMonsterState::Moving); // ÀÌµ¿ »óÅÂ·Î ÀüÈ¯
+					CurrentMoveTarget = Projected.Location; // ï¿½Ìµï¿½ ï¿½ï¿½Ç¥ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
+					SetState(EMonsterState::Moving); // ï¿½Ìµï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½È¯
 					return;
 				}
 			}
@@ -383,18 +383,18 @@ void AMonsterAIControllerBase::ChasePlayerToAttack() {
 	UE_LOG(LogTemp, Warning, TEXT("MoveToActor result: %d"), (int32)Result.Code);
 }
 
-//¸ó½ºÅÍ ¸¶´Ù overrideÇÏ¿© »ç¿ë
+//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ overrideï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½
 void AMonsterAIControllerBase::Attack() {
 	if (!bCanAttack) return;
 
-	StopMovement(); // ¸ó½ºÅÍÀÇ ÀÌµ¿À» ¸ØÃã
-	ControlledMonster->PlayCloseAttackMontage(); // ¸ó½ºÅÍ °ø°Ý ¸ð¼Ç È£Ãâ
+	StopMovement(); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	ControlledMonster->PlayCloseAttackMontage(); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ È£ï¿½ï¿½
 	bCanAttack = false;
 	GetWorld()->GetTimerManager().SetTimer(
 		AttackDelayHandle,
 		this,
 		&AMonsterAIControllerBase::ResetAttackCooldown,
-		ControlledMonster->AttackCooldown, false); // AttackCooldownÃÊ¸¶´Ù °ø°Ý
+		ControlledMonster->AttackCooldown, false); // AttackCooldownï¿½Ê¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 }
 
 void AMonsterAIControllerBase::ResetAttackCooldown() {
