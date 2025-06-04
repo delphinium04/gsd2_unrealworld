@@ -39,7 +39,7 @@ void AMonsterAIControllerBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (!ControlledMonster || Cast<ABossMonster>(ControlledMonster)) return; // ���Ͱ� ���ų� ���� ������ ��� ó������ ����
+	if (!ControlledMonster || Cast<ABossMonster>(ControlledMonster) || ControlledMonster->bIsDead) return; // ���Ͱ� ���ų� ���� ������ ��� ó������ ����
 
 	//������ �þ� ��ġ�� Ȯ���ϰ� ������
 	/*FVector EyesLoc;
@@ -213,10 +213,6 @@ void AMonsterAIControllerBase::OnPossess(APawn* InPawn) {
 
 void AMonsterAIControllerBase::SetState(EMonsterState NewState) { // ���� ���� ����
 
-	UE_LOG(LogTemp, Warning, TEXT("SetState called: %s �� %s"),
-		*UEnum::GetValueAsString(CurrentState),
-		*UEnum::GetValueAsString(NewState));
-
 	if (CurrentState == NewState) return; // �ߺ� ����
 	CurrentState = NewState;
 
@@ -259,12 +255,6 @@ void AMonsterAIControllerBase::SetState(EMonsterState NewState) { // ����
 
 		AIPerceptionComponent->SetActive(false); // ���� ����
 		AIPerceptionComponent->Deactivate();     // ���� ��Ȱ��ȭ
-
-		if (BGMManager && bWasTrackingPlayer) // Bgm �Ŵ������� ���Ͱ� �׾��ٰ� �˸�
-		{
-			BGMManager->OnMonsterLosePlayer(); 
-			bWasTrackingPlayer = false;
-		}
 
 		ControlledMonster->Die(); // ���� ���� ó��
 		break;

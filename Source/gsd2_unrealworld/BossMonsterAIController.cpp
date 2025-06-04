@@ -32,7 +32,7 @@ void ABossMonsterAIController::OnPossess(APawn* InPawn) {
 void ABossMonsterAIController::Tick(float DeltaSeconds) {
 	Super::Tick(DeltaSeconds);
 
-	if (!BossMonster) return;
+	if (!BossMonster || BossMonster->bIsDead) return;
 
 	DistanceToPlayer = TargetPlayer ? FVector::Dist(BossMonster->GetActorLocation(), TargetPlayer->GetActorLocation()) : MAX_flt;
 
@@ -119,13 +119,6 @@ void ABossMonsterAIController::SetState(EMonsterState NewState) {
 		}
 		break;
 	case EMonsterState::Dead:
-
-		if (BGMManager && bWasTrackingPlayer) // Bgm �Ŵ������� ���Ͱ� �׾��ٰ� �˸�
-		{
-			BGMManager->OnMonsterLosePlayer();
-			bWasTrackingPlayer = false;
-		}
-
 		ControlledMonster->Die(); // ���� ���� ó��
 		break;
 	}

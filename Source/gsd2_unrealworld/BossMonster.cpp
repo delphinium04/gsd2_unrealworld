@@ -38,22 +38,7 @@ void ABossMonster::BeginPlay() {
 	}
 }
 
-void ABossMonster::Tick(float DeltaTime)
-{
-	//������ ü�¹ٴ� �÷��̾� ī�޶� ���� ��ġ ������
-	if (PlayerController && HealthBarWidget) {
-		FVector WorldLocation = GetActorLocation() + FVector(0.f, 0.f, 200.f); // �Ӹ� �� ������
-		FVector2D ScreenPosition;
-		if (PlayerController->ProjectWorldLocationToScreen(WorldLocation, ScreenPosition))
-		{
-			HealthBarWidget->SetRelativeLocation(FVector(ScreenPosition.X, ScreenPosition.Y, 0.f)); // ȭ�� ��ġ�� ����
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Failed to project world location to screen!"));
-		}
-	}
-}
+void ABossMonster::Tick(float DeltaTime) {};
 void ABossMonster::UpdateHealthBar()
 {
 	if (BossHealthUI)

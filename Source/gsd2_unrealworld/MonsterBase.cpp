@@ -1,5 +1,6 @@
 
 #include "MonsterBase.h"
+#include "MonsterBgmManager.h"
 #include "MonsterAIControllerBase.h" // ���� AI ��Ʈ�ѷ�
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h" // �÷��̾� ����, ����, ����Ʈ
@@ -58,6 +59,8 @@ void AMonsterBase::Die()
 
 	if (AIController)
 	{
+		AIController->bWasTrackingPlayer = false; // AI ��Ʈ�ѷ� ���Ͱ� ���ų� ����
+		AIController->BGMManager->OnMonsterLosePlayer(); // BGM ���Ͱ� ���ų� ����
 		AIController->StopMovement();
 		AIController->UnPossess(); // AI ��Ʈ�ѷ� ������
 	}

@@ -20,9 +20,17 @@ public:
 	void OnMonsterSensePlayer();
 	void OnMonsterLosePlayer();
 
-protected:
+	UFUNCTION(BlueprintCallable, Category = "BGM")
+	void StartStageBGM(); // Stage BGM 시작
+
+	UFUNCTION(BlueprintCallable, Category = "BGM")
+	void StopAllBGMs(); // 모든 BGM 정지
+
 	UPROPERTY(EditAnywhere, Category = "BGM")//	BGM 재생 사운드 에셋
 	USoundBase* MonsterFightBGM;
+
+	UPROPERTY(EditAnywhere, Category = "BGM")//	BGM 재생 사운드 에셋
+	USoundBase* StageBGM;
 
 	UPROPERTY(BlueprintReadWrite, Category = "BGM")
 	UAudioComponent* MonsterFightBGMComponent; // BGM 재생 컴포넌트

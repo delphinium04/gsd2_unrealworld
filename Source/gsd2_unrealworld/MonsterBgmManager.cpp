@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 
 #include "MonsterBgmManager.h"
 #include "Components/AudioComponent.h"
@@ -7,12 +5,18 @@
 
 AMonsterBgmManager::AMonsterBgmManager()
 {
-
 	PrimaryActorTick.bCanEverTick = true;
+
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+
+	StageBGMComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("StageBGMComponent"));
+	StageBGMComponent->bAutoActivate = false;
+	StageBGMComponent->SetupAttachment(RootComponent);
 
 	MonsterFightBGMComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("MonsterFightBGMComponent"));
 	MonsterFightBGMComponent->bAutoActivate = false;
 	MonsterFightBGMComponent->SetupAttachment(RootComponent);
+
 }
 
 void AMonsterBgmManager::BeginPlay()
@@ -23,22 +27,44 @@ void AMonsterBgmManager::BeginPlay()
 	{
 		MonsterFightBGMComponent->SetSound(MonsterFightBGM);
 	}
+	if (StageBGM)
+	{
+		StageBGMComponent->SetSound(StageBGM);
+	}
+}
 
+void AMonsterBgmManager::StartStageBGM()
+{
+	if (StageBGMComponent && !StageBGMComponent->IsPlaying())
+	{
+		StageBGMComponent->Play();
+	}
+}
+
+void AMonsterBgmManager::StopAllBGMs()
+{
+	if (StageBGMComponent && StageBGMComponent->IsPlaying())
+	{
+		StageBGMComponent->FadeOut(1.0f, 0.0f);
+	}
+	if (MonsterFightBGMComponent && MonsterFightBGMComponent->IsPlaying())
+	{
+		MonsterFightBGMComponent->FadeIn(2.0f, 1.0f);
+	}
 }
 
 void AMonsterBgmManager::OnMonsterSensePlayer()
 {
 	NumMonstersSensingPlayer++;
-
 	if (NumMonstersSensingPlayer == 1) {
 		if (StageBGMComponent && StageBGMComponent->IsPlaying())
 		{
-			StageBGMComponent->FadeOut(2.0f, 0.0f);
+			StageBGMComponent->FadeOut(2.0f, 0.f);
 		}
 
 		if (MonsterFightBGMComponent && !MonsterFightBGMComponent->IsPlaying())
 		{
-			MonsterFightBGMComponent->FadeIn(2.5f, 1.0f);
+			MonsterFightBGMComponent->FadeIn(2.0f, 1.0f);
 		}
 	}
 }
@@ -49,15 +75,14 @@ void AMonsterBgmManager::OnMonsterLosePlayer()
 
 	if (NumMonstersSensingPlayer == 0)
 	{
-
 		if (MonsterFightBGMComponent && MonsterFightBGMComponent->IsPlaying())
 		{
-			MonsterFightBGMComponent->FadeOut(2.5f, 0.0f);
+			MonsterFightBGMComponent->FadeOut(2.0f, 0.f);
 		}
 
 		if (StageBGMComponent && !StageBGMComponent->IsPlaying())
 		{
-			StageBGMComponent->FadeIn(2.5f, 1.0f);
+			StageBGMComponent->FadeIn(2.0f, 1.0f);
 		}
 	}
 }
