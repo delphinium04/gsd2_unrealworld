@@ -53,12 +53,14 @@ void APlayerCharacter::BeginPlay()
             // 초기 탄환 상태 UI로 동기화
             AmmoUIWidget->CallFunctionByNameWithArguments(TEXT("UpdateAmmoUI 30"), *GLog, NULL, true);
         }
-        if (CrosshairWidgetClass)
-        {
-            UUserWidget* CrosshairWidget = CreateWidget<UUserWidget>(GetWorld(), CrosshairWidgetClass);
-            if (CrosshairWidget)
-                CrosshairWidget->AddToViewport();
-        }
+
+    }
+
+    if (CrosshairWidget == nullptr && CrosshairWidgetClass)
+    {
+        CrosshairWidget = CreateWidget<UUserWidget>(GetWorld(), CrosshairWidgetClass);
+        if (CrosshairWidget)
+            CrosshairWidget->AddToViewport();
     }
     if (GamePlayUIWidgetClass)
     {
@@ -73,21 +75,49 @@ void APlayerCharacter::BeginPlay()
         }
     }
 }
-
-// Tick (카메라/에임 부드러운 보간)
 void APlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    CameraBoom->TargetArmLength = FMath::FInterpTo(
-        CameraBoom->TargetArmLength, TargetArmLength, DeltaTime, 10.f); // 보간속도 8 (원하는 만큼 조절)
-    CameraBoom->SocketOffset = FMath::VInterpTo(
-        CameraBoom->SocketOffset, TargetSocketOffset, DeltaTime, 10.f);
+    float Speed = GetVelocity().Size();
+    bool bShouldUseRunUpper = bIsAiming;
+    bool bShouldBeCarrying = HeldItem != nullptr;
+
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+    {
+        Anim->RealSpeed = Speed;
+        Anim->bUseForcedUpperSpeed = bIsAiming;
+        Anim->ForcedUpperSpeed = 600.f;
+        Anim->bUseUpperBodyRun = bShouldUseRunUpper;
+        Anim->bIsCarrying = bShouldBeCarrying;
+
+        bool bIsIdleAimingNow = bIsAiming && Speed < 5.f && !Anim->bIsFiring && !GetCharacterMovement()->IsFalling();
+        Anim->bIsIdleAiming = bIsIdleAimingNow;
+
+
+        // 운반 상태 몽타주 실행
+        if (bShouldBeCarrying && CarryingMontage)
+        {
+            if (!Anim->Montage_IsPlaying(CarryingMontage))
+            {
+                Anim->Montage_Play(CarryingMontage, 1.0f);
+            }
+        }
+        else if (CarryingMontage && Anim->Montage_IsPlaying(CarryingMontage))
+        {
+            Anim->Montage_Stop(0.1f, CarryingMontage);
+        }
+    }
+
+    // 카메라 보간
+    CameraBoom->TargetArmLength = FMath::FInterpTo(CameraBoom->TargetArmLength, TargetArmLength, DeltaTime, 10.f);
+    CameraBoom->SocketOffset = FMath::VInterpTo(CameraBoom->SocketOffset, TargetSocketOffset, DeltaTime, 10.f);
     if (FollowCamera)
-        FollowCamera->SetFieldOfView(
-            FMath::FInterpTo(FollowCamera->FieldOfView, TargetFOV, DeltaTime, 10.f)
-        );
+    {
+        FollowCamera->SetFieldOfView(FMath::FInterpTo(FollowCamera->FieldOfView, TargetFOV, DeltaTime, 10.f));
+    }
 }
+
 
 
 // 입력 바인딩
@@ -95,6 +125,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+    PlayerInputComponent->BindAction("MoveForward", IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
+    PlayerInputComponent->BindAction("MoveRight", IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
     PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
     PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::Turn);
@@ -109,28 +141,39 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAction("DashBackward", IE_Pressed, this, &APlayerCharacter::OnDashBackward);
     PlayerInputComponent->BindAction("DashRight", IE_Pressed, this, &APlayerCharacter::OnDashRight);
     PlayerInputComponent->BindAction("DashLeft", IE_Pressed, this, &APlayerCharacter::OnDashLeft);
+    PlayerInputComponent->BindAction("Sit", IE_Pressed, this, &APlayerCharacter::ToggleSit);
+    PlayerInputComponent->BindKey(EKeys::W, IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
+    PlayerInputComponent->BindKey(EKeys::S, IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
+    PlayerInputComponent->BindKey(EKeys::A, IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
+    PlayerInputComponent->BindKey(EKeys::D, IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
 }
 
 // 이동/회전/점프
 void APlayerCharacter::MoveForward(float Value)
 {
-    if (bIsInteracting || bIsDashing) return;
+    if (bIsInteracting || bIsDashing || IsSitting()) return;
     if (Controller && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
     {
         const FRotator ControlRot = GetControlRotation();
         const FRotator YawRot(0, ControlRot.Yaw, 0);
         const FVector Direction = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
         AddMovementInput(Direction, Value);
+
+        // 이동 중 입력 방향 저장
+        LastMoveInputDirection = Direction * FMath::Sign(Value);
     }
 }
 void APlayerCharacter::MoveRight(float Value)
 {
-    if (bIsInteracting || bIsDashing) return;
+    if (bIsInteracting || bIsDashing || IsSitting()) return;
     if (Controller && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
     {
         const FRotator ControlRot = GetControlRotation();
         const FVector Direction = FRotationMatrix(ControlRot).GetUnitAxis(EAxis::Y);
         AddMovementInput(Direction, Value);
+
+        // 이동 중 입력 방향 저장
+        LastMoveInputDirection = Direction * FMath::Sign(Value);
     }
 }
 void APlayerCharacter::Turn(float Value)
@@ -143,7 +186,7 @@ void APlayerCharacter::LookUp(float Value)
 }
 void APlayerCharacter::StartJump()
 {
-    if (bIsInteracting) return;
+    if (bIsInteracting || IsSitting()) return;
     if (GetCharacterMovement() && GetCharacterMovement()->IsFalling()) return;
     Jump();
 }
@@ -151,6 +194,47 @@ void APlayerCharacter::StopJump()
 {
     StopJumping();
 }
+void APlayerCharacter::OnMoveKeyReleased(FKey ReleasedKey)
+{
+    float CurrentTime = GetWorld()->GetTimeSeconds();
+    float* LastInputTimePtr = nullptr;
+    FVector DashDirection = FVector::ZeroVector;
+
+    if (ReleasedKey == EKeys::W)
+    {
+        LastInputTimePtr = &LastWInputTime;
+        DashDirection = GetActorForwardVector();
+    }
+    else if (ReleasedKey == EKeys::S)
+    {
+        LastInputTimePtr = &LastSInputTime;
+        DashDirection = -GetActorForwardVector();
+    }
+    else if (ReleasedKey == EKeys::D)
+    {
+        LastInputTimePtr = &LastDInputTime;
+        DashDirection = GetActorRightVector();
+    }
+    else if (ReleasedKey == EKeys::A)
+    {
+        LastInputTimePtr = &LastAInputTime;
+        DashDirection = -GetActorRightVector();
+    }
+
+    if (LastInputTimePtr)
+    {
+        if (*LastInputTimePtr > 0.f && (CurrentTime - *LastInputTimePtr) < DoubleTapThreshold)
+        {
+            Dash(DashDirection);
+            *LastInputTimePtr = -1.f; // 리셋
+        }
+        else
+        {
+            *LastInputTimePtr = CurrentTime;
+        }
+    }
+}
+
 
 // 대시 (더블탭)
 void APlayerCharacter::OnDashForward()
@@ -218,13 +302,14 @@ void APlayerCharacter::OnDashLeft()
 }
 void APlayerCharacter::Dash(const FVector& Direction)
 {
-    if (bIsInteracting) return;
+    if (bIsInteracting || IsSitting()) return;
     if (!bCanDash) return;
 
     bCanDash = false;
     bIsDashing = true;
     bIsInvincible = true; // ★ 대쉬 시작 시 무적 ON
-
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+        Anim->bIsDashing = true;
     FVector DashDir = Direction;
     DashDir.Z = 0;
     if (DashDir.IsNearlyZero())
@@ -251,6 +336,8 @@ void APlayerCharacter::StopDashing()
     GetCharacterMovement()->BrakingFrictionFactor = 2.f;
     bIsDashing = false;
     bIsInvincible = false;
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+        Anim->bIsDashing = false;
     GetCharacterMovement()->bOrientRotationToMovement = true;
     UMyAnimInstance* MyAnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
     if (SprintMontage && MyAnimInstance)
@@ -265,14 +352,21 @@ void APlayerCharacter::ResetDash()
 //견착 함수(토글형)
 void APlayerCharacter::ToggleAim()
 {
+    if (bIsReloading || HeldItem || IsSitting()) return;
     bIsAiming = !bIsAiming; // ★ 상태 반전
 
+
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+    {
+        Anim->bIsAiming = bIsAiming;
+    }
     if (bIsAiming)
     {
         // 에임 시작: FOV 변경, 크로스헤어 변경 등
         TargetArmLength = AimArmLength;
         TargetSocketOffset = AimSocketOffset;
         TargetFOV = AimFOV;
+
     }
     else
     {
@@ -280,21 +374,44 @@ void APlayerCharacter::ToggleAim()
         TargetArmLength = DefaultArmLength;
         TargetSocketOffset = DefaultSocketOffset;
         TargetFOV = DefaultFOV;
+
     }
+}
+void APlayerCharacter::ResetAimStartPlayed()
+{
+    bIsAimStartPlayed = false;
 }
 // 사격(발사)
 void APlayerCharacter::OnFire()
 {
-    if (!CanFire() || HeldItem || bIsReloading) return;
+    if (!CanFire() || HeldItem || bIsReloading || IsSitting()) return;
+
+    PerformFire();
+
+    GetWorldTimerManager().SetTimer(
+        AimStartResetHandle,
+        this,
+        &APlayerCharacter::ResetAimStartPlayed,
+        1.0f,
+        false
+    );
+}
+
+void APlayerCharacter::PerformFire()
+{
+    if (!CanFire() || bIsReloading || HeldItem || IsSitting()) return;
+    // 사운드
     UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
     --CurrentAmmo;
 
+    // UI 동기화
     if (AmmoUIWidget)
     {
         FString Args = FString::Printf(TEXT("UpdateAmmoUI %d"), CurrentAmmo);
         AmmoUIWidget->CallFunctionByNameWithArguments(*Args, *GLog, NULL, true);
     }
 
+    // 총구 이펙트 및 라인트레이스
     if (WeaponActor)
     {
         UStaticMeshComponent* MeshComp = WeaponActor->FindComponentByClass<UStaticMeshComponent>();
@@ -303,7 +420,6 @@ void APlayerCharacter::OnFire()
             FVector MuzzleLoc = MeshComp->GetSocketLocation("MuzzleSocket");
             FRotator MuzzleRot = MeshComp->GetSocketRotation("MuzzleSocket");
 
-            // 카메라에서 크로스헤어 방향으로 라인트레이스
             FVector CamLoc = FollowCamera->GetComponentLocation();
             FVector CamDir = FollowCamera->GetForwardVector();
             FVector TraceEnd = CamLoc + (CamDir * 5000.f);
@@ -311,96 +427,74 @@ void APlayerCharacter::OnFire()
             FHitResult CameraHit;
             FCollisionQueryParams CamParams;
             CamParams.AddIgnoredActor(this);
-
             bool bCamHit = GetWorld()->LineTraceSingleByChannel(
-                CameraHit, CamLoc, TraceEnd, ECC_Visibility, CamParams
-            );
+                CameraHit, CamLoc, TraceEnd, ECC_Visibility, CamParams);
 
             FVector AimPoint = bCamHit ? CameraHit.ImpactPoint : TraceEnd;
 
-            // [트레이서 시각화]
-            DrawDebugLine(
-                GetWorld(),
-                MuzzleLoc,
-                AimPoint,
-                FColor::Yellow,
-                false,
-                0.05f,
-                0,
-                2.0f
-            );
+            DrawDebugLine(GetWorld(), MuzzleLoc, AimPoint, FColor::Yellow, false, 0.05f, 0, 2.0f);
 
-            // 머즐 플래쉬
             if (MuzzleFlashFX)
             {
-                UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-                    GetWorld(), MuzzleFlashFX, MuzzleLoc, MuzzleRot
-                );
+                UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), MuzzleFlashFX, MuzzleLoc, MuzzleRot);
             }
 
-            // [실제 총구에서 AimPoint로 라인트레이스 해서 타격 체크]
             FHitResult BulletHit;
             FCollisionQueryParams BulletParams;
             BulletParams.AddIgnoredActor(this);
-
             bool bBulletHit = GetWorld()->LineTraceSingleByChannel(
-                BulletHit, MuzzleLoc, AimPoint, ECC_Visibility, BulletParams
-            );
+                BulletHit, MuzzleLoc, AimPoint, ECC_Visibility, BulletParams);
 
             if (bBulletHit)
             {
-                // 피격된 액터가 캐릭터이면 데미지 주기
                 AActor* HitActor = BulletHit.GetActor();
                 if (HitActor && HitActor != this)
                 {
-                    // 데미지 값 임의 지정 (예: 20)
                     float Damage = 1.0f;
-
-                    UGameplayStatics::ApplyPointDamage(
-                        HitActor,                        // 피해 입는 액터
-                        Damage,                          // 피해량
-                        (AimPoint - MuzzleLoc).GetSafeNormal(), // 공격 방향
-                        BulletHit,                       // Hit 정보
-                        GetController(),                 // InstigatorController
-                        this,                            // DamageCauser
-                        nullptr                          // DamageTypeClass(기본 null)
-                    );
+                    UGameplayStatics::ApplyPointDamage(HitActor, Damage,
+                        (AimPoint - MuzzleLoc).GetSafeNormal(), BulletHit, GetController(), this, nullptr);
                 }
             }
         }
     }
 
-    UMyAnimInstance* MyAnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
-    if (MyAnimInstance)
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
     {
-        MyAnimInstance->IsFiring = true;
-    }
-    if (Fire_Montage && MyAnimInstance)
-    {
-        MyAnimInstance->Montage_Play(Fire_Montage);
+        Anim->bIsFiring = true;
+
+        if (FireMontage)
+        {
+            Anim->Montage_Play(FireMontage);
+        }
     }
 
-    GetWorldTimerManager().SetTimer(FireTimerHandle, this, &APlayerCharacter::ResetIsFiring, 0.2f, false);
+    float Duration = FireMontage ? FireMontage->GetPlayLength() : 0.3f;
+    GetWorldTimerManager().SetTimer(FireTimerHandle, this, &APlayerCharacter::ResetIsFiring, Duration, false);
 }
+
 
 
 
 // 발사 상태 리셋
 void APlayerCharacter::ResetIsFiring()
 {
-    UMyAnimInstance* MyAnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
-    if (MyAnimInstance)
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
     {
-        MyAnimInstance->IsFiring = false;
+        Anim->bIsFiring = false;
     }
 }
 
 // 리로드
 void APlayerCharacter::Reload()
 {
-    if (bIsReloading || CurrentAmmo == MaxAmmo) return;  // 이미 장전 중이거나 꽉 찼으면 무시
+    if (bIsReloading || CurrentAmmo == MaxAmmo || IsSitting()) return;  // 이미 장전 중이거나 꽉 찼으면 무시
+    if (bIsAiming) {
+        ToggleAim();
 
+    }
     bIsReloading = true;
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+        Anim->bIsReloading = true;
 
     UGameplayStatics::PlaySoundAtLocation(this, ReloadSound, GetActorLocation());
 
@@ -417,6 +511,8 @@ void APlayerCharacter::Reload()
             {
                 CurrentAmmo = MaxAmmo;
                 bIsReloading = false;
+                if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+                    Anim->bIsReloading = false;
                 // UI 갱신 등 필요시 추가
                 if (AmmoUIWidget)
                 {
@@ -433,12 +529,15 @@ void APlayerCharacter::Reload()
         // 애니메이션 없을 때 즉시 처리
         CurrentAmmo = MaxAmmo;
         bIsReloading = false;
+        if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+            Anim->bIsReloading = false;
     }
 }
 
 // 상호작용(물건 집기/버리기)
 void APlayerCharacter::Interact()
 {
+    if (IsSitting()) return; // 앉아있으면 상호작용 무시
     if (HeldItem)
     {
         UStaticMeshComponent* MeshComp = HeldItem->FindComponentByClass<UStaticMeshComponent>();
@@ -481,11 +580,17 @@ void APlayerCharacter::Interact()
         if (PendingPickupActor) return;
         PendingPickupActor = Hit.GetActor();
         PendingPickupMesh = Cast<UStaticMeshComponent>(Hit.GetComponent());
-
+        if (PickupSound)
+        {
+            UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+        }
         UMyAnimInstance* MyAnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
         if (InteractMontage && MyAnimInstance)
         {
             bIsInteracting = true;
+            if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance())) {
+                Anim->bIsInteracting = true;
+            }
             MyAnimInstance->Montage_Play(InteractMontage);
 
             GetWorldTimerManager().ClearTimer(PickupTimerHandle);
@@ -513,6 +618,9 @@ void APlayerCharacter::AttachPendingPickup()
     }
 
     bIsInteracting = false;
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance())) {
+        Anim->bIsInteracting = false;
+    }
     if (PendingPickupMesh->Mobility != EComponentMobility::Movable)
         PendingPickupMesh->SetMobility(EComponentMobility::Movable);
 
@@ -569,7 +677,7 @@ void APlayerCharacter::ReceiveDamage(float DamageAmount)
     // 2. 디버그 출력 (필요 없으면 생략)
     UE_LOG(LogTemp, Warning, TEXT("maxhp: %.1f, curhp: %.1f, receive: %.1f"),
         MaxHealth, CurrentHealth, DamageAmount);
-    
+
     // 3. UI 업데이트 (BP 쪽 SetHealth 함수 호출)
     UGamePlayUI* TypedWidget = Cast<UGamePlayUI>(GamePlayUIWidget);
     if (TypedWidget)
@@ -598,6 +706,8 @@ void APlayerCharacter::Die()
 {
     if (bIsDead) return;
     bIsDead = true;
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+        Anim->bIsDead = true;
 
     APlayerController* PC = Cast<APlayerController>(GetController());
     if (PC)
@@ -616,14 +726,52 @@ void APlayerCharacter::Die()
     }
     GetWorldTimerManager().SetTimer(
         DeathTimerHandle,
-        [this]() { Destroy(); },
-        3.0f,
+        [this]() {
+            GetMesh()->bPauseAnims = true;
+            Destroy(); // 캐릭터 제거
+        },
+        2.0f,
         false
     );
 }
-
-// 대시 애니메이션(더미)
-void APlayerCharacter::PlayDashAnimation()
+void APlayerCharacter::ToggleSit()
 {
-    UE_LOG(LogTemp, Warning, TEXT("PlayDashAnimation called!"));
+    if (bIsInteracting || bIsDashing || bIsReloading || bIsAiming || bIsDead || PendingPickupActor) return;
+
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+    {
+        // 상태 전이 중이라면 무시
+        if (Anim->bIsInSitTransition)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Sit input ignored: in transition"));
+            return;
+        }
+
+        if (!Anim->bIsSittingPressed && !Anim->bIsSittingState)
+        {
+            // 앉기 시작 요청
+            Anim->bIsSittingPressed = true;
+            UE_LOG(LogTemp, Warning, TEXT("Sit Start Requested"));
+        }
+        else if (Anim->bIsSittingState)
+        {
+            // 일어나기 요청
+            Anim->bSitToggleRequested = true;
+            UE_LOG(LogTemp, Warning, TEXT("Stand Up Requested"));
+        }
+
+        UE_LOG(LogTemp, Warning, TEXT("Pressed: %d, Toggle: %d, State: %d"),
+            Anim->bIsSittingPressed, Anim->bSitToggleRequested, Anim->bIsSittingState);
+    }       
 }
+
+
+bool APlayerCharacter::IsSitting() const
+{
+    const UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
+    return Anim ? Anim->IsSitting() : false;
+}
+
+
+
+
