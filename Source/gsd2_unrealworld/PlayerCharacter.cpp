@@ -377,6 +377,7 @@ void APlayerCharacter::ToggleAim()
 
     }
 }
+
 void APlayerCharacter::ResetAimStartPlayed()
 {
     bIsAimStartPlayed = false;
@@ -432,7 +433,7 @@ void APlayerCharacter::PerformFire()
 
             FVector AimPoint = bCamHit ? CameraHit.ImpactPoint : TraceEnd;
 
-            DrawDebugLine(GetWorld(), MuzzleLoc, AimPoint, FColor::Yellow, false, 0.05f, 0, 2.0f);
+           
 
             if (MuzzleFlashFX)
             {
@@ -445,6 +446,17 @@ void APlayerCharacter::PerformFire()
             bool bBulletHit = GetWorld()->LineTraceSingleByChannel(
                 BulletHit, MuzzleLoc, AimPoint, ECC_Visibility, BulletParams);
 
+            FVector FinalEnd = bBulletHit ? BulletHit.ImpactPoint : AimPoint;
+            if (BulletTracerFX)
+            {
+                FVector Direction = (FinalEnd - MuzzleLoc).GetSafeNormal();;
+                UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+                    GetWorld(),
+                    BulletTracerFX,
+                    MuzzleLoc,
+                    Direction.Rotation()
+                );
+            }
             if (bBulletHit)
             {
                 AActor* HitActor = BulletHit.GetActor();
@@ -470,8 +482,7 @@ void APlayerCharacter::PerformFire()
 
     float Duration = FireMontage ? FireMontage->GetPlayLength() : 0.3f;
     GetWorldTimerManager().SetTimer(FireTimerHandle, this, &APlayerCharacter::ResetIsFiring, Duration, false);
-}
-
+} 
 
 
 

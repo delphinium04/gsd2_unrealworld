@@ -44,6 +44,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
     int32 CurrentAmmo = 30;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Combat")
+    UNiagaraSystem* BulletTracerFX;
+
     // ¡å ÅºÃ¢ UI À§Á¬
     UPROPERTY(EditDefaultsOnly, Category = UI)
     TSubclassOf<UUserWidget> AmmoUIWidgetClass;
