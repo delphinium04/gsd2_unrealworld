@@ -675,6 +675,11 @@ float APlayerCharacter::TakeDamage(
     return DamageAmount;
 }
 
+float APlayerCharacter::GetHealth()
+{
+    return CurrentHealth;
+}
+
 void APlayerCharacter::ReceiveDamage(float DamageAmount)
 {
     // 이미 죽었거나 무적이면 무시
