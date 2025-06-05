@@ -7,12 +7,12 @@
 #include "Blueprint/UserWidget.h"
 #include "MyAnimInstance.h"
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// »ý¼ºÀÚ
 APlayerCharacter::APlayerCharacter()
 {
     PrimaryActorTick.bCanEverTick = true;
 
-    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/Ä«ï¿½Þ¶ï¿½
+    // ½ºÇÁ¸µ¾Ï/Ä«¸Þ¶ó
     CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
     CameraBoom->SetupAttachment(RootComponent);
     CameraBoom->TargetArmLength = DefaultArmLength;
@@ -24,14 +24,14 @@ APlayerCharacter::APlayerCharacter()
     FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
     FollowCamera->bUsePawnControlRotation = false;
 
-    // Ä³ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    // Ä³¸¯ÅÍ È¸Àü ¼¼ÆÃ
     bUseControllerRotationYaw = false;
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->JumpZVelocity = 600.0f;
     GetCharacterMovement()->bUseControllerDesiredRotation = true;
     GetCharacterMovement()->RotationRate = FRotator(0, 540, 0);
 
-    // ï¿½Ñ±ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½Ä¡
+    // ÃÑ±¸ ÀÌÆåÆ® À§Ä¡
     MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
     MuzzleLocation->SetupAttachment(GetMesh(), TEXT("Hand_RSocket"));
 
@@ -40,7 +40,7 @@ APlayerCharacter::APlayerCharacter()
     TargetFOV = DefaultFOV;
 }
 
-// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+// °ÔÀÓ ½ÃÀÛ
 void APlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
@@ -50,49 +50,83 @@ void APlayerCharacter::BeginPlay()
         if (AmmoUIWidget)
         {
             AmmoUIWidget->AddToViewport();
-            // ï¿½Ê±ï¿½ ÅºÈ¯ ï¿½ï¿½ï¿½ï¿½ UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­
+            // ÃÊ±â ÅºÈ¯ »óÅÂ UI·Î µ¿±âÈ­
             AmmoUIWidget->CallFunctionByNameWithArguments(TEXT("UpdateAmmoUI 30"), *GLog, NULL, true);
         }
-        if (CrosshairWidgetClass)
-        {
-            UUserWidget* CrosshairWidget = CreateWidget<UUserWidget>(GetWorld(), CrosshairWidgetClass);
-            if (CrosshairWidget)
-                CrosshairWidget->AddToViewport();
-        }
+
+    }
+
+    if (CrosshairWidget == nullptr && CrosshairWidgetClass)
+    {
+        CrosshairWidget = CreateWidget<UUserWidget>(GetWorld(), CrosshairWidgetClass);
+        if (CrosshairWidget)
+            CrosshairWidget->AddToViewport();
     }
     if (GamePlayUIWidgetClass)
     {
         GamePlayUIWidget = CreateWidget<UGamePlayUI>(GetWorld(), GamePlayUIWidgetClass);
         if (GamePlayUIWidget)
         {
+
             GamePlayUIWidget->SetHealth(CurrentHealth, MaxHealth);
             GamePlayUIWidget->AddToViewport();
             UE_LOG(LogTemp, Warning, TEXT("GamePlayUIWidget AddToViewport!"));
+
         }
     }
 }
-
-// Tick (Ä«ï¿½Þ¶ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½Îµå·¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 void APlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    CameraBoom->TargetArmLength = FMath::FInterpTo(
-        CameraBoom->TargetArmLength, TargetArmLength, DeltaTime, 10.f); // ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½ 8 (ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½Å­ ï¿½ï¿½ï¿½ï¿½)
-    CameraBoom->SocketOffset = FMath::VInterpTo(
-        CameraBoom->SocketOffset, TargetSocketOffset, DeltaTime, 10.f);
+    float Speed = GetVelocity().Size();
+    bool bShouldUseRunUpper = bIsAiming;
+    bool bShouldBeCarrying = HeldItem != nullptr;
+
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+    {
+        Anim->RealSpeed = Speed;
+        Anim->bUseForcedUpperSpeed = bIsAiming;
+        Anim->ForcedUpperSpeed = 600.f;
+        Anim->bUseUpperBodyRun = bShouldUseRunUpper;
+        Anim->bIsCarrying = bShouldBeCarrying;
+
+        bool bIsIdleAimingNow = bIsAiming && Speed < 5.f && !Anim->bIsFiring && !GetCharacterMovement()->IsFalling();
+        Anim->bIsIdleAiming = bIsIdleAimingNow;
+
+
+        // ¿î¹Ý »óÅÂ ¸ùÅ¸ÁÖ ½ÇÇà
+        if (bShouldBeCarrying && CarryingMontage)
+        {
+            if (!Anim->Montage_IsPlaying(CarryingMontage))
+            {
+                Anim->Montage_Play(CarryingMontage, 1.0f);
+            }
+        }
+        else if (CarryingMontage && Anim->Montage_IsPlaying(CarryingMontage))
+        {
+            Anim->Montage_Stop(0.1f, CarryingMontage);
+        }
+    }
+
+    // Ä«¸Þ¶ó º¸°£
+    CameraBoom->TargetArmLength = FMath::FInterpTo(CameraBoom->TargetArmLength, TargetArmLength, DeltaTime, 10.f);
+    CameraBoom->SocketOffset = FMath::VInterpTo(CameraBoom->SocketOffset, TargetSocketOffset, DeltaTime, 10.f);
     if (FollowCamera)
-        FollowCamera->SetFieldOfView(
-            FMath::FInterpTo(FollowCamera->FieldOfView, TargetFOV, DeltaTime, 10.f)
-        );
+    {
+        FollowCamera->SetFieldOfView(FMath::FInterpTo(FollowCamera->FieldOfView, TargetFOV, DeltaTime, 10.f));
+    }
 }
 
 
-// ï¿½Ô·ï¿½ ï¿½ï¿½ï¿½Îµï¿½
+
+// ÀÔ·Â ¹ÙÀÎµù
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+    PlayerInputComponent->BindAction("MoveForward", IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
+    PlayerInputComponent->BindAction("MoveRight", IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
     PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
     PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::Turn);
@@ -107,28 +141,39 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAction("DashBackward", IE_Pressed, this, &APlayerCharacter::OnDashBackward);
     PlayerInputComponent->BindAction("DashRight", IE_Pressed, this, &APlayerCharacter::OnDashRight);
     PlayerInputComponent->BindAction("DashLeft", IE_Pressed, this, &APlayerCharacter::OnDashLeft);
+    PlayerInputComponent->BindAction("Sit", IE_Pressed, this, &APlayerCharacter::ToggleSit);
+    PlayerInputComponent->BindKey(EKeys::W, IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
+    PlayerInputComponent->BindKey(EKeys::S, IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
+    PlayerInputComponent->BindKey(EKeys::A, IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
+    PlayerInputComponent->BindKey(EKeys::D, IE_Released, this, &APlayerCharacter::OnMoveKeyReleased);
 }
 
-// ï¿½Ìµï¿½/È¸ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½
+// ÀÌµ¿/È¸Àü/Á¡ÇÁ
 void APlayerCharacter::MoveForward(float Value)
 {
-    if (bIsInteracting || bIsDashing) return;
+    if (bIsInteracting || bIsDashing || IsSitting()) return;
     if (Controller && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
     {
         const FRotator ControlRot = GetControlRotation();
         const FRotator YawRot(0, ControlRot.Yaw, 0);
         const FVector Direction = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
         AddMovementInput(Direction, Value);
+
+        // ÀÌµ¿ Áß ÀÔ·Â ¹æÇâ ÀúÀå
+        LastMoveInputDirection = Direction * FMath::Sign(Value);
     }
 }
 void APlayerCharacter::MoveRight(float Value)
 {
-    if (bIsInteracting || bIsDashing) return;
+    if (bIsInteracting || bIsDashing || IsSitting()) return;
     if (Controller && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
     {
         const FRotator ControlRot = GetControlRotation();
         const FVector Direction = FRotationMatrix(ControlRot).GetUnitAxis(EAxis::Y);
         AddMovementInput(Direction, Value);
+
+        // ÀÌµ¿ Áß ÀÔ·Â ¹æÇâ ÀúÀå
+        LastMoveInputDirection = Direction * FMath::Sign(Value);
     }
 }
 void APlayerCharacter::Turn(float Value)
@@ -141,7 +186,7 @@ void APlayerCharacter::LookUp(float Value)
 }
 void APlayerCharacter::StartJump()
 {
-    if (bIsInteracting) return;
+    if (bIsInteracting || IsSitting()) return;
     if (GetCharacterMovement() && GetCharacterMovement()->IsFalling()) return;
     Jump();
 }
@@ -149,8 +194,49 @@ void APlayerCharacter::StopJump()
 {
     StopJumping();
 }
+void APlayerCharacter::OnMoveKeyReleased(FKey ReleasedKey)
+{
+    float CurrentTime = GetWorld()->GetTimeSeconds();
+    float* LastInputTimePtr = nullptr;
+    FVector DashDirection = FVector::ZeroVector;
 
-// ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
+    if (ReleasedKey == EKeys::W)
+    {
+        LastInputTimePtr = &LastWInputTime;
+        DashDirection = GetActorForwardVector();
+    }
+    else if (ReleasedKey == EKeys::S)
+    {
+        LastInputTimePtr = &LastSInputTime;
+        DashDirection = -GetActorForwardVector();
+    }
+    else if (ReleasedKey == EKeys::D)
+    {
+        LastInputTimePtr = &LastDInputTime;
+        DashDirection = GetActorRightVector();
+    }
+    else if (ReleasedKey == EKeys::A)
+    {
+        LastInputTimePtr = &LastAInputTime;
+        DashDirection = -GetActorRightVector();
+    }
+
+    if (LastInputTimePtr)
+    {
+        if (*LastInputTimePtr > 0.f && (CurrentTime - *LastInputTimePtr) < DoubleTapThreshold)
+        {
+            Dash(DashDirection);
+            *LastInputTimePtr = -1.f; // ¸®¼Â
+        }
+        else
+        {
+            *LastInputTimePtr = CurrentTime;
+        }
+    }
+}
+
+
+// ´ë½Ã (´õºíÅÇ)
 void APlayerCharacter::OnDashForward()
 {
     float CurrentTime = GetWorld()->GetTimeSeconds();
@@ -216,13 +302,14 @@ void APlayerCharacter::OnDashLeft()
 }
 void APlayerCharacter::Dash(const FVector& Direction)
 {
-    if (bIsInteracting) return;
+    if (bIsInteracting || IsSitting()) return;
     if (!bCanDash) return;
 
     bCanDash = false;
     bIsDashing = true;
-    bIsInvincible = true; // ï¿½ï¿½ ï¿½ë½¬ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ON
-
+    bIsInvincible = true; // ¡Ú ´ë½¬ ½ÃÀÛ ½Ã ¹«Àû ON
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+        Anim->bIsDashing = true;
     FVector DashDir = Direction;
     DashDir.Z = 0;
     if (DashDir.IsNearlyZero())
@@ -249,6 +336,8 @@ void APlayerCharacter::StopDashing()
     GetCharacterMovement()->BrakingFrictionFactor = 2.f;
     bIsDashing = false;
     bIsInvincible = false;
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+        Anim->bIsDashing = false;
     GetCharacterMovement()->bOrientRotationToMovement = true;
     UMyAnimInstance* MyAnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
     if (SprintMontage && MyAnimInstance)
@@ -260,39 +349,70 @@ void APlayerCharacter::ResetDash()
 {
     bCanDash = true;
 }
-//ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½)
+//°ßÂø ÇÔ¼ö(Åä±ÛÇü)
 void APlayerCharacter::ToggleAim()
 {
-    bIsAiming = !bIsAiming; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    if (bIsReloading || HeldItem || IsSitting()) return;
+    bIsAiming = !bIsAiming; // ¡Ú »óÅÂ ¹ÝÀü
 
+
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+    {
+        Anim->bIsAiming = bIsAiming;
+    }
     if (bIsAiming)
     {
-        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: FOV ï¿½ï¿½ï¿½ï¿½, Å©ï¿½Î½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+        // ¿¡ÀÓ ½ÃÀÛ: FOV º¯°æ, Å©·Î½ºÇì¾î º¯°æ µî
         TargetArmLength = AimArmLength;
         TargetSocketOffset = AimSocketOffset;
         TargetFOV = AimFOV;
+
     }
     else
     {
-        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½óº¹±ï¿½
+        // ¿¡ÀÓ ÇØÁ¦: ¿ø»óº¹±Í
         TargetArmLength = DefaultArmLength;
         TargetSocketOffset = DefaultSocketOffset;
         TargetFOV = DefaultFOV;
+
     }
 }
-// ï¿½ï¿½ï¿½(ï¿½ß»ï¿½)
+
+void APlayerCharacter::ResetAimStartPlayed()
+{
+    bIsAimStartPlayed = false;
+}
+// »ç°Ý(¹ß»ç)
 void APlayerCharacter::OnFire()
 {
-    if (!CanFire() || HeldItem || bIsReloading) return;
+    if (!CanFire() || HeldItem || bIsReloading || IsSitting()) return;
+
+    PerformFire();
+
+    GetWorldTimerManager().SetTimer(
+        AimStartResetHandle,
+        this,
+        &APlayerCharacter::ResetAimStartPlayed,
+        1.0f,
+        false
+    );
+}
+
+void APlayerCharacter::PerformFire()
+{
+    if (!CanFire() || bIsReloading || HeldItem || IsSitting()) return;
+    // »ç¿îµå
     UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
     --CurrentAmmo;
 
+    // UI µ¿±âÈ­
     if (AmmoUIWidget)
     {
         FString Args = FString::Printf(TEXT("UpdateAmmoUI %d"), CurrentAmmo);
         AmmoUIWidget->CallFunctionByNameWithArguments(*Args, *GLog, NULL, true);
     }
 
+    // ÃÑ±¸ ÀÌÆåÆ® ¹× ¶óÀÎÆ®·¹ÀÌ½º
     if (WeaponActor)
     {
         UStaticMeshComponent* MeshComp = WeaponActor->FindComponentByClass<UStaticMeshComponent>();
@@ -301,7 +421,6 @@ void APlayerCharacter::OnFire()
             FVector MuzzleLoc = MeshComp->GetSocketLocation("MuzzleSocket");
             FRotator MuzzleRot = MeshComp->GetSocketRotation("MuzzleSocket");
 
-            // Ä«ï¿½Þ¶ó¿¡¼ï¿½ Å©ï¿½Î½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½Ì½ï¿½
             FVector CamLoc = FollowCamera->GetComponentLocation();
             FVector CamDir = FollowCamera->GetForwardVector();
             FVector TraceEnd = CamLoc + (CamDir * 5000.f);
@@ -309,96 +428,84 @@ void APlayerCharacter::OnFire()
             FHitResult CameraHit;
             FCollisionQueryParams CamParams;
             CamParams.AddIgnoredActor(this);
-
             bool bCamHit = GetWorld()->LineTraceSingleByChannel(
-                CameraHit, CamLoc, TraceEnd, ECC_Visibility, CamParams
-            );
+                CameraHit, CamLoc, TraceEnd, ECC_Visibility, CamParams);
 
             FVector AimPoint = bCamHit ? CameraHit.ImpactPoint : TraceEnd;
 
-            // [Æ®ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½Ã°ï¿½È­]
-            DrawDebugLine(
-                GetWorld(),
-                MuzzleLoc,
-                AimPoint,
-                FColor::Yellow,
-                false,
-                0.05f,
-                0,
-                2.0f
-            );
+           
 
-            // ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½
             if (MuzzleFlashFX)
             {
-                UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-                    GetWorld(), MuzzleFlashFX, MuzzleLoc, MuzzleRot
-                );
+                UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), MuzzleFlashFX, MuzzleLoc, MuzzleRot);
             }
 
-            // [ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ±ï¿½ï¿½ï¿½ï¿½ï¿½ AimPointï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½Ì½ï¿½ ï¿½Ø¼ï¿½ Å¸ï¿½ï¿½ Ã¼Å©]
             FHitResult BulletHit;
             FCollisionQueryParams BulletParams;
             BulletParams.AddIgnoredActor(this);
-
             bool bBulletHit = GetWorld()->LineTraceSingleByChannel(
-                BulletHit, MuzzleLoc, AimPoint, ECC_Visibility, BulletParams
-            );
+                BulletHit, MuzzleLoc, AimPoint, ECC_Visibility, BulletParams);
 
+            FVector FinalEnd = bBulletHit ? BulletHit.ImpactPoint : AimPoint;
+            if (BulletTracerFX)
+            {
+                FVector Direction = (FinalEnd - MuzzleLoc).GetSafeNormal();;
+                UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+                    GetWorld(),
+                    BulletTracerFX,
+                    MuzzleLoc,
+                    Direction.Rotation()
+                );
+            }
             if (bBulletHit)
             {
-                // ï¿½Ç°Ýµï¿½ ï¿½ï¿½ï¿½Í°ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
                 AActor* HitActor = BulletHit.GetActor();
                 if (HitActor && HitActor != this)
                 {
-                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½: 20)
                     float Damage = 1.0f;
-
-                    UGameplayStatics::ApplyPointDamage(
-                        HitActor,                        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ô´ï¿½ ï¿½ï¿½ï¿½ï¿½
-                        Damage,                          // ï¿½ï¿½ï¿½Ø·ï¿½
-                        (AimPoint - MuzzleLoc).GetSafeNormal(), // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
-                        BulletHit,                       // Hit ï¿½ï¿½ï¿½ï¿½
-                        GetController(),                 // InstigatorController
-                        this,                            // DamageCauser
-                        nullptr                          // DamageTypeClass(ï¿½âº» null)
-                    );
+                    UGameplayStatics::ApplyPointDamage(HitActor, Damage,
+                        (AimPoint - MuzzleLoc).GetSafeNormal(), BulletHit, GetController(), this, nullptr);
                 }
             }
         }
     }
 
-    UMyAnimInstance* MyAnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
-    if (MyAnimInstance)
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
     {
-        MyAnimInstance->IsFiring = true;
+        Anim->bIsFiring = true;
+
+        if (FireMontage)
+        {
+            Anim->Montage_Play(FireMontage);
+        }
     }
-    if (Fire_Montage && MyAnimInstance)
-    {
-        MyAnimInstance->Montage_Play(Fire_Montage);
-    }
 
-    GetWorldTimerManager().SetTimer(FireTimerHandle, this, &APlayerCharacter::ResetIsFiring, 0.2f, false);
-}
+    float Duration = FireMontage ? FireMontage->GetPlayLength() : 0.3f;
+    GetWorldTimerManager().SetTimer(FireTimerHandle, this, &APlayerCharacter::ResetIsFiring, Duration, false);
+} 
 
 
 
-// ï¿½ß»ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+// ¹ß»ç »óÅÂ ¸®¼Â
 void APlayerCharacter::ResetIsFiring()
 {
-    UMyAnimInstance* MyAnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
-    if (MyAnimInstance)
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
     {
-        MyAnimInstance->IsFiring = false;
+        Anim->bIsFiring = false;
     }
 }
 
-// ï¿½ï¿½ï¿½Îµï¿½
+// ¸®·Îµå
 void APlayerCharacter::Reload()
 {
-    if (bIsReloading || CurrentAmmo == MaxAmmo) return;  // ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì°Å³ï¿½ ï¿½ï¿½ Ã¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    if (bIsReloading || CurrentAmmo == MaxAmmo || IsSitting()) return;  // ÀÌ¹Ì ÀåÀü ÁßÀÌ°Å³ª ²Ë Ã¡À¸¸é ¹«½Ã
+    if (bIsAiming) {
+        ToggleAim();
 
+    }
     bIsReloading = true;
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+        Anim->bIsReloading = true;
 
     UGameplayStatics::PlaySoundAtLocation(this, ReloadSound, GetActorLocation());
 
@@ -408,14 +515,16 @@ void APlayerCharacter::Reload()
         MyAnimInstance->Montage_Play(ReloadMontage);
         float MontageDuration = ReloadMontage->GetPlayLength();
 
-        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Ã³ï¿½ï¿½ (Å¸ï¿½Ì¸ï¿½)
+        // ÀåÀü ³¡³­ ÈÄ Ã³¸® (Å¸ÀÌ¸Ó)
         GetWorldTimerManager().SetTimer(
             FireTimerHandle,
             [this]()
             {
                 CurrentAmmo = MaxAmmo;
                 bIsReloading = false;
-                // UI ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ ï¿½ß°ï¿½
+                if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+                    Anim->bIsReloading = false;
+                // UI °»½Å µî ÇÊ¿ä½Ã Ãß°¡
                 if (AmmoUIWidget)
                 {
                     FString Args = FString::Printf(TEXT("UpdateAmmoUI %d"), CurrentAmmo);
@@ -428,15 +537,18 @@ void APlayerCharacter::Reload()
     }
     else
     {
-        // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
+        // ¾Ö´Ï¸ÞÀÌ¼Ç ¾øÀ» ¶§ Áï½Ã Ã³¸®
         CurrentAmmo = MaxAmmo;
         bIsReloading = false;
+        if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+            Anim->bIsReloading = false;
     }
 }
 
-// ï¿½ï¿½È£ï¿½Û¿ï¿½(ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
+// »óÈ£ÀÛ¿ë(¹°°Ç Áý±â/¹ö¸®±â)
 void APlayerCharacter::Interact()
 {
+    if (IsSitting()) return; // ¾É¾ÆÀÖÀ¸¸é »óÈ£ÀÛ¿ë ¹«½Ã
     if (HeldItem)
     {
         UStaticMeshComponent* MeshComp = HeldItem->FindComponentByClass<UStaticMeshComponent>();
@@ -458,7 +570,7 @@ void APlayerCharacter::Interact()
         return;
     }
 
-    // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ Å½ï¿½ï¿½
+    // µé°í ÀÖÁö ¾ÊÀ» ¶§: Áý±â Å½»ö
     FVector Start = FollowCamera->GetComponentLocation() + FollowCamera->GetForwardVector() * 30.f;
     FVector ForwardVector = FollowCamera->GetForwardVector();
     FVector End = Start + (ForwardVector * 500.f);
@@ -479,11 +591,17 @@ void APlayerCharacter::Interact()
         if (PendingPickupActor) return;
         PendingPickupActor = Hit.GetActor();
         PendingPickupMesh = Cast<UStaticMeshComponent>(Hit.GetComponent());
-
+        if (PickupSound)
+        {
+            UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+        }
         UMyAnimInstance* MyAnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
         if (InteractMontage && MyAnimInstance)
         {
             bIsInteracting = true;
+            if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance())) {
+                Anim->bIsInteracting = true;
+            }
             MyAnimInstance->Montage_Play(InteractMontage);
 
             GetWorldTimerManager().ClearTimer(PickupTimerHandle);
@@ -501,7 +619,7 @@ void APlayerCharacter::Interact()
     }
 }
 
-// ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
+// ¾Ö´Ï ³¡³ª°í Áý±â Ã³¸®
 void APlayerCharacter::AttachPendingPickup()
 {
     if (!PendingPickupActor || !PendingPickupMesh || HeldItem) {
@@ -511,6 +629,9 @@ void APlayerCharacter::AttachPendingPickup()
     }
 
     bIsInteracting = false;
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance())) {
+        Anim->bIsInteracting = false;
+    }
     if (PendingPickupMesh->Mobility != EComponentMobility::Movable)
         PendingPickupMesh->SetMobility(EComponentMobility::Movable);
 
@@ -541,7 +662,7 @@ void APlayerCharacter::UpdateHealthUI()
     }
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½/ï¿½ï¿½ï¿½
+// µ¥¹ÌÁö Ã³¸®/»ç¸Á
 float APlayerCharacter::TakeDamage(
     float DamageAmount,
     FDamageEvent const& DamageEvent,
@@ -549,26 +670,26 @@ float APlayerCharacter::TakeDamage(
     AActor* DamageCauser
 )
 {
-    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ReceiveDamageï¿½ï¿½ È£ï¿½ï¿½!
+    // ¿£ÁøÀÌ È£ÃâÇÏ¸é ³»ºÎÀûÀ¸·Î ReceiveDamage¸¸ È£Ãâ!
     ReceiveDamage(DamageAmount);
     return DamageAmount;
 }
 
 void APlayerCharacter::ReceiveDamage(float DamageAmount)
 {
-    // ï¿½Ì¹ï¿½ ï¿½×¾ï¿½ï¿½Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
+    // ÀÌ¹Ì Á×¾ú°Å³ª ¹«ÀûÀÌ¸é ¹«½Ã
     if (bIsDead) return;
     if (bIsInvincible) return;
 
-    // 1. Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    // 1. Ã¼·Â °¨¼Ò
     CurrentHealth -= DamageAmount;
     CurrentHealth = FMath::Clamp(CurrentHealth, 0.f, MaxHealth);
 
-    // 2. ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ (ï¿½Ê¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    // 2. µð¹ö±× Ãâ·Â (ÇÊ¿ä ¾øÀ¸¸é »ý·«)
     UE_LOG(LogTemp, Warning, TEXT("maxhp: %.1f, curhp: %.1f, receive: %.1f"),
         MaxHealth, CurrentHealth, DamageAmount);
-    
-    // 3. UI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (BP ï¿½ï¿½ SetHealth ï¿½Ô¼ï¿½ È£ï¿½ï¿½)
+
+    // 3. UI ¾÷µ¥ÀÌÆ® (BP ÂÊ SetHealth ÇÔ¼ö È£Ãâ)
     UGamePlayUI* TypedWidget = Cast<UGamePlayUI>(GamePlayUIWidget);
     if (TypedWidget)
     {
@@ -577,17 +698,17 @@ void APlayerCharacter::ReceiveDamage(float DamageAmount)
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("UGamePlayUI Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!! (GamePlayUIWidget ï¿½Î¸ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ or BP ï¿½ï¿½ï¿½ï¿½)"));
+        UE_LOG(LogTemp, Error, TEXT("UGamePlayUI Ä³½ºÆÃ ½ÇÆÐ!! (GamePlayUIWidget ºÎ¸ð Å¬·¡½º ¹®Á¦ or BP ²¿ÀÓ)"));
     }
 
 
-    // 4. (ï¿½ï¿½ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç°ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½
+    // 4. (¼±ÅÃ) µ¥¹ÌÁö ÇÇ°Ý ¾Ö´Ï¸ÞÀÌ¼Ç µî
 
-    // 5. ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
+    // 5. »ç¸Á Ã³¸®
     if (CurrentHealth <= 0.f)
     {
         CurrentHealth = 0.f;
-        Die();   // ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
+        Die();   // »ç¸Á ÇÔ¼ö È£Ãâ
     }
 }
 
@@ -596,6 +717,8 @@ void APlayerCharacter::Die()
 {
     if (bIsDead) return;
     bIsDead = true;
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+        Anim->bIsDead = true;
 
     APlayerController* PC = Cast<APlayerController>(GetController());
     if (PC)
@@ -614,14 +737,52 @@ void APlayerCharacter::Die()
     }
     GetWorldTimerManager().SetTimer(
         DeathTimerHandle,
-        [this]() { Destroy(); },
-        3.0f,
+        [this]() {
+            GetMesh()->bPauseAnims = true;
+            Destroy(); // Ä³¸¯ÅÍ Á¦°Å
+        },
+        2.0f,
         false
     );
 }
-
-// ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½(ï¿½ï¿½ï¿½ï¿½)
-void APlayerCharacter::PlayDashAnimation()
+void APlayerCharacter::ToggleSit()
 {
-    UE_LOG(LogTemp, Warning, TEXT("PlayDashAnimation called!"));
+    if (bIsInteracting || bIsDashing || bIsReloading || bIsAiming || bIsDead || PendingPickupActor) return;
+
+    if (UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance()))
+    {
+        // »óÅÂ ÀüÀÌ ÁßÀÌ¶ó¸é ¹«½Ã
+        if (Anim->bIsInSitTransition)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Sit input ignored: in transition"));
+            return;
+        }
+
+        if (!Anim->bIsSittingPressed && !Anim->bIsSittingState)
+        {
+            // ¾É±â ½ÃÀÛ ¿äÃ»
+            Anim->bIsSittingPressed = true;
+            UE_LOG(LogTemp, Warning, TEXT("Sit Start Requested"));
+        }
+        else if (Anim->bIsSittingState)
+        {
+            // ÀÏ¾î³ª±â ¿äÃ»
+            Anim->bSitToggleRequested = true;
+            UE_LOG(LogTemp, Warning, TEXT("Stand Up Requested"));
+        }
+
+        UE_LOG(LogTemp, Warning, TEXT("Pressed: %d, Toggle: %d, State: %d"),
+            Anim->bIsSittingPressed, Anim->bSitToggleRequested, Anim->bIsSittingState);
+    }       
 }
+
+
+bool APlayerCharacter::IsSitting() const
+{
+    const UMyAnimInstance* Anim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
+    return Anim ? Anim->IsSitting() : false;
+}
+
+
+
+

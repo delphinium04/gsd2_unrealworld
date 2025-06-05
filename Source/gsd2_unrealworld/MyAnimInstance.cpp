@@ -1,5 +1,5 @@
 #include "MyAnimInstance.h"
-#include "GameFramework/Character.h"
+#include "PlayerCharacter.h"
 #include "GameFramework/Controller.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -10,7 +10,7 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
     APawn* Pawn = TryGetPawnOwner();
     if (!Pawn) return;
 
-    ACharacter* Character = Cast<ACharacter>(Pawn);
+    APlayerCharacter* Character = Cast<APlayerCharacter>(Pawn);
     if (!Character || !Character->GetController()) return;
 
     FRotator ControlRot = Character->GetControlRotation();
@@ -19,5 +19,14 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
     AimYaw = DeltaRot.Yaw;
     AimPitch = FMath::Clamp(DeltaRot.Pitch, -45.0f, 45.0f);
-    //UE_LOG(LogTemp, Warning, TEXT("UpdateAnim! Pitch:%f Yaw:%f"), AimPitch, AimYaw);
+
+    bIsDead = Character->bIsDead;
+
+
+
+
+}
+bool UMyAnimInstance::IsSitting() const
+{
+    return bIsSittingState;
 }
