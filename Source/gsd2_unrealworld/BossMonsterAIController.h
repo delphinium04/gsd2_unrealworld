@@ -7,7 +7,7 @@
 #include "BossMonster.h"
 #include "BossMonsterAIController.generated.h"
 
-UENUM(BlueprintType) //                  Ÿ  
+UENUM(BlueprintType) // ���� ������ ���� Ÿ��
 enum class EAttackType : uint8
 {
 	Attack1,
@@ -27,16 +27,17 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
-	void SetState(EMonsterState NewState) override; //               
-	void Attack() override; //      Լ        
+	void SetState(EMonsterState NewState) override; // ���� ���� ����
+	void Attack() override; //���� �Լ� ������
 
 	UPROPERTY()
-	ABossMonster* BossMonster = nullptr; //               
+	ABossMonster* BossMonster = nullptr; // ���� ���� ����
 
-	float GetCooldownForAttackType(EAttackType Type); //      Ÿ Կ         Ÿ     ȯ
-	EAttackType PickRandomAttackType(); //           Ÿ       
+	float GetCooldownForAttackType(EAttackType Type); // ���� Ÿ�Կ� ���� ��Ÿ�� ��ȯ
+	EAttackType PickRandomAttackType(); // ���� ���� Ÿ�� ����
+	
+	void ChasePlayerToAttack() override; // �÷��̾ �����Ͽ� ���� ��ġ�� �̵�
 
-	void ChasePlayerToAttack() override; //  ÷  ̾      Ͽ         ġ    ̵ 
 	FVector LastTargetLocation;
 
 };

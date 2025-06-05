@@ -2,32 +2,32 @@
 #include "MonsterBase.h"
 #include "MonsterBgmManager.h"
 #include "BossMonsterAIController.h"
-#include "MonsterAIControllerBase.h" //      AI   Ʈ ѷ 
+#include "MonsterAIControllerBase.h" // ���� AI ��Ʈ�ѷ�
 #include "Components/CapsuleComponent.h"
-#include "Kismet/GameplayStatics.h" //  ÷  ̾      ,     ,     Ʈ
-#include "GameFramework/CharacterMovementComponent.h" // ĳ      ̵        Ʈ
-#include "PhysicsEngine/ConstraintInstance.h" //            ν  Ͻ 
+#include "Kismet/GameplayStatics.h" // �÷��̾� ����, ����, ����Ʈ
+#include "GameFramework/CharacterMovementComponent.h" // ĳ���� �̵� ������Ʈ
+#include "PhysicsEngine/ConstraintInstance.h" // ���� ���� �ν��Ͻ�
 
 AMonsterBase::AMonsterBase() {
-	GetCharacterMovement()->SetMovementMode(MOVE_Walking); //  ȱ     
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking); // �ȱ� ���
 
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned; // AI  ڵ    ȯ
-	AIControllerClass = AMonsterAIControllerBase::StaticClass(); // AIController          
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned; // AI �ڵ� ��ȯ
+	AIControllerClass = AMonsterAIControllerBase::StaticClass(); // AIController ���� ����
 
-	GetCapsuleComponent()->SetCanEverAffectNavigation(true); // NavMesh          
+	GetCapsuleComponent()->SetCanEverAffectNavigation(true); // NavMesh ���� ����
 }
 void AMonsterBase::UpdateHealthBar() {};
 
 void AMonsterBase::BeginPlay() {
 	Super::BeginPlay();
-	//         ʱ           
-	CurrentHealth = MaxHealth; //      ü    ʱ ȭ
-	bIsDead = false; //            ʱ ȭ
+	// ������ �ʱ� ���� ����
+	CurrentHealth = MaxHealth; // ���� ü�� �ʱ�ȭ
+	bIsDead = false; // ���� ���� �ʱ�ȭ
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	PlayerCameraManager = PlayerController ? PlayerController->PlayerCameraManager : nullptr;
-	AnimInstance = GetMesh()->GetAnimInstance(); //  ִϸ  ̼   ν  Ͻ          
-	AIController = Cast<AMonsterAIControllerBase>(GetController()); // AI   Ʈ ѷ          
-	UpdateHealthBar(); // ü ¹        ʱ ȭ       Ʈ
+	AnimInstance = GetMesh()->GetAnimInstance(); // �ִϸ��̼� �ν��Ͻ� ��������
+	AIController = Cast<AMonsterAIControllerBase>(GetController()); // AI ��Ʈ�ѷ� ��������
+	UpdateHealthBar(); // ü�¹� ���� �ʱ�ȭ ������Ʈ
 }
 
 void AMonsterBase::Tick(float DeltaTime)
@@ -55,26 +55,27 @@ void AMonsterBase::Die()
 	UE_LOG(LogTemp, Warning, TEXT("Monster Die() Called: %s"), *GetName());
 	if (AnimInstance && DeathMontage)
 	{
-		AnimInstance->Montage_Play(DeathMontage); //       ִϸ  ̼     
+		AnimInstance->Montage_Play(DeathMontage); // ���� �ִϸ��̼� ���
 	}
 
 	if (!Cast<ABossMonsterAIController>(AIController))
 	{
-		AIController->bWasTrackingPlayer = false; // AI   Ʈ ѷ     Ͱ     ų      
-		AIController->BGMManager->OnMonsterLosePlayer(); // BGM    Ͱ     ų      
+		AIController->bWasTrackingPlayer = false; // AI ��Ʈ�ѷ� ���Ͱ� ���ų� ����
+		AIController->BGMManager->OnMonsterLosePlayer(); // BGM ���Ͱ� ���ų� ����
 	}
 
 	if (AIController) {
 		AIController->StopMovement();
-		AIController->UnPossess(); // AI   Ʈ ѷ        
+		AIController->UnPossess(); // AI ��Ʈ�ѷ� ������
 	}
 
-	GetCharacterMovement()->DisableMovement(); //         Ȱ  ȭ
+	GetCharacterMovement()->DisableMovement(); //������ ��Ȱ��ȭ
 
 	if (HealthBarWidget) {
-		HealthBarWidget->SetVisibility(false); // ü ¹      
+		HealthBarWidget->SetVisibility(false); // ü�¹� ����
 	}
-	SetLifeSpan(5.0f); // 5    Ŀ   ڵ      
+	SetLifeSpan(5.0f); // 5�� �Ŀ� �ڵ� ����
+
 	
 }
 
@@ -84,20 +85,20 @@ float AMonsterBase::TakeDamage(float DamageAmount, const FDamageEvent& DamageEve
 	return DamageAmount;
 }
 
-//    Ͱ     ظ   Ծ      
+// ���Ͱ� ���ظ� �Ծ��� ��
 void AMonsterBase::ReceiveDamage(float DamageAmount)
 {
 	if (bIsDead) return;
-	//AI   Ʈ ѷ               
+	//AI ��Ʈ�ѷ����� ���� ����
 	if (AIController)
 	{
-		// ü     0    ϰ   Ǹ          ·    ȯ
+		// ü���� 0 ���ϰ� �Ǹ� ���� ���·� ��ȯ
 		if (CurrentHealth - DamageAmount <= 0.f)
 		{
 			AIController->SetState(EMonsterState::Dead);
 			Die(); 
 		}
-		else // ƴϸ     ظ   Դ    
+		else //�ƴϸ� ���ظ� �Դ� ��
 		{
 			AIController->SetState(EMonsterState::BeingHit);
 		}
@@ -105,10 +106,10 @@ void AMonsterBase::ReceiveDamage(float DamageAmount)
 
 	CurrentHealth -= DamageAmount;
 	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth after damage: %f"), CurrentHealth);
-	UpdateHealthBar(); // ü ¹        Ʈ
+	UpdateHealthBar(); // ü�¹� ������Ʈ
 }
 
-void AMonsterBase::MonsterBreakParts() //               Ƽ   ̷   ִϸ  ̼ǿ    ȣ  
+void AMonsterBase::MonsterBreakParts() //���� ������� ��Ƽ���̷� �ִϸ��̼ǿ��� ȣ��
 {
 	UE_LOG(LogTemp, Warning, TEXT("broken"));
 	if (USkeletalMeshComponent* SkeletalMesh = GetMesh())
@@ -116,7 +117,7 @@ void AMonsterBase::MonsterBreakParts() //               Ƽ   ̷   ִϸ  ̼ǿ    
 
 		SkeletalMesh->SetSimulatePhysics(false); 
 
-		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("pelvis", true, true); //   ü  
+		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("pelvis", true, true); // ��ü��
 		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("upperarm_l", true, true);
 		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("upperarm_r", true, true);
 		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("thigh_l", true, true);
@@ -129,7 +130,7 @@ void AMonsterBase::MonsterBreakParts() //               Ƽ   ̷   ִϸ  ̼ǿ    
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("upperarm_r", 1.0f);
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_l", 1.0f);
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_r", 1.0f);
-		// Ʀ    ..?
+		// Ʀ����..?
 		SkeletalMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 		SkeletalMesh->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
 

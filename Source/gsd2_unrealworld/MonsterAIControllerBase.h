@@ -1,7 +1,7 @@
 //MonsterAIControllerBase.h
 #pragma once
 
-//         AI    ⺻ Ŭ    
+//��� ���� AI�� �⺻ Ŭ����
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -37,35 +37,35 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
-	virtual void SetState(EMonsterState NewState); //               
+	virtual void SetState(EMonsterState NewState); // ���� ���� ����
+
 
 	//bgm
 	UPROPERTY()
 	class AMonsterBgmManager* BGMManager;
 
-	bool bWasTrackingPlayer = false; //  ÷  ̾                 
+	bool bWasTrackingPlayer = false; // �÷��̾ ���� ������ ����
 
-	//              Ʈ    Ϳ        ϱ      
+	//�� ������ ����Ʈ ���Ϳ��� ����ϱ� ����
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	APawn* TargetPlayer; // Ÿ    ÷  ̾ 
+	APawn* TargetPlayer; // Ÿ�� �÷��̾�
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	float DistanceToPlayer; //  ÷  ̾      Ÿ 
+	float DistanceToPlayer; // �÷��̾���� �Ÿ�
 
 	void ChasePlayer();
 	virtual void ChasePlayerToAttack();
 protected:
+	//���� ó��
+	void Patrol();                // ���� ���� ó��
+	void ResetAttackCooldown();   // ���� ��Ÿ�� �ʱ�ȭ
+	virtual void Attack(); // ���� ���� ó��
 
-	//     ó  
-	void Patrol();                //           ó  
-	void ResetAttackCooldown();   //        Ÿ    ʱ ȭ
-	virtual void Attack(); //           ó  
-
-	//     ó  (AI Perception)
+	//���� ó��(AI Perception)
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
-	//     Ÿ ̸ 
+	//���� Ÿ�̸�
 	FTimerHandle AttackDelayHandle;
 	FTimerHandle PatrolDelayHandle;
 	FTimerHandle DestroyTimerHandle;
@@ -73,46 +73,45 @@ protected:
 	FTimerHandle NavDelayHandle;
 	FTimerHandle LastSeenMoveHandle;
 	FTimerHandle AppearDelayHandle;
-
-	//          
+	// ���� ����
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	EMonsterState CurrentState; //          
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	AMonsterBase* ControlledMonster; //      ϴ      
+	EMonsterState CurrentState; // ���� ����
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	FVector CurrentMoveTarget; //       ̵    ǥ   ġ
+	AMonsterBase* ControlledMonster; // �����ϴ� ����
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	FVector CurrentMoveTarget; // ���� �̵� ��ǥ ��ġ
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	bool bCanAttack = true; //               
+	bool bCanAttack = true; // ���� ���� ����
 
-	//         
+	//���� ����
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	float PatrolDelay = 3.0f; //            
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	float PatrolRadius = 500.f; //      ݰ 
+	float PatrolDelay = 3.0f; // ���� ������
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	float DetectionDistance = 300.f; //Ž    Ÿ (AI Perception          ϴ   Ϳ       ϰ   ʹ      ﶧ)
+	float PatrolRadius = 500.f; //���� �ݰ�
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float DetectionDistance = 300.f; //Ž�� �Ÿ�(AI Perception���� �����ϴ� �Ϳ� �����ϰ� �ʹ� ����ﶧ)
 
 	UPROPERTY(EditAnywhere, Category = "AI")
-	FVector PatrolOrigin; //             ġ
+	FVector PatrolOrigin; // ���� ���� ��ġ
 
-	// ȸ       
-	FRotator LookAroundStartRotation; // ȸ            
-	float LookAroundElapsed = 0.f; // ȸ        ð 
-	bool bIsLookingAround = false; // ȸ              
+	// ȸ�� ����
+	FRotator LookAroundStartRotation; // ȸ�� ���� ����
+	float LookAroundElapsed = 0.f; // ȸ�� ��� �ð�
+	bool bIsLookingAround = false; // ȸ�� ������ ����
 
-	//  ׺   ̼      
+	// �׺���̼� ����
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	UNavigationSystemV1* NavSys; //  ׺   ̼   ý   
+	UNavigationSystemV1* NavSys; // �׺���̼� �ý���
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	bool bMoveFailedHandled = false; //  ̵       ó       
+	bool bMoveFailedHandled = false; // �̵� ���� ó�� ����
 
-	// === AI Perception ( þ      ) ===
+	// === AI Perception (�þ� ����) ===
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	UAIPerceptionComponent* AIPerceptionComponent;
 

@@ -22,7 +22,8 @@ public:
 	FVector InitialDirection;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void ShootProjectile(); //Attack3  ? ?  ?  ?    ??     
+
+	void ShootProjectile(); //Attack3 �߻�ü �߻��Ҷ� ��ƼŬ ����
 
 	virtual void BeginPlay() override;
 

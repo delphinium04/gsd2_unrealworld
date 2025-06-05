@@ -5,24 +5,24 @@
 #include "CoreMinimal.h"
 #include "NavigationSystem.h"
 #include "Components/CapsuleComponent.h"
-#include "Kismet/GameplayStatics.h" //  ÷  ̾      ,     ,     Ʈ
+#include "Kismet/GameplayStatics.h" // �÷��̾� ����, ����, ����Ʈ
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Animation/AnimInstance.h" //  ִϸ  ̼   ν  Ͻ 
-#include "MonsterHealthWidget.h" //      ü       
+#include "Animation/AnimInstance.h" // �ִϸ��̼� �ν��Ͻ�
+#include "MonsterHealthWidget.h" // ���� ü�� ����
 #include "GameFramework/ProjectileMovementComponent.h"
 
 ABossMonster::ABossMonster() {
 	PrimaryActorTick.bCanEverTick = true;
-	//         ⺻  Ӽ      
-	GetCharacterMovement()->NavAgentProps.AgentRadius = 35.f; //              
-	GetCharacterMovement()->NavAgentProps.AgentHeight = 220.f; //            
+	// ������ �⺻ �Ӽ� ����
+	GetCharacterMovement()->NavAgentProps.AgentRadius = 35.f; // ������ ������
+	GetCharacterMovement()->NavAgentProps.AgentHeight = 220.f; // ������ ����
 
-	MaxHealth = 100.f; //  ִ  ü  
-	AttackDamage = 10.f; //    ݷ 
-	CloseRangeAttack = 1500.f; //  ٰŸ           
-	LongRangeAttack = 1500.f; //    Ÿ           
-	AttackCooldown = 1.0f; //        Ÿ  
-	GetCharacterMovement()->MaxWalkSpeed = 400.f; //  ȴ   ӵ      
+	MaxHealth = 100.f; // �ִ� ü��
+	AttackDamage = 10.f; // ���ݷ�
+	CloseRangeAttack = 1500.f; // �ٰŸ� ���� ����
+	LongRangeAttack = 1500.f; // ���Ÿ� ���� ����
+	AttackCooldown = 1.0f; // ���� ��Ÿ��
+	GetCharacterMovement()->MaxWalkSpeed = 400.f; // �ȴ� �ӵ� ����
 }
 
 void ABossMonster::BeginPlay() {
@@ -49,19 +49,20 @@ void ABossMonster::UpdateHealthBar()
 	}
 }
 
-void ABossMonster::Die() //    Ͱ   ׾       ȣ  Ǵ   Լ 
+void ABossMonster::Die() // ���Ͱ� �׾��� �� ȣ��Ǵ� �Լ�
+
 {
 	Super::Die();
 
 	if (BossHealthUI)
 	{
-		BossHealthUI->RemoveFromViewport(); // ü ¹           
-		BossHealthUI = nullptr; //         ʱ ȭ
+		BossHealthUI->RemoveFromViewport(); // ü�¹� ���� ����
+		BossHealthUI = nullptr; // ������ �ʱ�ȭ
 	}
 	SetLifeSpan(3.0f);
 }
 
-void ABossMonster::PlayMontage(UAnimMontage* Montage) //  ִϸ  ̼    Ÿ      
+void ABossMonster::PlayMontage(UAnimMontage* Montage) // �ִϸ��̼� ��Ÿ�� ���
 {
 	if (!Montage || !AnimInstance)
 	{
@@ -71,7 +72,8 @@ void ABossMonster::PlayMontage(UAnimMontage* Montage) //  ִϸ  ̼    Ÿ
 		return;
 	}
 
-	AIController->StopMovement(); // AI   Ʈ ѷ     ̵      
+
+	AIController->StopMovement(); // AI ��Ʈ�ѷ��� �̵� ����
 
 	if (!AnimInstance->Montage_IsPlaying(Montage))
 	{
@@ -97,17 +99,19 @@ void ABossMonster::TeleportToPlayer()
 	FVector PlayerLocation = AIController->TargetPlayer->GetActorLocation();
 	FNavLocation FinalLocation;
 	const int MaxTries = 15;
-	bool bFound = false; // ã ҳ    ã  	       
 
-	// ּ   Ÿ   ̻       ϴ    ġ ã  
+	bool bFound = false; // ã�ҳ� ��ã��	�� ����
+
+	//�ּ� �Ÿ� �̻� �����ϴ� ��ġ ã��
+
 	for (int i = 0; i < MaxTries; ++i)
 	{
 		FNavLocation TestLocation;
 
-		if (NavSys->GetRandomReachablePointInRadius(PlayerLocation, MaxTeleportDistance, TestLocation)) //  ִ        ȿ   ִ               ޱ 
+		if (NavSys->GetRandomReachablePointInRadius(PlayerLocation, MaxTeleportDistance, TestLocation)) // �ִ� ���� �ȿ� �ִ� ���� ��� �� �ޱ�
 		{
 			float Distance = FVector::Dist(PlayerLocation, TestLocation.Location);
-			if (Distance >= MinTeleportDistance)  //          ּ   Ÿ   ̻  ϶ 
+			if (Distance >= MinTeleportDistance)  // �� ���� �ּ� �Ÿ� �̻��϶�
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Try %d: Distance = %.1f"), i, Distance);
 				FinalLocation = TestLocation;
@@ -121,10 +125,10 @@ void ABossMonster::TeleportToPlayer()
 		}
 	}
 
-	//  ּ   Ÿ   ̻       ϴ    ġ   ã            
+	// �ּ� �Ÿ� �̻� �����ϴ� ��ġ�� ã�� ������ ��
 	if (!bFound)
 	{
-		//  ִ                       ġ   ã  
+		// �ִ� ���� ������ ������ ��ġ�� ã��
 		FNavLocation BackupLocation;
 		if (NavSys->GetRandomReachablePointInRadius(PlayerLocation, MaxTeleportDistance, BackupLocation))
 		{
@@ -139,7 +143,8 @@ void ABossMonster::TeleportToPlayer()
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TeleportOutEffect, GetActorLocation());
 		}
-		FinalLocation.Location.Z += 50.f; // Z     50  ŭ      ϴ      
+		FinalLocation.Location.Z += 50.f; // Z���� 50��ŭ �����ϴ� ����
+
 		bool bSuccess = TeleportTo(FinalLocation.Location, GetActorRotation(), false, false);
 
 		if (TeleportInEffect)
@@ -159,22 +164,22 @@ void ABossMonster::ShootAttack1Projectile()
 	FVector Up = GetActorUpVector();
 
 	TArray<FVector> Directions;
-	Directions.Add((Right * -1.f + Up * 1.f).GetSafeNormal());  //        
-	Directions.Add((Right * -1.f).GetSafeNormal());             //     
-	Directions.Add((Right * 1.f + Up * 1.f).GetSafeNormal());   //          
+	Directions.Add((Right * -1.f + Up * 1.f).GetSafeNormal());  // ���� ��
+	Directions.Add((Right * -1.f).GetSafeNormal());             // ����
+	Directions.Add((Right * 1.f + Up * 1.f).GetSafeNormal());   // ������ ��
 	Directions.Add((Right * 1.f).GetSafeNormal());
 
 	if (Attack1Projectile)
 	{
-		//      ܰ 
+		//���� �ܰ�
 		for (int32 i = 0; i < 4; ++i) {
-			FName SocketName = FName(*FString::Printf(TEXT("Attack1Spawn%d"), i + 1)); // Attack1Spawn1, Attack1Spawn2, Attack1Spawn3, Attack1Spawn4       ̸      
+			FName SocketName = FName(*FString::Printf(TEXT("Attack1Spawn%d"), i + 1)); // Attack1Spawn1, Attack1Spawn2, Attack1Spawn3, Attack1Spawn4 ���� �̸� ����
 			FVector SpawnLocation = GetMesh()->GetSocketLocation(FName(SocketName));
-			FRotator SpawnRotation = FRotator::ZeroRotator; //        ȸ                ʰ   ⺻ ȸ        
+			FRotator SpawnRotation = FRotator::ZeroRotator; // ������ ȸ������ ������� �ʰ� �⺻ ȸ���� ���
 
 			FActorSpawnParameters Params;
 			Params.Owner = this;
-			Params.Instigator = Cast<APawn>(this); //  ߻ ü        ڿ   ν Ƽ     ͷ        
+			Params.Instigator = Cast<APawn>(this); // �߻�ü�� �����ڿ� �ν�Ƽ�����ͷ� ������
 
 			ABoss_Projectile* SpawnedAttack1Projectile = GetWorld()->SpawnActor<ABoss_Projectile>(Attack1Projectile, SpawnLocation, SpawnRotation, Params);
 			if (UPrimitiveComponent* Collision = Cast<UPrimitiveComponent>(SpawnedAttack1Projectile->GetRootComponent()))
@@ -190,7 +195,7 @@ void ABossMonster::ShootAttack1Projectile()
 				UE_LOG(LogTemp, Warning, TEXT("Failed to spawn Attack1Projectile %d"), i + 1);
 			}
 		}
-		//  ߻   ܰ 
+		// �߻� �ܰ�
 		for (int32 i = 0; i < SpawnedAttack1Projectiles.Num(); ++i)
 		{
 			ABoss_Projectile* Projectile = SpawnedAttack1Projectiles[i];
@@ -218,16 +223,16 @@ void ABossMonster::ShootAttack1Projectile()
 	}
 }
 
-void ABossMonster::Attack2Doing() { // Attack2    Ͱ          ϴ           
+void ABossMonster::Attack2Doing() { // Attack2 ���Ͱ� ������ �ϴ� ���� ����
 
-	SetActorHiddenInGame(true); //    ͸      
-	SetActorEnableCollision(false); //         浹     Ȱ  ȭ
-	AnimInstance->Montage_Stop(0.0f); //  Ÿ      ߱ 
-	ProphecyAttack2(); //          Ʈ +          
+	SetActorHiddenInGame(true); // ���͸� ����
+	SetActorEnableCollision(false); // ������ �浹�� ��Ȱ��ȭ
+	AnimInstance->Montage_Stop(0.0f); //��Ÿ�� ���߱�
+	ProphecyAttack2(); // ���� ����Ʈ + ���� ����
 
 }
 
-void ABossMonster::ProphecyAttack2() // Attack2     
+void ABossMonster::ProphecyAttack2() // Attack2 ����
 {
 	if(!AIController || !AIController->TargetPlayer || !Attack2ProphecyEffect) return;
 
@@ -241,16 +246,18 @@ void ABossMonster::ProphecyAttack2() // Attack2
 		float Distance = FMath::RandRange(MinRadius, MaxRadius);
 
 		FVector Offset = FVector(FMath::Cos(FMath::DegreesToRadians(Angle)), FMath::Sin(FMath::DegreesToRadians(Angle)), 0.f) * Distance;
-		FVector SpawnLocation = PlayerLocation + Offset + FVector(0.f, 0.f, 10.f); //  ణ     
+
+		FVector SpawnLocation = PlayerLocation + Offset + FVector(0.f, 0.f, 10.f); // �ణ ����
+
 		ProphecyPositions.Add(SpawnLocation);
 
 		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(
 			GetWorld(),
 			Attack2Material,
-			FVector(150.f),                         //  ۰      
+			FVector(150.f),                         // �۰� ����
 			SpawnLocation,
 			FRotator(-90.f, 0.f, 0.f),
-			2.0f                                   //     
+			2.0f                                   // ����
 		);
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Attack2ProphecyEffect, SpawnLocation);
 	}
@@ -263,8 +270,7 @@ void ABossMonster::ProphecyAttack2() // Attack2
 		false 
 	);
 }
-
-void ABossMonster::ApplyAttack2() // Attack2     
+void ABossMonster::ApplyAttack2() // Attack2 ����
 {
 	for (const FVector& Location : ProphecyPositions)
 	{
@@ -273,10 +279,10 @@ void ABossMonster::ApplyAttack2() // Attack2
 		TArray<AActor*> IgnoredActors;
 		UGameplayStatics::ApplyRadialDamage(
 			GetWorld(),
-			30.0f,              //       
+			30.0f,              // ������
 			Location,
-			150.0f,             //     
-			nullptr,            //        Ÿ  
+			150.0f,             // ����
+			nullptr,            // ������ Ÿ��
 			IgnoredActors,
 			this,
 			GetController(),
@@ -292,15 +298,15 @@ void ABossMonster::ApplyAttack2() // Attack2
 	AnimInstance->Montage_JumpToSection("Attack2_End", LongRangeAttackMontage2);
 }
 
-void ABossMonster::SpawnAttack3Projectile() // Attack3  ߻ ü     
+void ABossMonster::SpawnAttack3Projectile() // Attack3 �߻�ü ����
 {
 	if (Attack3Projectile) {
-		FVector SpawnLocation = GetMesh()->GetSocketLocation(FName("Attack3Spawn")); // Attack3Spawn        ġ
-		FRotator SpawnRotation = GetActorRotation(); //        ȸ        
+		FVector SpawnLocation = GetMesh()->GetSocketLocation(FName("Attack3Spawn")); // Attack3Spawn ���� ��ġ
+		FRotator SpawnRotation = GetActorRotation(); // ������ ȸ���� ���
 
 		FActorSpawnParameters Params;
 		Params.Owner = this;
-		Params.Instigator = this; //  ߻ ü        ڿ   ν Ƽ     ͷ        
+		Params.Instigator = this; // �߻�ü�� �����ڿ� �ν�Ƽ�����ͷ� ������
 
 		SpawnedAttack3Projectile = GetWorld()->SpawnActor<ABoss_Projectile>(Attack3Projectile, SpawnLocation, SpawnRotation, Params);
 
@@ -338,13 +344,14 @@ void ABossMonster::SpawnAttack3Projectile() // Attack3  ߻ ü
 	}
 }
 
-void ABossMonster::ShootAttack3Projectile() // Attack3  ߻ ü  ߻ 
+void ABossMonster::ShootAttack3Projectile() // Attack3 �߻�ü �߻�
 {
 	SpawnedAttack3Projectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	if (ABoss_Projectile* Casted = Cast<ABoss_Projectile>(SpawnedAttack3Projectile))
 	{
-		Casted->ShootProjectile(); //        Ʈ      ߻ ü  ߻    ƼŬ     
+Casted->ShootProjectile(); //��������Ʈ���� �߻�ü �߻� ��ƼŬ ����
+
 	}
 
 

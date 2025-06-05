@@ -1,0 +1,150 @@
+[1mdiff --git a/Content/Monster/Monster_BP/BP_EliteMonster.uasset b/Content/Monster/Monster_BP/BP_EliteMonster.uasset[m
+[1mindex 443ecc0..1a22f49 100644[m
+Binary files a/Content/Monster/Monster_BP/BP_EliteMonster.uasset and b/Content/Monster/Monster_BP/BP_EliteMonster.uasset differ
+[1mdiff --git a/Content/Monster/Monster_BP/BP_NomalMonster.uasset b/Content/Monster/Monster_BP/BP_NomalMonster.uasset[m
+[1mindex c21fc82..c4a3a2f 100644[m
+Binary files a/Content/Monster/Monster_BP/BP_NomalMonster.uasset and b/Content/Monster/Monster_BP/BP_NomalMonster.uasset differ
+[1mdiff --git a/Content/Monster/Monster_Widget/WBP_EliteMonsterHp.uasset b/Content/Monster/Monster_Widget/WBP_EliteMonsterHp.uasset[m
+[1mindex 520b8f6..bcd0b0a 100644[m
+Binary files a/Content/Monster/Monster_Widget/WBP_EliteMonsterHp.uasset and b/Content/Monster/Monster_Widget/WBP_EliteMonsterHp.uasset differ
+[1mdiff --git a/Content/Monster/Monster_Widget/WBP_NomalMonsterHp.uasset b/Content/Monster/Monster_Widget/WBP_NomalMonsterHp.uasset[m
+[1mindex 8d9af93..a75418e 100644[m
+Binary files a/Content/Monster/Monster_Widget/WBP_NomalMonsterHp.uasset and b/Content/Monster/Monster_Widget/WBP_NomalMonsterHp.uasset differ
+[1mdiff --git a/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/5/LO/P6WWT6Z9OI0PQVZJQWTGRV.uasset b/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/5/LO/P6WWT6Z9OI0PQVZJQWTGRV.uasset[m
+[1mdeleted file mode 100644[m
+[1mindex 453918a..0000000[m
+Binary files a/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/5/LO/P6WWT6Z9OI0PQVZJQWTGRV.uasset and /dev/null differ
+[1mdiff --git a/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/E/1L/MCZAKKN0ES59MLVQBMFI0E.uasset b/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/E/1L/MCZAKKN0ES59MLVQBMFI0E.uasset[m
+[1mnew file mode 100644[m
+[1mindex 0000000..5d7677e[m
+Binary files /dev/null and b/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/E/1L/MCZAKKN0ES59MLVQBMFI0E.uasset differ
+[1mdiff --git a/Source/gsd2_unrealworld/BossMonster.h b/Source/gsd2_unrealworld/BossMonster.h[m
+[1mindex 5255284..cc23f9c 100644[m
+[1m--- a/Source/gsd2_unrealworld/BossMonster.h[m
+[1m+++ b/Source/gsd2_unrealworld/BossMonster.h[m
+[36m@@ -23,6 +23,6 @@[m [mpublic:[m
+ 	virtual void UpdateHealthBar() override;[m
+ [m
+ 	virtual void PlayCloseAttackMontage() override;[m
+[31m-	virtual void  PlayLongRangeAttackMontage() override;[m
+[32m+[m	[32mvirtual void PlayLongRangeAttackMontage() override;[m
+ [m
+ };[m
+[1mdiff --git a/Source/gsd2_unrealworld/MonsterBase.cpp b/Source/gsd2_unrealworld/MonsterBase.cpp[m
+[1mindex da6bd07..85a2ac8 100644[m
+[1m--- a/Source/gsd2_unrealworld/MonsterBase.cpp[m
+[1m+++ b/Source/gsd2_unrealworld/MonsterBase.cpp[m
+[36m@@ -25,7 +25,6 @@[m [mvoid AMonsterBase::BeginPlay() {[m
+ 	PlayerCameraManager = PlayerController ? PlayerController->PlayerCameraManager : nullptr;[m
+ 	AnimInstance = GetMesh()->GetAnimInstance(); // ¾Ö´Ï¸ÞÀÌ¼Ç ÀÎ½ºÅÏ½º °¡Á®¿À±â[m
+ 	AIController = Cast<AMonsterAIControllerBase>(GetController()); // AI ÄÁÆ®·Ñ·¯ °¡Á®¿À±â[m
+[31m-	UpdateHealthBar(); // Ã¼·Â¹Ù À§Á¬ ¾÷µ¥ÀÌÆ®[m
+ }[m
+ [m
+ void AMonsterBase::Tick(float DeltaTime)[m
+[36m@@ -83,6 +82,7 @@[m [mvoid AMonsterBase::ReceiveDamage(float DamageAmount)[m
+ 		// Ã¼·ÂÀÌ 0 ÀÌÇÏ°¡ µÇ¸é Á×À½ »óÅÂ·Î ÀüÈ¯[m
+ 		if (CurrentHealth - DamageAmount <= 0.f)[m
+ 		{[m
+[32m+[m			[32mUE_LOG(LogTemp, Warning, TEXT("percent 0.0! currentHealth %.8f"), CurrentHealth);[m
+ 			AIController->SetState(EMonsterState::Dead);[m
+ 			Die(); [m
+ 		}[m
+[1mdiff --git a/Source/gsd2_unrealworld/MonsterHealthWidget.cpp b/Source/gsd2_unrealworld/MonsterHealthWidget.cpp[m
+[1mindex dfb6a63..2a9b0c9 100644[m
+[1m--- a/Source/gsd2_unrealworld/MonsterHealthWidget.cpp[m
+[1m+++ b/Source/gsd2_unrealworld/MonsterHealthWidget.cpp[m
+[36m@@ -4,14 +4,5 @@[m
+ [m
+ void UMonsterHealthWidget::SetHealthPercent(float Percent)[m
+ {[m
+[31m-	if (MonsterHealthBar)[m
+[31m-	{[m
+[31m-		MonsterHealthBar->SetPercent(Percent);[m
+[31m-		UE_LOG(LogTemp, Warning, TEXT("SetHealthPercent Called: %.2f"), Percent);[m
+[31m-	}[m
+[31m-	else[m
+[31m-	{[m
+[31m-		UE_LOG(LogTemp, Error, TEXT("MonsterHealthBar is NULL!"));[m
+[31m-	}[m
+[31m-[m
+[32m+[m	[32mCachedHealthPercent = FMath::Clamp(Percent, 0.f, 1.f);[m
+ }[m
+[1mdiff --git a/Source/gsd2_unrealworld/MonsterHealthWidget.h b/Source/gsd2_unrealworld/MonsterHealthWidget.h[m
+[1mindex 912428b..121e2ef 100644[m
+[1m--- a/Source/gsd2_unrealworld/MonsterHealthWidget.h[m
+[1m+++ b/Source/gsd2_unrealworld/MonsterHealthWidget.h[m
+[36m@@ -14,9 +14,9 @@[m [mclass GSD2_UNREALWORLD_API UMonsterHealthWidget : public UUserWidget[m
+ {[m
+ 	GENERATED_BODY()[m
+ public:[m
+[32m+[m	[32mUFUNCTION(BlueprintCallable, Category = "Monster Health") //ºí·çÇÁ¸°Æ®¿¡¼­ È£Ãâ °¡´ÉÇÏµµ·Ï ¼³Á¤[m
+ 	void SetHealthPercent(float Percent); //Ã¼·Â¹ÙÀÇ ÆÛ¼¾Æ® ¼³Á¤[m
+ [m
+[31m-protected:[m
+[31m-	UPROPERTY(meta = (BindWidget)) //ºí·çÇÁ¸°Æ®¿¡ ÀÖ´Â ÇÁ·Î±×·¹½º¹Ù¿Í ¿¬°á[m
+[31m-	UProgressBar* MonsterHealthBar;[m
+[32m+[m	[32mUPROPERTY(BlueprintReadWrite, Category = "Health", meta = (AllowPrivateAccess = "true"))[m
+[32m+[m	[32mfloat CachedHealthPercent = 1.f;[m
+ };[m
+[1mdiff --git a/Source/gsd2_unrealworld/NomalMonster.cpp b/Source/gsd2_unrealworld/NomalMonster.cpp[m
+[1mindex 8b735dc..d852287 100644[m
+[1m--- a/Source/gsd2_unrealworld/NomalMonster.cpp[m
+[1m+++ b/Source/gsd2_unrealworld/NomalMonster.cpp[m
+[36m@@ -26,12 +26,23 @@[m [mANomalMonster::ANomalMonster()[m
+ 	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//Å©±â¸¦ ¿ùµå Å©±â¿¡ °íÁ¤[m
+ 	HealthBarWidget->SetDrawSize(FVector2D(200.f, 20.f)); // Å©±â ¼³Á¤[m
+ 	HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, 120.f)); // À§Ä¡ ¼³Á¤[m
+[31m-	HealthBarWidget->SetPivot(FVector2D(0.38f, 0.5f)); // Áß¾Ó¿¡ À§Ä¡(¿ø·¡´Â 0.5f, 0.5f¿©¾ß ÇÏÁö¸¸...)[m
+[32m+[m	[32mHealthBarWidget->SetPivot(FVector2D(0.5f, 0.5f)); // Áß¾Ó¿¡ À§Ä¡[m
+[32m+[m	[32mHealthBarWidget->SetDrawSize(FVector2D(600.f, 60.f));[m
+ }[m
+ [m
+ void ANomalMonster::BeginPlay()[m
+ {[m
+ 	Super::BeginPlay();[m
+[32m+[m	[32mHealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());[m
+[32m+[m	[32mif (!HealthUI)[m
+[32m+[m	[32m{[m
+[32m+[m		[32mUE_LOG(LogTemp, Error, TEXT("HealthUI Fail"));[m
+[32m+[m	[32m}[m
+[32m+[m	[32melse[m
+[32m+[m	[32m{[m
+[32m+[m		[32mUE_LOG(LogTemp, Warning, TEXT("HealthUI Success"));[m
+[32m+[m		[32mUpdateHealthBar(); // Ã¼·Â¹Ù À§Á¬ ¾÷µ¥ÀÌÆ®[m
+[32m+[m	[32m}[m
+ }[m
+ [m
+ void ANomalMonster::Tick(float DeltaTime)[m
+[36m@@ -42,11 +53,9 @@[m [mvoid ANomalMonster::Tick(float DeltaTime)[m
+ //Ã¼·Â¹Ù À§Á¬ ¾÷µ¥ÀÌÆ®[m
+ void ANomalMonster::UpdateHealthBar()[m
+ {[m
+[31m-	Super::UpdateHealthBar(); // ºÎ¸ð Å¬·¡½ºÀÇ ±âº» ·ÎÁ÷ È£Ãâ[m
+ [m
+ 	if (HealthBarWidget && HealthBarWidget->GetUserWidgetObject())[m
+ 	{[m
+[31m-		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());[m
+ 		if (HealthUI)[m
+ 		{[m
+ 			float Percent = (MaxHealth > 0.f) ? FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f) : 0.f; // Ã¼·Â ºñÀ² °è»ê (0~1 »çÀÌ·Î Á¦ÇÑ)[m
+[1mdiff --git a/Source/gsd2_unrealworld/NomalMonster.h b/Source/gsd2_unrealworld/NomalMonster.h[m
+[1mindex 289c73d..a02eaa3 100644[m
+[1m--- a/Source/gsd2_unrealworld/NomalMonster.h[m
+[1m+++ b/Source/gsd2_unrealworld/NomalMonster.h[m
+[36m@@ -4,6 +4,7 @@[m
+ [m
+ #include "CoreMinimal.h"[m
+ #include "MonsterBase.h"[m
+[32m+[m[32m#include "MonsterHealthWidget.h"[m
+ #include "NomalMonster.generated.h"[m
+ [m
+ UCLASS()[m
+[36m@@ -17,4 +18,7 @@[m [mpublic:[m
+ 	ANomalMonster();[m
+ 	virtual void UpdateHealthBar() override;[m
+ 	virtual void PlayCloseAttackMontage() override;[m
+[32m+[m
+[32m+[m	[32mUPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")[m
+[32m+[m	[32mUMonsterHealthWidget* HealthUI = nullptr; // ¸ó½ºÅÍ Ã¼·Â À§Á¬ ÀÎ½ºÅÏ½º[m
+ };[m

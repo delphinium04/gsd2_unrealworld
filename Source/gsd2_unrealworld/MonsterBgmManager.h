@@ -21,23 +21,23 @@ public:
 	void OnMonsterLosePlayer();
 
 	UFUNCTION(BlueprintCallable, Category = "BGM")
-	void StartStageBGM(); // Stage BGM ½ÃÀÛ
+	void StartStageBGM(); // Stage BGM ï¿½ï¿½ï¿½ï¿½
 
 	UFUNCTION(BlueprintCallable, Category = "BGM")
-	void StopAllBGMs(); // ¸ðµç BGM Á¤Áö
+	void StopAllBGMs(); // ï¿½ï¿½ï¿½ BGM ï¿½ï¿½ï¿½ï¿½
 
-	UPROPERTY(EditAnywhere, Category = "BGM")//	BGM Àç»ý »ç¿îµå ¿¡¼Â
-		USoundBase* MonsterFightBGM;
+	UPROPERTY(EditAnywhere, Category = "BGM")//	BGM ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	USoundBase* MonsterFightBGM;
 
-	UPROPERTY(EditAnywhere, Category = "BGM")//	BGM Àç»ý »ç¿îµå ¿¡¼Â
-		USoundBase* StageBGM;
-
-	UPROPERTY(BlueprintReadWrite, Category = "BGM")
-	UAudioComponent* MonsterFightBGMComponent; // BGM Àç»ý ÄÄÆ÷³ÍÆ®
+	UPROPERTY(EditAnywhere, Category = "BGM")//	BGM ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	USoundBase* StageBGM;
 
 	UPROPERTY(BlueprintReadWrite, Category = "BGM")
-	UAudioComponent* StageBGMComponent; // StageBGM ÄÄÆ÷³ÍÆ®
+	UAudioComponent* MonsterFightBGMComponent; // BGM ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 
-	int32 NumMonstersSensingPlayer = 0; // ¸ó½ºÅÍ°¡ ÇÃ·¹ÀÌ¾î¸¦ °¨ÁöÇÑ È½¼ö
+	UPROPERTY(BlueprintReadWrite, Category = "BGM")
+	UAudioComponent* StageBGMComponent; // StageBGM ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+
+	int32 NumMonstersSensingPlayer = 0; // ï¿½ï¿½ï¿½Í°ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È½ï¿½ï¿½
 
 };

@@ -12,7 +12,7 @@ ABossMonsterAIController::ABossMonsterAIController() {
 }
 void ABossMonsterAIController::BeginPlay() {
 	Super::BeginPlay();
-	TargetPlayer = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0); //  ÷  ̾  ĳ   ͸  Ÿ           
+	TargetPlayer = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0); // �÷��̾� ĳ���͸� Ÿ������ ����
 	BossMonster = Cast<ABossMonster>(ControlledMonster);
 
 	if (BossMonster)
@@ -44,7 +44,7 @@ void ABossMonsterAIController::Tick(float DeltaSeconds) {
 			SetState(EMonsterState::Attacking);
 		}
 		else {
-			ChasePlayerToAttack(); //  ÷  ̾      Ͽ         ġ    ̵ 
+			ChasePlayerToAttack(); // �÷��̾ �����Ͽ� ���� ��ġ�� �̵�
 		}
 		break;
 
@@ -74,7 +74,7 @@ void ABossMonsterAIController::SetState(EMonsterState NewState) {
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[SetState] CHANGED: %s    %s | Controller: %s | Time: %.2f"),
+		UE_LOG(LogTemp, Error, TEXT("[SetState] CHANGED: %s �� %s | Controller: %s | Time: %.2f"),
 			*UEnum::GetValueAsString(CurrentState),
 			*UEnum::GetValueAsString(NewState),
 			*GetName(),
@@ -90,7 +90,7 @@ void ABossMonsterAIController::SetState(EMonsterState NewState) {
 		ChasePlayerToAttack();
 		break;
 	case EMonsterState::Attacking:
-		StopMovement(); //           ȿ       Ͽ          ·    ȯ      ߱ 
+		StopMovement(); // ���� �����ȿ� �����Ͽ� ���� ���·� ��ȯ�� ���߱�
 		break;
 	case EMonsterState::BeingHit:
 		if (DistanceToPlayer < ControlledMonster->GetLongRangeAttackRange())
@@ -103,7 +103,7 @@ void ABossMonsterAIController::SetState(EMonsterState NewState) {
 		}
 		break;
 	case EMonsterState::Dead:
-		ControlledMonster->Die(); //           ó  
+		ControlledMonster->Die(); // ���� ���� ó��
 		break;
 	}
 
@@ -115,7 +115,7 @@ void ABossMonsterAIController::Attack() {
 
 	EAttackType SelectedAttack = PickRandomAttackType();
 
-	if (DistanceToPlayer <= BossMonster->GetLongRangeAttackRange()) //   ÷  ̾    Ÿ                      
+	if (DistanceToPlayer <= BossMonster->GetLongRangeAttackRange()) //  �÷��̾ ���Ÿ� ���� ������ ���� ���
 	{
 		if (BossMonster)
 		{
@@ -132,27 +132,26 @@ void ABossMonsterAIController::Attack() {
 				break;
 			case EAttackType::Teleport:
 				BossMonster->PlayMontage(BossMonster->TeleportMontage);
-				UE_LOG(LogTemp, Warning, TEXT(">>> TeleportToPlayer() called!")); //  Լ     ù   
+				UE_LOG(LogTemp, Warning, TEXT(">>> TeleportToPlayer() called!")); // �Լ� �� ù ��
 				break;
 			case EAttackType::Idle:
-				//  ƹ  ͵           
+				// �ƹ��͵� ���� ����
 				break;
 			}
 		}
-		else {
-			SetState(EMonsterState::Chasing); //                        ÷  ̾         ·    ȯ
-		}
+	else {
+			SetState(EMonsterState::Chasing); // ���� �������� ��� ��� �÷��̾ ���� ���·� ��ȯ
+	}
 
-
-		bCanAttack = false;
-		GetWorld()->GetTimerManager().SetTimer(
-			AttackDelayHandle,
-			this,
-			&ABossMonsterAIController::ResetAttackCooldown,
-			ABossMonsterAIController::GetCooldownForAttackType(SelectedAttack), false); //      Ÿ Ը           ð   ٸ 
+	bCanAttack = false;
+	GetWorld()->GetTimerManager().SetTimer(
+		AttackDelayHandle,
+		this,
+		&ABossMonsterAIController::ResetAttackCooldown,
+		ABossMonsterAIController::GetCooldownForAttackType(SelectedAttack), false); // ���� Ÿ�Ը��� ����� �ð� �ٸ�
 	}
 }
-float ABossMonsterAIController::GetCooldownForAttackType(EAttackType Type) //      Ÿ Կ         Ÿ     ȯ
+float ABossMonsterAIController::GetCooldownForAttackType(EAttackType Type) // ���� Ÿ�Կ� ���� ��Ÿ�� ��ȯ
 {
 	switch (Type)
 	{
@@ -171,9 +170,9 @@ float ABossMonsterAIController::GetCooldownForAttackType(EAttackType Type) //   
 	}
 }
 
-EAttackType ABossMonsterAIController::PickRandomAttackType()  //           Ÿ       
+EAttackType ABossMonsterAIController::PickRandomAttackType()  // ���� ���� Ÿ�� ����
 {
-	int32 Rand = FMath::RandRange(0, 9); // 0~9     ϳ 
+	int32 Rand = FMath::RandRange(0, 9); // 0~9 �� �ϳ�
 
 	if (Rand < 3)       return EAttackType::Attack1;   //30%
 	else if (Rand < 4)  return EAttackType::Attack2;    // 10%
@@ -189,11 +188,11 @@ void ABossMonsterAIController::ChasePlayerToAttack()
 		return;
 	}
 
-	//  ʹ       ȣ       ʵ                     Ÿ    
-	const FVector CurrentDestination = GetImmediateMoveDestination(); //  ֱ  MoveToActor                
+	// �ʹ� ���� ȣ����� �ʵ��� ���� ���������� �Ÿ� ��
+	const FVector CurrentDestination = GetImmediateMoveDestination(); // �ֱ� MoveToActor�� ������ ������
 	const float DistanceToDestination = FVector::Dist(CurrentDestination, TargetPlayer->GetActorLocation());
 
-	if (DistanceToDestination > 150.f) //       Ÿ   ̻               MoveToActor ȣ  
+	if (DistanceToDestination > 150.f) // ���� �Ÿ� �̻� ���� �� ���� MoveToActor ȣ��
 	{
 		EPathFollowingRequestResult::Type Result = MoveToActor(TargetPlayer, 120.f, true);
 

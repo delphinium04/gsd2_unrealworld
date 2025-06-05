@@ -12,19 +12,18 @@ ANomalMonster::ANomalMonster()
 	// 몬스터의 기본 속성 설정
 	GetCharacterMovement()->NavAgentProps.AgentRadius = 60.f; // 몬스터의 반지름
 	GetCharacterMovement()->NavAgentProps.AgentHeight = 240.f; // 몬스터의 높이
-
-	MaxHealth = 10.f; // 최대 체력
-	AttackDamage = 1.f; // 공격력
-	CloseRangeAttack = 200.f; // 근거리 공격 범위
-	LongRangeAttack = 200.f; // 원거리 공격 범위(일반 몬스터는 근거리 공격만)
-	AttackCooldown = 1.0f; // 공격 쿨타임
-	GetCharacterMovement()->MaxWalkSpeed = 300.f; // 걷는 속도 설정
+	MaxHealth = 10.f; // �ִ� ü��
+	AttackDamage = 1.f; // ���ݷ�
+	CloseRangeAttack = 200.f; // �ٰŸ� ���� ����
+	LongRangeAttack = 200.f; // ���Ÿ� ���� ����(�Ϲ� ���ʹ� �ٰŸ� ���ݸ�)
+	AttackCooldown = 1.0f; // ���� ��Ÿ��
+	GetCharacterMovement()->MaxWalkSpeed = 300.f; // �ȴ� �ӵ� ����
 
 	//몬스터 체력바 위젯 생성
 	HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
-	HealthBarWidget->SetupAttachment(RootComponent); // 루트 컴포넌트에 부착(체력바가 몬스터를 따라다님)
-	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//크기를 월드 크기에 고정
-	HealthBarWidget->InitWidget(); // 위젯 초기화
+	HealthBarWidget->SetupAttachment(RootComponent); // ��Ʈ ������Ʈ�� ����(ü�¹ٰ� ���͸� ����ٴ�)
+	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//ũ�⸦ ���� ũ�⿡ ����
+	HealthBarWidget->InitWidget(); // ���� �ʱ�ȭ
 }
 
 void ANomalMonster::BeginPlay()
@@ -47,7 +46,7 @@ void ANomalMonster::UpdateHealthBar()
 		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
 		if (HealthUI)
 		{
-			float Percent = (MaxHealth > 0.f) ? FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f) : 0.f; // 체력 비율 계산 (0~1 사이로 제한)
+			float Percent = (MaxHealth > 0.f) ? FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f) : 0.f; // ü�� ���� ��� (0~1 ���̷� ����)
 			HealthUI->SetHealthPercent(Percent);
 			UE_LOG(LogTemp, Warning, TEXT("Health = %.1f / %.1f (%.2f%%)"), CurrentHealth, MaxHealth, (CurrentHealth / MaxHealth) * 100.f);
 		}
