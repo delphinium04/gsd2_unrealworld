@@ -4,6 +4,7 @@
 #include "BossMonster.h"
 #include "CoreMinimal.h"
 #include "NavigationSystem.h"
+#include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h" // �÷��̾� ����, ����, ����Ʈ
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimInstance.h" // �ִϸ��̼� �ν��Ͻ�
@@ -139,7 +140,7 @@ void ABossMonster::TeleportToPlayer()
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TeleportOutEffect, GetActorLocation());
 		}
 		FinalLocation.Location.Z += 50.f; // Z���� 50��ŭ �����ϴ� ����
-		bool bSuccess = SetActorLocation(FinalLocation.Location, false);
+		bool bSuccess = TeleportTo(FinalLocation.Location, GetActorRotation(), false, false);
 
 		if (TeleportInEffect)
 		{
@@ -176,6 +177,10 @@ void ABossMonster::ShootAttack1Projectile()
 			Params.Instigator = Cast<APawn>(this); // �߻�ü�� �����ڿ� �ν�Ƽ�����ͷ� ������
 
 			ABoss_Projectile* SpawnedAttack1Projectile = GetWorld()->SpawnActor<ABoss_Projectile>(Attack1Projectile, SpawnLocation, SpawnRotation, Params);
+			if (UPrimitiveComponent* Collision = Cast<UPrimitiveComponent>(SpawnedAttack1Projectile->GetRootComponent()))
+			{
+				Collision->IgnoreActorWhenMoving(this, true);
+			}
 
 			if (SpawnedAttack1Projectile) {
 				SpawnedAttack1Projectile->InitialDirection = Directions[i];
@@ -298,6 +303,12 @@ void ABossMonster::SpawnAttack3Projectile() // Attack3 �߻�ü ����
 		Params.Instigator = this; // �߻�ü�� �����ڿ� �ν�Ƽ�����ͷ� ������
 
 		SpawnedAttack3Projectile = GetWorld()->SpawnActor<ABoss_Projectile>(Attack3Projectile, SpawnLocation, SpawnRotation, Params);
+
+		if (UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(SpawnedAttack3Projectile->GetDefaultSubobjectByName(TEXT("RealCapsule"))))
+		{
+			Capsule->IgnoreActorWhenMoving(this, true);
+		}
+
 		if (SpawnedAttack3Projectile)
 		{
 			UProjectileMovementComponent* Movement = SpawnedAttack3Projectile->FindComponentByClass<UProjectileMovementComponent>();
