@@ -444,12 +444,12 @@ void APlayerCharacter::PerformFire()
             FCollisionQueryParams BulletParams;
             BulletParams.AddIgnoredActor(this);
             bool bBulletHit = GetWorld()->LineTraceSingleByChannel(
-                BulletHit, MuzzleLoc, AimPoint, ECC_Visibility, BulletParams);
+                BulletHit, CamLoc, AimPoint, ECC_Visibility, BulletParams);
 
             FVector FinalEnd = bBulletHit ? BulletHit.ImpactPoint : AimPoint;
             if (BulletTracerFX)
             {
-                FVector Direction = (FinalEnd - MuzzleLoc).GetSafeNormal();;
+                FVector Direction = CamDir;
                 UNiagaraFunctionLibrary::SpawnSystemAtLocation(
                     GetWorld(),
                     BulletTracerFX,
@@ -464,7 +464,7 @@ void APlayerCharacter::PerformFire()
                 {
                     float Damage = 1.0f;
                     UGameplayStatics::ApplyPointDamage(HitActor, Damage,
-                        (AimPoint - MuzzleLoc).GetSafeNormal(), BulletHit, GetController(), this, nullptr);
+                        CamDir, BulletHit, GetController(), this, nullptr);
                 }
             }
         }
