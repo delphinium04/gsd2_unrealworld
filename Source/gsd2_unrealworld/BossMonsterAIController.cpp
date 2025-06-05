@@ -65,22 +65,6 @@ void ABossMonsterAIController::Tick(float DeltaSeconds) {
 	case EMonsterState::Dead:
 		break;
 	}
-
-	if (BGMManager)
-	{
-		const bool bIsTrackingPlayer = (TargetPlayer != nullptr || CurrentState == EMonsterState::Attacking || CurrentState == EMonsterState::Chasing);
-
-		if (bIsTrackingPlayer && !bWasTrackingPlayer)
-		{
-			bWasTrackingPlayer = true;
-			BGMManager->OnMonsterSensePlayer();
-		}
-		else if (!bIsTrackingPlayer && bWasTrackingPlayer)
-		{
-			bWasTrackingPlayer = false;
-			BGMManager->OnMonsterLosePlayer();
-		}
-	}
 }
 
 void ABossMonsterAIController::SetState(EMonsterState NewState) {

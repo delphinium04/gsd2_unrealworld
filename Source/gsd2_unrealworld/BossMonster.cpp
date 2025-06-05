@@ -138,6 +138,7 @@ void ABossMonster::TeleportToPlayer()
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TeleportOutEffect, GetActorLocation());
 		}
+		FinalLocation.Location.Z += 50.f; // Z���� 50��ŭ �����ϴ� ����
 		bool bSuccess = SetActorLocation(FinalLocation.Location, false);
 
 		if (TeleportInEffect)
