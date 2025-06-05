@@ -1,31 +1,40 @@
-
+ï»¿//Boss_Projectile.cpp
 #include "Boss_Projectile.h"
-#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "EngineUtils.h"
 
 ABoss_Projectile::ABoss_Projectile()
 {
-	// Root¸¦ SphereCollisionÀ¸·Î ¼³Á¤
-	Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
+	// Root   CapsuleComponent         
+	Collision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision"));
 	RootComponent = Collision;
+	Collision->InitCapsuleSize(30.f, 30.f);
 
-	// FX ½Ã°¢ ÀÌÆåÆ®
+	// FX  Ã°      Æ®
 	ProjectileEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ProjectileEffect"));
 	ProjectileEffect->SetupAttachment(RootComponent);
 
-	// ÀÌµ¿ ÄÄÆ÷³ÍÆ®
+	//  Ìµ        Æ®
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
-
+	ProjectileMovement->SetUpdatedComponent(RootComponent);
 }
 
 void ABoss_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetInstigator()) // ¹ß»çÇÑ ¸ó½ºÅÍ¶û Ãæµ¹ ¹«½Ã
+	if (GetInstigator()) //  ß»       Í¶   æµ¹     
 	{
 		Collision->IgnoreActorWhenMoving(GetInstigator(), true);
+	}
+	for (TActorIterator<ABoss_Projectile> It(GetWorld()); It; ++It)
+	{
+		if (*It != this)
+		{
+			Collision->IgnoreActorWhenMoving(*It, true);
+		}
 	}
 }
 

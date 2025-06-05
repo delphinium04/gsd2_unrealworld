@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// MonsterBgamManager.h
 
 #pragma once
 
@@ -10,8 +10,8 @@ UCLASS()
 class GSD2_UNREALWORLD_API AMonsterBgmManager : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AMonsterBgmManager();
 
@@ -20,12 +20,23 @@ public:
 	void OnMonsterSensePlayer();
 	void OnMonsterLosePlayer();
 
-protected:
-	UPROPERTY(EditAnywhere, Category = "BGM")//	BGM 재생 사운드 에셋
-	USoundBase* AlertBGM;
+	UFUNCTION(BlueprintCallable, Category = "BGM")
+	void StartStageBGM(); // Stage BGM 시작
 
-	UPROPERTY()
-	UAudioComponent* BGMComponent; // BGM 재생 컴포넌트
+	UFUNCTION(BlueprintCallable, Category = "BGM")
+	void StopAllBGMs(); // 모든 BGM 정지
+
+	UPROPERTY(EditAnywhere, Category = "BGM")//	BGM 재생 사운드 에셋
+		USoundBase* MonsterFightBGM;
+
+	UPROPERTY(EditAnywhere, Category = "BGM")//	BGM 재생 사운드 에셋
+		USoundBase* StageBGM;
+
+	UPROPERTY(BlueprintReadWrite, Category = "BGM")
+	UAudioComponent* MonsterFightBGMComponent; // BGM 재생 컴포넌트
+
+	UPROPERTY(BlueprintReadWrite, Category = "BGM")
+	UAudioComponent* StageBGMComponent; // StageBGM 컴포넌트
 
 	int32 NumMonstersSensingPlayer = 0; // 몬스터가 플레이어를 감지한 횟수
 

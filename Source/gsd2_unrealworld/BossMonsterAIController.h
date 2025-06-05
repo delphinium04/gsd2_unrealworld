@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+癤�// BossMonsterAIController.h
 
 #pragma once
 
@@ -7,7 +7,7 @@
 #include "BossMonster.h"
 #include "BossMonsterAIController.generated.h"
 
-UENUM(BlueprintType) // 보스 몬스터의 공격 타입
+UENUM(BlueprintType) //                  타  
 enum class EAttackType : uint8
 {
 	Attack1,
@@ -27,12 +27,16 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
-	void SetState(EMonsterState NewState) override; // 몬스터 상태 설정
-	void Attack() override; //공격 함수 재정의
+	void SetState(EMonsterState NewState) override; //               
+	void Attack() override; //      獨        
 
 	UPROPERTY()
-	ABossMonster* BossMonster = nullptr; // 보스 몬스터 참조
+	ABossMonster* BossMonster = nullptr; //               
 
-	float GetCooldownForAttackType(EAttackType Type); // 공격 타입에 따른 쿨타임 반환
-	EAttackType PickRandomAttackType(); // 랜덤 공격 타입 선택
+	float GetCooldownForAttackType(EAttackType Type); //      타 篤         타     환
+	EAttackType PickRandomAttackType(); //           타       
+
+	void ChasePlayerToAttack() override; //  첨  潔低�      臼         치    絹 
+	FVector LastTargetLocation;
+
 };

@@ -10,20 +10,30 @@ UCLASS()
 class GSD2_UNREALWORLD_API ABoss_Projectile : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ABoss_Projectile();
 
-	virtual void BeginPlay() override;
-protected:
-	UPROPERTY(VisibleAnywhere)
-	class USphereComponent* Collision;
+	UPROPERTY(BlueprintReadWrite, Category = "Target")
+	AActor* TargetActor;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(BlueprintReadWrite)
+	FVector InitialDirection;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShootProjectile(); //Attack3  ? ?  ?  ?    ??     
+
+	virtual void BeginPlay() override;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UCapsuleComponent* Collision;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(VisibleAnywhere)
-	class UParticleSystemComponent* ProjectileEffect;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class UParticleSystemComponent* ProjectileEffect;;
 };
+

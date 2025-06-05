@@ -1,393 +1,121 @@
-//MonsterAIController.cpp
-#include "MonsterAIControllerBase.h"
+//MonsterAIControllerBase.h
+#pragma once
+
+//         AI    ⺻ Ŭ    
 #include "CoreMinimal.h"
-#include "MonsterBase.h"
-#include "EngineUtils.h" // TActorIterator    
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/Character.h"
+#include "AIController.h"
+#include "Perception/AIPerceptionComponent.h"
+#include "Perception/AISenseConfig_Sight.h"
+#include "Perception/AIPerceptionTypes.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
-#include "MonsterBgmManager.h"
-#include "BossMonster.h"
+#include "MonsterBase.h"
+#include "MonsterAIControllerBase.generated.h"
 
+class AMonsterBgmManager;
 
-AMonsterAIControllerBase::AMonsterAIControllerBase() {
-	PrimaryActorTick.bCanEverTick = true;
-
-	//AI Perception       Ʈ     
-	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComponent"));
-	SetPerceptionComponent(*AIPerceptionComponent);
-
-	// ð        Ʈ     
-	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	//        AI Controller     override Ͽ     
-	SightConfig->SightRadius = 500.f; //  ⺻ Ž    Ÿ 
-	SightConfig->LoseSightRadius = 1000.f; // ÷  ̾   ġ    Ÿ  
-	SightConfig->PeripheralVisionAngleDegrees = 90.f; //  þ߰ (9090 180  )
-	SightConfig->AutoSuccessRangeFromLastSeenLocation = 300.f; // þ߿             Ŀ         ϴ   Ÿ 
-
-	//  , Ʊ ,  ߸           
-	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
-	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
-	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
-
-	// ð                     
-	AIPerceptionComponent->ConfigureSense(*SightConfig);
-	AIPerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
-}
-
-void AMonsterAIControllerBase::Tick(float DeltaSeconds)
+UENUM(BlueprintType)
+enum class EMonsterState : uint8
 {
-	Super::Tick(DeltaSeconds);
+	Idling        UMETA(DisplayName = "Idling"),
+	Moving        UMETA(DisplayName = "Moving"),
+	Patrolling    UMETA(DisplayName = "Patrolling"),
+	Chasing       UMETA(DisplayName = "Chasing"),
+	Attacking	  UMETA(DisplayName = "Attacking"),
+	LookingAround UMETA(DisplayName = "LookingAround"),
+	BeingHit      UMETA(DisplayName = "BeingHit"),
+	Dead          UMETA(DisplayName = "Dead")
+};
 
-	if (!ControlledMonster || Cast<ABossMonster>(ControlledMonster) || ControlledMonster->bIsDead) return; //    Ͱ     ų                  ó           
+UCLASS()
+class GSD2_UNREALWORLD_API AMonsterAIControllerBase : public AAIController
+{
+	GENERATED_BODY()
 
-	//        þ    ġ   Ȯ   ϰ        
-	/*FVector EyesLoc;
-	FRotator EyesRot;
-	GetActorEyesViewPoint(EyesLoc, EyesRot);
-	DrawDebugSphere(GetWorld(), EyesLoc, 30.f, 12, FColor::Red, false, 0.1f); */
+public:
+	AMonsterAIControllerBase();
+	virtual void Tick(float DeltaSeconds) override;
+	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void SetState(EMonsterState NewState); //               
 
-	// ÷  ̾           Ÿ     
-	DistanceToPlayer = TargetPlayer ? FVector::Dist(ControlledMonster->GetActorLocation(), TargetPlayer->GetActorLocation()) : MAX_flt;
+	//bgm
+	UPROPERTY()
+	class AMonsterBgmManager* BGMManager;
 
-	//   ¿        ൿ     
-	switch (CurrentState)
-	{
-	case EMonsterState::Moving: //  ̵     Ϸ   Ǿ      Ȯ      ʿ      
-		if (GetPathFollowingComponent()->GetStatus() == EPathFollowingStatus::Idle)
-		{
-			if (GetPathFollowingComponent()->DidMoveReachGoal())
-			{
-				LookAroundElapsed = 0.f;
-				LookAroundStartRotation = ControlledMonster->GetActorRotation();
-				bIsLookingAround = true;
+	bool bWasTrackingPlayer = false; //  ÷  ̾                 
 
-				SetState(EMonsterState::LookingAround);
-				bMoveFailedHandled = false;
-			}
-			else if (!bMoveFailedHandled)
-			{
-				bMoveFailedHandled = true;
+	//              Ʈ    Ϳ        ϱ      
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	APawn* TargetPlayer; // Ÿ    ÷  ̾ 
 
-				GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	float DistanceToPlayer; //  ÷  ̾      Ÿ 
 
-				GetWorld()->GetTimerManager().SetTimer(
-					FailedMoveHandle,
-					[this]()
-					{
-						SetState(EMonsterState::Patrolling);
-						bMoveFailedHandled = false; //                  
-					},
-					3.0f, false);
-			}
-		}
-		break;
-	case EMonsterState::Chasing: //     
-		if (DistanceToPlayer < ControlledMonster->GetLongRangeAttackRange())//  ÷  ̾    Ÿ           (                  )  ȿ             
-		{
-			SetState(EMonsterState::Attacking); 
-		}
-		else
-		{
-			if (Cast<ABossMonster>(ControlledMonster)) {
-				ChasePlayerToAttack();
-			}
-			else {
-				ChasePlayer();
-			}
-		}
-		break;
+	void ChasePlayer();
+	virtual void ChasePlayerToAttack();
+protected:
 
-	case EMonsterState::Attacking: //     
-		if (DistanceToPlayer >= ControlledMonster->GetLongRangeAttackRange()) //  ÷  ̾                            
-		{
-			SetState(EMonsterState::Chasing); //  ÷  ̾         ·    ȯ
-		}
-		else {
-			Attack(); //     
-		}
-		break;
-	case EMonsterState::LookingAround:
-		if (bIsLookingAround)
-		{
-			LookAroundElapsed += DeltaSeconds;
+	//     ó  
+	void Patrol();                //           ó  
+	void ResetAttackCooldown();   //        Ÿ    ʱ ȭ
+	virtual void Attack(); //           ó  
 
-			const float Duration = 5.0f;
-			const float AngleRange = 120.f;
+	//     ó  (AI Perception)
+	UFUNCTION()
+	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
-			float Alpha = FMath::Sin(LookAroundElapsed * 2 * PI / Duration);
-			float YawOffset = Alpha * (AngleRange * 0.5f);
+	//     Ÿ ̸ 
+	FTimerHandle AttackDelayHandle;
+	FTimerHandle PatrolDelayHandle;
+	FTimerHandle DestroyTimerHandle;
+	FTimerHandle FailedMoveHandle;
+	FTimerHandle NavDelayHandle;
+	FTimerHandle LastSeenMoveHandle;
+	FTimerHandle AppearDelayHandle;
 
-			FRotator NewRot = LookAroundStartRotation;
-			NewRot.Yaw += YawOffset;
+	//          
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	EMonsterState CurrentState; //          
 
-			ControlledMonster->SetActorRotation(NewRot);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	AMonsterBase* ControlledMonster; //      ϴ      
 
-			if (LookAroundElapsed >= Duration)
-			{
-				bIsLookingAround = false;
-				SetState(EMonsterState::Idling);
-			}
-		}
-		break;
-	case EMonsterState::BeingHit:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	FVector CurrentMoveTarget; //       ̵    ǥ   ġ
 
-		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); //          ư    Ÿ ̸ӵ       
-		GetWorld()->GetTimerManager().ClearTimer(FailedMoveHandle);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	bool bCanAttack = true; //               
 
-		TargetPlayer = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0); //  ÷  ̾  ĳ   ͸  Ÿ           
-		SetState(EMonsterState::Chasing); //  ÷  ̾         ·    ȯ
-	
-		break;
-	}
+	//         
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float PatrolDelay = 3.0f; //            
 
-	if (BGMManager)
-	{
-		const bool bIsTrackingPlayer = (TargetPlayer != nullptr || CurrentState == EMonsterState::Attacking || CurrentState == EMonsterState::Chasing);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float PatrolRadius = 500.f; //      ݰ 
 
-		if (bIsTrackingPlayer && !bWasTrackingPlayer)
-		{
-			bWasTrackingPlayer = true;
-			BGMManager->OnMonsterSensePlayer();
-		}
-		else if (!bIsTrackingPlayer && bWasTrackingPlayer)
-		{
-			bWasTrackingPlayer = false;
-			BGMManager->OnMonsterLosePlayer();
-		}
-	}
-}
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float DetectionDistance = 300.f; //Ž    Ÿ (AI Perception          ϴ   Ϳ       ϰ   ʹ      ﶧ)
 
-void AMonsterAIControllerBase::BeginPlay() {
-	Super::BeginPlay();
-	// AI Perception  ̺ Ʈ    ε 
-	if (AIPerceptionComponent && !Cast<ABossMonster>(GetPawn()))
-	{ //         Ͱ   ƴ    쿡    ̺ Ʈ    ε 
-		AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AMonsterAIControllerBase::OnTargetPerceptionUpdated);
-	}
+	UPROPERTY(EditAnywhere, Category = "AI")
+	FVector PatrolOrigin; //             ġ
 
-	// BGMManager ã  
-	TArray<AActor*> FoundManagers;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMonsterBgmManager::StaticClass(), FoundManagers);
-	if (FoundManagers.Num() > 0)
-	{
-		BGMManager = Cast<AMonsterBgmManager>(FoundManagers[0]);
-	}
-}
+	// ȸ       
+	FRotator LookAroundStartRotation; // ȸ            
+	float LookAroundElapsed = 0.f; // ȸ        ð 
+	bool bIsLookingAround = false; // ȸ              
 
-void AMonsterAIControllerBase::OnPossess(APawn* InPawn) {
-	Super::OnPossess(InPawn);
-	ControlledMonster = Cast<AMonsterBase>(InPawn); //     ĳ    
-	NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-	if (!ControlledMonster || !NavSys) return;
+	//  ׺   ̼      
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	UNavigationSystemV1* NavSys; //  ׺   ̼   ý   
 
-	GetWorld()->GetTimerManager().SetTimer(NavDelayHandle, [this]() {
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	bool bMoveFailedHandled = false; //  ̵       ó       
 
-		PatrolOrigin = ControlledMonster->GetActorLocation(); //            ġ               ġ
-		FNavLocation Projected;
-		//               ġ    ׺   ̼   ޽     °      
-		if (NavSys->ProjectPointToNavigation(PatrolOrigin, Projected, FVector(300.f, 300.f, 1000.f)))
-		{
-			PatrolOrigin = Projected.Location;
-			UE_LOG(LogTemp, Warning, TEXT("PatrolOrigin Success %s"), *PatrolOrigin.ToString());
-			if (ABossMonster * Boss= Cast<ABossMonster>(ControlledMonster)) //    Ͱ                 
-			{
-				Boss->PlayMontage(Boss->AppearMontage);
-				float Duration = Boss->AnimInstance->Montage_Play(Boss->AppearMontage); //  ִϸ  ̼       ð          
-				GetWorld()->GetTimerManager().SetTimer(AppearDelayHandle, [this]() //       ִϸ  ̼                
-					{
-						SetState(EMonsterState::Chasing);
-					}, Duration, false);
-			}
-			else {
-				UE_LOG(LogTemp, Warning, TEXT("Boss Cast Fail"));
-				SetState(EMonsterState::Patrolling);
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("NavMesh Failed"));
-		}
-	}, 0.2f, false); // 0.2    Ŀ      (   ϸ  ProjectPointToNavigation     )
-}
+	// === AI Perception ( þ      ) ===
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	UAIPerceptionComponent* AIPerceptionComponent;
 
-void AMonsterAIControllerBase::SetState(EMonsterState NewState) { //               
-
-	if (CurrentState == NewState) return; //  ߺ      
-	CurrentState = NewState;
-
-	GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); 
-
-	switch (CurrentState)
-	{
-	case EMonsterState::Idling: //        
-		StopMovement(); //  ̵      
-
-		PatrolDelay = FMath::RandRange(5.f, 7.f); // 3   ~ 5           
-		UE_LOG(LogTemp, Warning, TEXT("Idle, after %f second Patrol change"), PatrolDelay);
-		GetWorld()->GetTimerManager().SetTimer( // PatrolDelay    Ŀ          ·    ȯ
-			PatrolDelayHandle,
-			[this]()
-			{	
-				SetState(EMonsterState::Patrolling);
-			},
-			PatrolDelay, false);
-		break;
-	case EMonsterState::Moving:
-		//Tick     ó  
-		break;
-	case EMonsterState::Patrolling:
-		Patrol();
-		break;
-	case EMonsterState::Chasing:
-		ChasePlayer();
-		break;
-	case EMonsterState::Attacking:
-		//Tick     ó  
-		break;
-	case EMonsterState::LookingAround:
-		//Tick     ó  
-		break;
-	case EMonsterState::Dead:
-		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); //          ư    Ÿ ̸ӵ      
-		GetWorld()->GetTimerManager().ClearTimer(FailedMoveHandle);
-		GetWorld()->GetTimerManager().ClearTimer(AttackDelayHandle); //             Ÿ ̸      
-
-		AIPerceptionComponent->SetActive(false); //          
-		AIPerceptionComponent->Deactivate();     //        Ȱ  ȭ
-
-		ControlledMonster->Die(); //           ó  
-		break;
-	}
-}
-//    Ͱ   ÷  ̾      ϴ   Լ (AI Perception)
-void AMonsterAIControllerBase::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus) {
-	if (!ControlledMonster) return;
-
-	// ÷  ̾            
-	if (Stimulus.WasSuccessfullySensed())
-	{
-		StopMovement(); //  ٸ   ̵      
-
-		//  ÷  ̾                      ư    Ÿ ̸ӵ      
-		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayHandle); //handle        ִµ   ÷  ̾  ߰         츦               ư    Ÿ ̸      
-		GetWorld()->GetTimerManager().ClearTimer(FailedMoveHandle);
-
-		//        ÷  ̾      
-		ACharacter* Player = Cast<ACharacter>(Actor);
-		if (Player && Player == UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
-		{
-			TargetPlayer = Player;
-			SetState(EMonsterState::Chasing); //  ÷  ̾                     ·    ȯ
-		}
-
-	}
-	else //        н 
-	{
-		// ÷  ̾           ص   ʹ                  
-		if (DistanceToPlayer < DetectionDistance) 
-		{
-			SetState(EMonsterState::Chasing); //         
-			return;
-		}
-
-		TargetPlayer = nullptr;
-
-		// ÷  ̾      ġ            ̵ 
-		FVector LastLocation = Stimulus.StimulusLocation; //                    ġ
-		FVector SeenDirection = (Stimulus.StimulusLocation - Stimulus.ReceiverLocation).GetSafeNormal(); //AI    ٶ󺸴      
-		FVector AdvancedLocation = LastLocation + SeenDirection * 200.f; //              ġ + AI    ٶ󺸴           200  ŭ  ̵ ;
-
-		MoveToLocation(AdvancedLocation, 50.f, false);
-		CurrentMoveTarget = AdvancedLocation; //  ̵    ǥ   ġ     
-		SetState(EMonsterState::Moving); //  ̵     ·    ȯ
-	}
-}
-//    Ͱ       ϴ   Լ 
-void AMonsterAIControllerBase::Patrol() {
-	if (!ControlledMonster || !NavSys) return;
-
-	const float SeparationThreshold = 200.f; //            ּ   Ÿ 
-	const int32 MaxAttempts = 10; //  ִ   õ  Ƚ  
-
-	//        ġ                
-	for (int32 Attempt = 0; Attempt < MaxAttempts; ++Attempt) {
-		{
-			// PatrolOrigin            PatrolRadius  ݰ              ġ       
-			FVector2D Rand2D = FMath::RandPointInCircle(PatrolRadius);
-			FVector TryLocation = PatrolOrigin + FVector(Rand2D.X, Rand2D.Y, 0.f);
-			TryLocation.Z = PatrolOrigin.Z; // Z         
-
-			FNavLocation Projected;
-			if (NavSys->ProjectPointToNavigation(TryLocation, Projected, FVector(300, 300, 1000))) //                  ġ      õ               Nav    °      
-			{
-				bool bTooClose = false;
-				//    忡      ϴ      MonsterBase     ȸ
-				for (TActorIterator<AMonsterBase> It(GetWorld()); It; ++It)
-				{
-					if (*It == ControlledMonster) continue; //  ڱ   ڽ        
-					//            Ÿ  üũ
-					if (FVector::Dist(It->GetActorLocation(), Projected.Location) < SeparationThreshold)
-					{
-						bTooClose = true;
-						break;
-					}
-				}
-
-				//            Ÿ           ָ   ̵ 
-				if (!bTooClose) 
-				{
-					MoveToLocation(Projected.Location, 5.f, false);
-					CurrentMoveTarget = Projected.Location; //  ̵    ǥ   ġ     
-					SetState(EMonsterState::Moving); //  ̵     ·    ȯ
-					return;
-				}
-			}
-		}
-		UE_LOG(LogTemp, Warning, TEXT("patrol Failed"));
-	}
-}
-void AMonsterAIControllerBase::ChasePlayer() {
-	if (!ControlledMonster || !TargetPlayer)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ControlledMonster or TargetPlayer is null"));
-		return;
-	}
-
-	MoveToLocation(TargetPlayer->GetActorLocation(), 50.f, true);
-}
-void AMonsterAIControllerBase::ChasePlayerToAttack() {
-	if (!ControlledMonster || !TargetPlayer)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ControlledMonster or TargetPlayer is null"));
-		return;
-	}
-
-	FAIMoveRequest MoveRequest;
-	MoveRequest.SetGoalActor(TargetPlayer);
-	MoveRequest.SetAcceptanceRadius(120.f);
-
-	FNavPathSharedPtr NavPath;
-	FPathFollowingRequestResult Result = MoveTo(MoveRequest, &NavPath);
-
-	UE_LOG(LogTemp, Warning, TEXT("MoveToActor result: %d"), (int32)Result.Code);
-}
-
-//          override Ͽ     
-void AMonsterAIControllerBase::Attack() {
-	if (!bCanAttack) return;
-
-	StopMovement(); //         ̵        
-	ControlledMonster->PlayCloseAttackMontage(); //               ȣ  
-	bCanAttack = false;
-	GetWorld()->GetTimerManager().SetTimer(
-		AttackDelayHandle,
-		this,
-		&AMonsterAIControllerBase::ResetAttackCooldown,
-		ControlledMonster->AttackCooldown, false); // AttackCooldown ʸ        
-}
-
-void AMonsterAIControllerBase::ResetAttackCooldown() {
-	bCanAttack = true;
-}
+	UPROPERTY()
+	UAISenseConfig_Sight* SightConfig;
+};
