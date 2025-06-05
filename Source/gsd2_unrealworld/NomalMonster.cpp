@@ -1,80 +1,70 @@
-
+//NomalMonster.cpp
 
 #include "NomalMonster.h"
-#include "Kismet/GameplayStatics.h" // ÇÃ·¹ÀÌ¾î ¾×ÅÍ, »ç¿îµå, ÀÌÆåÆ®
-#include "GameFramework/CharacterMovementComponent.h" // Ä³¸¯ÅÍ ÀÌµ¿ ÄÄÆ÷³ÍÆ®
-#include "Animation/AnimInstance.h" // ¾Ö´Ï¸ŞÀÌ¼Ç ÀÎ½ºÅÏ½º
-#include "MonsterHealthWidget.h" // ¸ó½ºÅÍ Ã¼·Â À§Á¬
+#include "Kismet/GameplayStatics.h" // í”Œë ˆì´ì–´ ì•¡í„°, ì‚¬ìš´ë“œ, ì´í™íŠ¸
+#include "GameFramework/CharacterMovementComponent.h" // ìºë¦­í„° ì´ë™ ì»´í¬ë„ŒíŠ¸
+#include "Animation/AnimInstance.h" // ì• ë‹ˆë©”ì´ì…˜ ì¸ìŠ¤í„´ìŠ¤
+#include "MonsterHealthWidget.h" // ëª¬ìŠ¤í„° ì²´ë ¥ ìœ„ì ¯
 
 ANomalMonster::ANomalMonster()
 {
 	PrimaryActorTick.bCanEverTick = true; 
-	// ¸ó½ºÅÍÀÇ ±âº» ¼Ó¼º ¼³Á¤
-	GetCharacterMovement()->NavAgentProps.AgentRadius = 60.f; // ¸ó½ºÅÍÀÇ ¹İÁö¸§
-	GetCharacterMovement()->NavAgentProps.AgentHeight = 240.f; // ¸ó½ºÅÍÀÇ ³ôÀÌ
+	// ëª¬ìŠ¤í„°ì˜ ê¸°ë³¸ ì†ì„± ì„¤ì •
+	GetCharacterMovement()->NavAgentProps.AgentRadius = 60.f; // ëª¬ìŠ¤í„°ì˜ ë°˜ì§€ë¦„
+	GetCharacterMovement()->NavAgentProps.AgentHeight = 240.f; // ëª¬ìŠ¤í„°ì˜ ë†’ì´
 
-	MaxHealth = 10.f; // ÃÖ´ë Ã¼·Â
-	AttackDamage = 1.f; // °ø°İ·Â
-	CloseRangeAttack = 200.f; // ±Ù°Å¸® °ø°İ ¹üÀ§
-	LongRangeAttack = 200.f; // ¿ø°Å¸® °ø°İ ¹üÀ§(ÀÏ¹İ ¸ó½ºÅÍ´Â ±Ù°Å¸® °ø°İ¸¸)
-	AttackCooldown = 1.0f; // °ø°İ ÄğÅ¸ÀÓ
-	GetCharacterMovement()->MaxWalkSpeed = 300.f; // °È´Â ¼Óµµ ¼³Á¤
-	PlayerCameraManager = nullptr; // ÇÃ·¹ÀÌ¾î Ä«¸Ş¶ó ¸Å´ÏÀú ÃÊ±âÈ­
+	MaxHealth = 10.f; // ìµœëŒ€ ì²´ë ¥
+	AttackDamage = 1.f; // ê³µê²©ë ¥
+	CloseRangeAttack = 200.f; // ê·¼ê±°ë¦¬ ê³µê²© ë²”ìœ„
+	LongRangeAttack = 200.f; // ì›ê±°ë¦¬ ê³µê²© ë²”ìœ„(ì¼ë°˜ ëª¬ìŠ¤í„°ëŠ” ê·¼ê±°ë¦¬ ê³µê²©ë§Œ)
+	AttackCooldown = 1.0f; // ê³µê²© ì¿¨íƒ€ì„
+	GetCharacterMovement()->MaxWalkSpeed = 300.f; // ê±·ëŠ” ì†ë„ ì„¤ì •
 
-	//¸ó½ºÅÍ Ã¼·Â¹Ù À§Á¬ »ı¼º
+	//ëª¬ìŠ¤í„° ì²´ë ¥ë°” ìœ„ì ¯ ìƒì„±
 	HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
-	HealthBarWidget->SetupAttachment(RootComponent); // ·çÆ® ÄÄÆ÷³ÍÆ®¿¡ ºÎÂø(Ã¼·Â¹Ù°¡ ¸ó½ºÅÍ¸¦ µû¶ó´Ù´Ô)
-	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//Å©±â¸¦ ¿ùµå Å©±â¿¡ °íÁ¤
-	HealthBarWidget->SetDrawSize(FVector2D(200.f, 20.f)); // Å©±â ¼³Á¤
-	HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, 150.f)); // À§Ä¡ ¼³Á¤
-	HealthBarWidget->SetPivot(FVector2D(0.38f, 0.5f)); // Áß¾Ó¿¡ À§Ä¡(¿ø·¡´Â 0.5f, 0.5f¿©¾ß ÇÏÁö¸¸...)
+	HealthBarWidget->SetupAttachment(RootComponent); // ë£¨íŠ¸ ì»´í¬ë„ŒíŠ¸ì— ë¶€ì°©(ì²´ë ¥ë°”ê°€ ëª¬ìŠ¤í„°ë¥¼ ë”°ë¼ë‹¤ë‹˜)
+	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//í¬ê¸°ë¥¼ ì›”ë“œ í¬ê¸°ì— ê³ ì •
+	HealthBarWidget->InitWidget(); // ìœ„ì ¯ ì´ˆê¸°í™”
 }
 
 void ANomalMonster::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ¸ó½ºÅÍÀÇ ÃÊ±â »óÅÂ ¼³Á¤
-	CurrentHealth = MaxHealth; // ÇöÀç Ã¼·Â ÃÊ±âÈ­
-	bIsDead = false; // Á×À½ »óÅÂ ÃÊ±âÈ­
-
-	PlayerCameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
 }
 
 void ANomalMonster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//À§Á¬ÀÌ Ä«¸Ş¶ó¸¦	 ¹Ù¶óº¸µµ·Ï È¸Àü
-	if (PlayerCameraManager && HealthBarWidget) {
-		FVector CameraLocation = PlayerCameraManager->GetCameraLocation();
-		FRotator LookAtRotation = (CameraLocation - HealthBarWidget->GetComponentLocation()).Rotation();
-		LookAtRotation.Pitch = 0.f; // À§¾Æ·¡ È¸Àü ¹æÁö
-		HealthBarWidget->SetWorldRotation(LookAtRotation);
-	}
 }
 
-//Ã¼·Â¹Ù À§Á¬ ¾÷µ¥ÀÌÆ®
+//ì²´ë ¥ë°” ìœ„ì ¯ ì—…ë°ì´íŠ¸
 void ANomalMonster::UpdateHealthBar()
 {
-	Super::UpdateHealthBar(); // ºÎ¸ğ Å¬·¡½ºÀÇ ±âº» ·ÎÁ÷ È£Ãâ
+	Super::UpdateHealthBar(); // ë¶€ëª¨ í´ë˜ìŠ¤ì˜ ê¸°ë³¸ ë¡œì§ í˜¸ì¶œ
 
 	if (HealthBarWidget && HealthBarWidget->GetUserWidgetObject())
 	{
 		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
 		if (HealthUI)
 		{
-			float Percent = (MaxHealth > 0.f) ? (CurrentHealth / MaxHealth) : 0.f;
+			float Percent = (MaxHealth > 0.f) ? FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f) : 0.f; // ì²´ë ¥ ë¹„ìœ¨ ê³„ì‚° (0~1 ì‚¬ì´ë¡œ ì œí•œ)
 			HealthUI->SetHealthPercent(Percent);
+			UE_LOG(LogTemp, Warning, TEXT("Health = %.1f / %.1f (%.2f%%)"), CurrentHealth, MaxHealth, (CurrentHealth / MaxHealth) * 100.f);
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("HealthUI is null!"));
 		}
 	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("HealthBarWidget or UserWidgetObject is null!"));
+	}
+
 }
 
-void ANomalMonster::PlayCloseAttackMontage() // ±ÙÁ¢ °ø°İ ¸ùÅ¸ÁÖ ½ÇÇà
+void ANomalMonster::PlayCloseAttackMontage() // ê·¼ì ‘ ê³µê²© ëª½íƒ€ì£¼ ì‹¤í–‰
 {
-	if (!CloseAttackMontage || bIsDead) return; //¸ùÅ¸ÁÖ°¡ ¾ø°Å³ª Á×Àº »óÅÂÀÏ‹š
+	if (!CloseAttackMontage || bIsDead) return; //ëª½íƒ€ì£¼ê°€ ì—†ê±°ë‚˜ ì£½ì€ ìƒíƒœì¼ë–„
 
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && !AnimInstance->Montage_IsPlaying(CloseAttackMontage))
 	{
 		AnimInstance->Montage_Play(CloseAttackMontage);

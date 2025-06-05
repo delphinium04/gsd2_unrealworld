@@ -1,12 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+//MonsterBase.h
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "Animation/AnimMontage.h"
 #include "MonsterBase.generated.h"
-
+class AMonsterAIControllerBase;
 
 UCLASS()
 class GSD2_UNREALWORLD_API AMonsterBase : public ACharacter
@@ -15,54 +17,80 @@ class GSD2_UNREALWORLD_API AMonsterBase : public ACharacter
 
 public:
 	AMonsterBase();
-
-	//¸ó½ºÅÍ »óÅÂ º¯¼ö
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	//              
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float MaxHealth; //ÃÖ´ë Ã¼·Â
+	float MaxHealth; // Ö´  Ã¼  
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	float CurrentHealth; //ÇöÀç Ã¼·Â(ÀÐ±â	 Àü¿ë)
+	float CurrentHealth; //     Ã¼  ( Ð± 	     )
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float AttackDamage; // °ø°Ý·Â
+	float AttackDamage; //    Ý· 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float CloseRangeAttack; //±Ù°Å¸® °ø°Ý ¹üÀ§
+	float CloseRangeAttack; // Ù°Å¸           
+
+	virtual float GetCloseRangeAttackRange() const { return CloseRangeAttack; } //  Ù°Å¸           ( Ú½Ä¸     Ù¸         È¯       Öµ          Ô¼        )
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float LongRangeAttack; //¿ø°Å¸® °ø°Ý ¹üÀ§
+	float LongRangeAttack; //   Å¸           
+
+	virtual float GetLongRangeAttackRange() const { return LongRangeAttack; } //    Å¸           ( Ú½Ä¸     Ù¸         È¯       Öµ          Ô¼        )
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float AttackCooldown = 2.0f; // °ø°Ý ÄðÅ¸ÀÓ
+	float AttackCooldown = 2.0f; //        Å¸  
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	bool bIsDead = false; //Á×À½ »óÅÂ(ÀÐ±â Àü¿ë)
+	bool bIsDead = false; //         ( Ð±      )
 
-	//¸ó½ºÅÍ ¾Ö´Ï¸ÞÀÌ¼Ç º¯¼ö
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	bool bCanCloseDealDamage = false; //                   Ö±           
+
+	//      Ö´Ï¸  Ì¼      
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimMontage* DeathMontage; //Á×À½ ¾Ö´Ï¸ÞÀÌ¼Ç ¸ùÅ¸ÁÖ
+	UAnimMontage* DeathMontage; //      Ö´Ï¸  Ì¼    Å¸  
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimMontage* CloseAttackMontage; //°ø°Ý ¾Ö´Ï¸ÞÀÌ¼Ç ¸ùÅ¸ÁÖ
+	UAnimMontage* CloseAttackMontage; //      Ö´Ï¸  Ì¼    Å¸  
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimMontage* LongRangeAttackMontage; //Á×À½ ¾Ö´Ï¸ÞÀÌ¼Ç ¸ùÅ¸ÁÖ
+	UAnimMontage* LongRangeAttackMontage; //      Ö´Ï¸  Ì¼    Å¸  
 
-	virtual void PlayCloseAttackMontage(); //±Ù°Å¸® °ø°Ý ¾Ö´Ï¸ÞÀÌ¼Ç Àç»ý ÇÔ¼ö
-	virtual void PlayLongRangeAttackMontage(); //¿ø°Å¸® °ø°Ý ¾Ö´Ï¸ÞÀÌ¼Ç Àç»ý ÇÔ¼ö
-	void Die(); //Á×À½ 
-
-	//¸ó½ºÅÍ Ã¼·Â¹Ù °ü·Ã
+	virtual void PlayCloseAttackMontage(); // Ù°Å¸        Ö´Ï¸  Ì¼       Ô¼ 
+	virtual void PlayLongRangeAttackMontage(); //   Å¸        Ö´Ï¸  Ì¼       Ô¼ 
+	virtual void Die(); //     
+	//     Ã¼ Â¹      
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
-	UWidgetComponent* HealthBarWidget; //Ã¼·Â¹Ù À§Á¬ ÄÄÆ÷³ÍÆ®
+	UWidgetComponent* HealthBarWidget; //Ã¼ Â¹             Æ®
 
-	virtual void UpdateHealthBar(); //Ã¼·Â¹Ù ¾÷µ¥ÀÌÆ® ÇÔ¼ö
+	virtual void UpdateHealthBar(); //Ã¼ Â¹        Æ®  Ô¼ 
 
-	//±â´É ÇÔ¼ö
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	APlayerController* PlayerController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	APlayerCameraManager* PlayerCameraManager;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+	UAnimInstance* AnimInstance; //  Ö´Ï¸  Ì¼   Î½  Ï½ 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	AMonsterAIControllerBase* AIController; //      AI   Æ® Ñ· 
+
+	//     Ô¼ 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void ReceiveDamage(float DamageAmount); // °ø°Ý µ¥¹ÌÁö Àû¿ë
+	void ReceiveDamage(float DamageAmount); //                 
 
 	UFUNCTION(BlueprintCallable)
-	void MonsterBreakParts(); // ¸ó½ºÅÍ »ê»êÁ¶°¢
+	void MonsterBreakParts(); //             
+
+	virtual float TakeDamage(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		class AActor* DamageCauser
+	) override;
 
 };

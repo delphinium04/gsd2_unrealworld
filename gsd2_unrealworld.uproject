@@ -19,6 +19,16 @@
 		{
 			"Name": "ModelingToolsEditorMode",
 			"Enabled": true
+		},
+
+		{
+			"Name": "LiveLinkControlRig",
+			"Enabled": true
+		},
+		
+		{
+			"Name": "AnimationWarping",
+			"Enabled": true
 		}
 	]
 }

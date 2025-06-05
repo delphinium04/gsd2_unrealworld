@@ -1,48 +1,49 @@
 
-// Fill out your copyright notice in the Description page of Project Settings.
+// EliteMonsterAIController.cpp
 
 
 #include "EliteMonsterAIController.h"
 
 AEliteMonsterAIController::AEliteMonsterAIController() {
 
-	//AI Perception °ª ¼³Á¤
-	SightConfig->SightRadius = 1000.f; // ±âº» Å½Áö °Å¸®
-	SightConfig->LoseSightRadius = 1500.f; //ÇÃ·¹ÀÌ¾î¸¦ ³õÄ¡´Â °Å¸® 
-	SightConfig->PeripheralVisionAngleDegrees = 150.f; // ½Ã¾ß°¢
-	SightConfig->AutoSuccessRangeFromLastSeenLocation = 300.f; //½Ã¾ß¿¡¼­ Àá±ñ ¹ş¾î³­ ÈÄ¿¡µµ °¨ÁöÇÏ´Â °Å¸®
-	AIPerceptionComponent->ConfigureSense(*SightConfig); //¼öÁ¤µÈ °ªÀ¸·Î AI Perception ¼³Á¤
-	DetectionDistance = 600.f; //AI perceptionÀÌ Å½Áö ½ÇÆĞÇßÀ»¶§ ¸ó½ºÅÍ°¡ ÇÃ·¹ÀÌ¾î¸¦ °¨ÁöÇÏ´Â °Å¸®
+	//AI Perception ê°’ ì„¤ì •
+	SightConfig->SightRadius = 1000.f; // ê¸°ë³¸ íƒì§€ ê±°ë¦¬
+	SightConfig->LoseSightRadius = 1500.f; //í”Œë ˆì´ì–´ë¥¼ ë†“ì¹˜ëŠ” ê±°ë¦¬ 
+	SightConfig->PeripheralVisionAngleDegrees = 150.f; // ì‹œì•¼ê°
+	SightConfig->AutoSuccessRangeFromLastSeenLocation = 300.f; //ì‹œì•¼ì—ì„œ ì ê¹ ë²—ì–´ë‚œ í›„ì—ë„ ê°ì§€í•˜ëŠ” ê±°ë¦¬
+	AIPerceptionComponent->ConfigureSense(*SightConfig); //ìˆ˜ì •ëœ ê°’ìœ¼ë¡œ AI Perception ì„¤ì •
+	DetectionDistance = 600.f; //AI perceptionì´ íƒì§€ ì‹¤íŒ¨í–ˆì„ë•Œ ëª¬ìŠ¤í„°ê°€ í”Œë ˆì´ì–´ë¥¼ ê°ì§€í•˜ëŠ” ê±°ë¦¬
 
-	PatrolDelay = 3.0f; // ¼øÂû µô·¹ÀÌ
-	PatrolRadius = 300.f; //¼øÂû ¹İ°æ
+	PatrolDelay = 3.0f; // ìˆœì°° ë”œë ˆì´
+	PatrolRadius = 300.f; //ìˆœì°° ë°˜ê²½
 
 }
 
 void AEliteMonsterAIController::Attack() {
 	if (!bCanAttack) return;
 
-	if (DistanceToPlayer <= ControlledMonster->CloseRangeAttack) // ÇÃ·¹ÀÌ¾î°¡ ±Ù°Å¸®¿¡ ÀÖÀ» °æ¿ì
+	if (DistanceToPlayer <= ControlledMonster->CloseRangeAttack) // í”Œë ˆì´ì–´ê°€ ê·¼ê±°ë¦¬ì— ìˆì„ ê²½ìš°
 	{
-		ControlledMonster->PlayCloseAttackMontage(); // ±ÙÁ¢ °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı
+		UE_LOG(LogTemp, Warning, TEXT("conbo called"));
+		ControlledMonster->PlayCloseAttackMontage(); // ê·¼ì ‘ ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ
 	}
-	else if (DistanceToPlayer <= ControlledMonster->LongRangeAttack) //  ÇÃ·¹ÀÌ¾î°¡ ¿ø°Å¸® °ø°İ ¹üÀ§¿¡ ÀÖÀ» °æ¿ì
+	else if (DistanceToPlayer <= ControlledMonster->LongRangeAttack) //  í”Œë ˆì´ì–´ê°€ ì›ê±°ë¦¬ ê³µê²© ë²”ìœ„ì— ìˆì„ ê²½ìš°
 	{
-		if (FMath::FRand() < 0.3f) // ¿ø°Å¸® °ø°İÀº È®·üÀûÀ¸·Î(ÇöÀç 30ÆÛ È®·ü)
+		if (FMath::FRand() < 0.3f) // ì›ê±°ë¦¬ ê³µê²©ì€ í™•ë¥ ì ìœ¼ë¡œ(í˜„ì¬ 30í¼ í™•ë¥ )
 		{
 			if (IsValid(TargetPlayer)) {
 				UE_LOG(LogTemp, Warning, TEXT("30"));
-				StopMovement(); // ¸ó½ºÅÍÀÇ ÀÌµ¿À» ¸ØÃã
+				StopMovement(); // ëª¬ìŠ¤í„°ì˜ ì´ë™ì„ ë©ˆì¶¤
 				ControlledMonster->PlayLongRangeAttackMontage();
 			}
 		}
-		else  // ¿ø°Å¸® °ø°İÀÌ ½ÇÆĞÇÒ °æ¿ì
+		else  // ì›ê±°ë¦¬ ê³µê²©ì´ ì‹¤íŒ¨í•  ê²½ìš°
 		{
 			ChasePlayerToAttack();
 		}
 	}
 	else {
-		SetState(EMonsterState::Chasing); // °ø°İ ¹üÀ§¿¡¼­ ¹ş¾î³¯ °æ¿ì ÇÃ·¹ÀÌ¾î¸¦ ÃßÀû »óÅÂ·Î ÀüÈ¯
+		SetState(EMonsterState::Chasing); // ê³µê²© ë²”ìœ„ì—ì„œ ë²—ì–´ë‚  ê²½ìš° í”Œë ˆì´ì–´ë¥¼ ì¶”ì  ìƒíƒœë¡œ ì „í™˜
 	}
 
 	bCanAttack = false;
@@ -50,5 +51,5 @@ void AEliteMonsterAIController::Attack() {
 		AttackDelayHandle,
 		this,
 		&AEliteMonsterAIController::ResetAttackCooldown,
-		ControlledMonster->AttackCooldown, false); // AttackCooldownÃÊ¸¶´Ù °ø°İ
+		ControlledMonster->AttackCooldown, false); // AttackCooldownì´ˆë§ˆë‹¤ ê³µê²©
 }

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// EliteMonster.h
 
 #pragma once
 
@@ -15,11 +15,8 @@ class GSD2_UNREALWORLD_API AEliteMonster : public AMonsterBase
 {
 	GENERATED_BODY()
 private:
-	UPROPERTY()
-	APlayerCameraManager* PlayerCameraManager; // ÇÃ·¹ÀÌ¾î Ä«¸Þ¶ó ¸Å´ÏÀú
-
-	int32 CurrentComboIndex = 1; // ÇöÀç ÄÞº¸ ÀÎµ¦½º
-	FTimerHandle ComboTimerHandle; // ÄÞº¸ Å¸ÀÌ¸Ó ÇÚµé
+	int32 CurrentComboIndex = 1; //       Þº   Îµ   
+	FTimerHandle ComboTimerHandle; //  Þº  Å¸ Ì¸   Úµ 
 
 protected:
 
@@ -28,24 +25,25 @@ protected:
 
 public:
 	AEliteMonster();
-	virtual void UpdateHealthBar() override;
-	virtual void PlayCloseAttackMontage() override; // ±ÙÁ¢ °ø°Ý ¸ùÅ¸ÁÖ ½ÇÇà
-	virtual void  PlayLongRangeAttackMontage() override; // ¿ø°Å¸® °ø°Ý ¸ùÅ¸ÁÖ ½ÇÇà
-	void ContineueCloseAttackmontion(); // ÄÞº¸ °ø°ÝÀ» ÁøÇàÇÏ´Â ÇÔ¼ö
+	virtual void UpdateHealthBar();
+	virtual void PlayCloseAttackMontage() override; //             Å¸       
+	virtual void  PlayLongRangeAttackMontage() override; //    Å¸         Å¸       
+	void ContineueCloseAttackmontion(); //  Þº              Ï´   Ô¼ 
 
-	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override; // ½ÃÁ¡ À§Ä¡ Á¶Á¤
-	AMonsterAIControllerBase* AIController;
+	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override; //        Ä¡     
 
+	virtual float GetCloseRangeAttackRange() const override { return CloseRangeAttack; } //  Ù°Å¸              È¯
+	virtual float GetLongRangeAttackRange() const override { return LongRangeAttack; } //    Å¸              È¯
 	//fireball
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	TSubclassOf<AFireballActor> FireballClass; // ¿ø°Å¸® °ø°Ý¿¡ »ç¿ëµÉ ÆÄÀÌ¾îº¼ Å¬·¡½º
+	TSubclassOf<AFireballActor> FireballClass; //    Å¸     Ý¿          Ì¾îº¼ Å¬    
 
 	UPROPERTY()
-	AFireballActor* SpawnedFireball; // ÃæÀüµÈ ÆÄÀÌ¾îº¼
+	AFireballActor* SpawnedFireball; //           Ì¾îº¼
 
-	//ÆÄÀÌ¾îº¼ ¹ß»ç °ü·Ã
+	//   Ì¾îº¼  ß»      
 	UFUNCTION(BlueprintCallable, Category = "Fireball")
-	void SpawnFireball(); // ÆÄÀÌ¾îº¼ »ý¼º
+	void SpawnFireball(); //    Ì¾îº¼     
 	UFUNCTION(BlueprintCallable, Category = "Fireball")
-	void ThrowFireball(); // ÆÄÀÌ¾îº¼ ¹ß»ç
+	void ThrowFireball(); //    Ì¾îº¼  ß» 
 };

@@ -1,69 +1,114 @@
-
+//MonsterBase.cpp
 #include "MonsterBase.h"
-#include "MonsterAIControllerBase.h" // 몬스터 AI 컨트롤러
+#include "MonsterBgmManager.h"
+#include "BossMonsterAIController.h"
+#include "MonsterAIControllerBase.h" //      AI   트 祈 
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h" // 캐릭터 이동 컴포넌트
-#include "PhysicsEngine/ConstraintInstance.h" // 물리 제약 인스턴스
+#include "Kismet/GameplayStatics.h" //  첨  潔      ,     ,     트
+#include "GameFramework/CharacterMovementComponent.h" // 캐      絹        트
+#include "PhysicsEngine/ConstraintInstance.h" //            館  絿 
 
 AMonsterBase::AMonsterBase() {
-	GetCharacterMovement()->SetMovementMode(MOVE_Walking); // 걷기 모드
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking); //  홧     
 
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned; // AI 자동 소환
-	AIControllerClass = AMonsterAIControllerBase::StaticClass(); // AIController 직접 지정
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned; // AI  湄    환
+	AIControllerClass = AMonsterAIControllerBase::StaticClass(); // AIController          
 
-	GetCapsuleComponent()->SetCanEverAffectNavigation(true); // NavMesh 영향 명시
+	GetCapsuleComponent()->SetCanEverAffectNavigation(true); // NavMesh          
 }
-void AMonsterBase::UpdateHealthBar() {}
-// 몬스터 죽음
+void AMonsterBase::UpdateHealthBar() {};
+
+void AMonsterBase::BeginPlay() {
+	Super::BeginPlay();
+	//         珂           
+	CurrentHealth = MaxHealth; //      체    珂 화
+	bIsDead = false; //            珂 화
+	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	PlayerCameraManager = PlayerController ? PlayerController->PlayerCameraManager : nullptr;
+	AnimInstance = GetMesh()->GetAnimInstance(); //  獵玖  抉   館  絿          
+	AIController = Cast<AMonsterAIControllerBase>(GetController()); // AI   트 祈          
+	UpdateHealthBar(); // 체 쨔        珂 화       트
+}
+
+void AMonsterBase::Tick(float DeltaTime)
+{
+	if (PlayerCameraManager && HealthBarWidget) {
+		FVector CameraLocation = PlayerCameraManager->GetCameraLocation();
+		FRotator LookAtRotation = (CameraLocation - HealthBarWidget->GetComponentLocation()).Rotation();
+		LookAtRotation.Pitch = 0.f;
+		HealthBarWidget->SetWorldRotation(LookAtRotation);
+	}
+	else if(!PlayerCameraManager){
+		UE_LOG(LogTemp, Warning, TEXT("PlayerCameraManager is null!"));
+	}
+	else{
+		UE_LOG(LogTemp, Warning, TEXT("HealthBarWidget is null!"));
+	}
+
+}
+
 void AMonsterBase::Die()
 {
 	if (bIsDead) return;
 	bIsDead = true;
 
 	UE_LOG(LogTemp, Warning, TEXT("Monster Die() Called: %s"), *GetName());
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && DeathMontage)
 	{
-		AnimInstance->Montage_Play(DeathMontage); // 죽음 애니메이션 재생
+		AnimInstance->Montage_Play(DeathMontage); //       獵玖  抉     
 	}
 
-	AMonsterAIControllerBase* AIController = Cast<AMonsterAIControllerBase>(GetController());
-	if (AIController)
+	if (!Cast<ABossMonsterAIController>(AIController))
 	{
-		AIController->StopMovement();
-		AIController->UnPossess(); // AI 컨트롤러 떠나기
+		AIController->bWasTrackingPlayer = false; // AI   트 祈     叩     킬      
+		AIController->BGMManager->OnMonsterLosePlayer(); // BGM    叩     킬      
 	}
 
-	GetCharacterMovement()->DisableMovement(); //움직임 비활성화
-	HealthBarWidget->SetVisibility(false); // 체력바 숨김
-	SetLifeSpan(5.0f); // 5초 후에 자동 삭제
+	if (AIController) {
+		AIController->StopMovement();
+		AIController->UnPossess(); // AI   트 祈        
+	}
+
+	GetCharacterMovement()->DisableMovement(); //         활  화
+
+	if (HealthBarWidget) {
+		HealthBarWidget->SetVisibility(false); // 체 쨔      
+	}
+	SetLifeSpan(5.0f); // 5    커   湄      
 	
 }
-// 몬스터가 피해를 입었을 때
+
+float AMonsterBase::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	ReceiveDamage(DamageAmount);
+	return DamageAmount;
+}
+
+//    叩     挽   禿      
 void AMonsterBase::ReceiveDamage(float DamageAmount)
 {
 	if (bIsDead) return;
-	//AI 컨트롤러에게 상태 전달
-	AMonsterAIControllerBase* AIController = Cast<AMonsterAIControllerBase>(GetController());
+	//AI   트 祈               
 	if (AIController)
 	{
-		// 체력이 0 이하가 되면 죽음 상태로 전환
+		// 체     0    構   퓔          쨌    환
 		if (CurrentHealth - DamageAmount <= 0.f)
 		{
 			AIController->SetState(EMonsterState::Dead);
 			Die(); 
 		}
-		else //아니면 피해를 입는 중
+		else // 틈玖     挽   都    
 		{
 			AIController->SetState(EMonsterState::BeingHit);
 		}
 	}
 
 	CurrentHealth -= DamageAmount;
-	UpdateHealthBar(); // 체력바 업데이트
+	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth after damage: %f"), CurrentHealth);
+	UpdateHealthBar(); // 체 쨔        트
 }
 
-void AMonsterBase::MonsterBreakParts() //몬스터 산산조각 노티파이로 애니메이션에서 호출
+void AMonsterBase::MonsterBreakParts() //               티   肩   獵玖  抉퓻    호  
 {
 	UE_LOG(LogTemp, Warning, TEXT("broken"));
 	if (USkeletalMeshComponent* SkeletalMesh = GetMesh())
@@ -71,7 +116,7 @@ void AMonsterBase::MonsterBreakParts() //몬스터 산산조각 노티파이로 애니메이션에
 
 		SkeletalMesh->SetSimulatePhysics(false); 
 
-		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("pelvis", true, true); // 상체만
+		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("pelvis", true, true); //   체  
 		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("upperarm_l", true, true);
 		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("upperarm_r", true, true);
 		SkeletalMesh->SetAllBodiesBelowSimulatePhysics("thigh_l", true, true);
@@ -84,7 +129,7 @@ void AMonsterBase::MonsterBreakParts() //몬스터 산산조각 노티파이로 애니메이션에
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("upperarm_r", 1.0f);
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_l", 1.0f);
 		SkeletalMesh->SetAllBodiesBelowPhysicsBlendWeight("thigh_r", 1.0f);
-		// 튐방지..?(안됨)
+		// 튐    ..?
 		SkeletalMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 		SkeletalMesh->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
 

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// NomalMonster.h
 
 #pragma once
 
@@ -10,12 +10,6 @@ UCLASS()
 class GSD2_UNREALWORLD_API ANomalMonster : public AMonsterBase
 {
 	GENERATED_BODY()
-
-
-private:
-	UPROPERTY()
-	APlayerCameraManager* PlayerCameraManager; // �÷��̾� ī�޶� �Ŵ���
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -23,4 +17,7 @@ public:
 	ANomalMonster();
 	virtual void UpdateHealthBar() override;
 	virtual void PlayCloseAttackMontage() override;
+
+	virtual float GetCloseRangeAttackRange() const override { return CloseRangeAttack; } // 수정된 근거리 공격 범위 반환
+	virtual float GetLongRangeAttackRange() const override { return LongRangeAttack; } // 수정된 원거리 공격 범위 반환
 };

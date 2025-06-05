@@ -16,6 +16,11 @@ void AInteractableActor::OnInteract_Implementation()
 	UE_LOG(LogTemp, Warning, TEXT("%s: OnInteract has not been overridden"), *GetActorNameOrLabel());
 }
 
+void AInteractableActor::OnReset_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s: OnReset has not been overridden"), *GetActorNameOrLabel());
+}
+
 void AInteractableActor::BeginPlay()
 {
 	Super::BeginPlay();
@@ -26,12 +31,27 @@ void AInteractableActor::Interact()
 	if (!bIsInteractable) return;
 
 	OnInteract();
-	if (bAutomaticBroadcastOnInteracted)
+	if (bAutomaticBroadcastOnInteracted)	
 		BroadcastOnInteracted();
+}
+
+void AInteractableActor::Reset()
+{
+	OnReset();
 }
 
 void AInteractableActor::BroadcastOnInteracted()
 {
 	if (OnInteracted.IsBound())
 		OnInteracted.Broadcast(this);
+}
+
+void AInteractableActor::OnGrab_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s: OnGrab has not been overridden"), *GetActorNameOrLabel());
+}
+
+void AInteractableActor::OnGrabEnd_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s: OnGrabEnd has not been overridden"), *GetActorNameOrLabel());
 }

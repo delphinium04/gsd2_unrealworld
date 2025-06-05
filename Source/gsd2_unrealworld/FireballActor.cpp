@@ -9,15 +9,15 @@
 // Sets default values
 AFireballActor::AFireballActor()
 {
-     // Root¸¦ SphereCollisionÀ¸·Î ¼³Á¤
+     // Rootï¿½ï¿½ SphereCollisionï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
     RootComponent = Collision;
 
-    // FX ½Ã°¢ ÀÌÆåÆ®
+    // FX ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®
     FireballEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FireballEffect"));
     FireballEffect->SetupAttachment(RootComponent);
 
-    // ÀÌµ¿ ÄÄÆ÷³ÍÆ®
+    // ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
     ProjectileMovement->InitialSpeed = 1500.f;
     ProjectileMovement->MaxSpeed = 1500.f;
@@ -30,7 +30,11 @@ AFireballActor::AFireballActor()
 void AFireballActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+    if (GetInstigator()) // ï¿½ß»ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¶ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½
+    {
+        Collision->IgnoreActorWhenMoving(GetInstigator(), true);
+    }
 }
 
 // Called every frame

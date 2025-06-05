@@ -14,12 +14,6 @@ void APuzzleBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-void APuzzleBase::OnInteractableStateChanged_Implementation()
-{
-	UE_LOG(LogTemp, Warning, TEXT("%s: OnInteractableStateChanged has not been overridden"), *GetActorNameOrLabel());
-}
-
-
 void APuzzleBase::BroadcastOnPuzzleSolved()
 {
 	if (OnPuzzleSolved.IsBound())
