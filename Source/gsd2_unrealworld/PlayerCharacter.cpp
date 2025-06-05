@@ -401,6 +401,7 @@ void APlayerCharacter::OnFire()
 void APlayerCharacter::PerformFire()
 {
     if (!CanFire() || bIsReloading || HeldItem || IsSitting()) return;
+
     // 사운드
     UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
     --CurrentAmmo;
@@ -412,7 +413,6 @@ void APlayerCharacter::PerformFire()
         AmmoUIWidget->CallFunctionByNameWithArguments(*Args, *GLog, NULL, true);
     }
 
-    // 총구 이펙트 및 라인트레이스
     if (WeaponActor)
     {
         UStaticMeshComponent* MeshComp = WeaponActor->FindComponentByClass<UStaticMeshComponent>();
@@ -421,6 +421,7 @@ void APlayerCharacter::PerformFire()
             FVector MuzzleLoc = MeshComp->GetSocketLocation("MuzzleSocket");
             FRotator MuzzleRot = MeshComp->GetSocketRotation("MuzzleSocket");
 
+            // 카메라 기준 조준 지점
             FVector CamLoc = FollowCamera->GetComponentLocation();
             FVector CamDir = FollowCamera->GetForwardVector();
             FVector TraceEnd = CamLoc + (CamDir * 5000.f);
@@ -428,43 +429,50 @@ void APlayerCharacter::PerformFire()
             FHitResult CameraHit;
             FCollisionQueryParams CamParams;
             CamParams.AddIgnoredActor(this);
+
             bool bCamHit = GetWorld()->LineTraceSingleByChannel(
                 CameraHit, CamLoc, TraceEnd, ECC_Visibility, CamParams);
 
             FVector AimPoint = bCamHit ? CameraHit.ImpactPoint : TraceEnd;
 
-           
-
+            // 총구 이펙트 재생
             if (MuzzleFlashFX)
             {
                 UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), MuzzleFlashFX, MuzzleLoc, MuzzleRot);
             }
 
+            //  총구 → AimPoint 로 한 번 더 라인트레이스
             FHitResult BulletHit;
             FCollisionQueryParams BulletParams;
             BulletParams.AddIgnoredActor(this);
+
             bool bBulletHit = GetWorld()->LineTraceSingleByChannel(
-                BulletHit, CamLoc, AimPoint, ECC_Visibility, BulletParams);
+                BulletHit, MuzzleLoc, AimPoint, ECC_Visibility, BulletParams);
 
             FVector FinalEnd = bBulletHit ? BulletHit.ImpactPoint : AimPoint;
+
+            // 탄환 트레이서 이펙트
             if (BulletTracerFX)
             {
-                FVector Direction = CamDir;
+                FVector TracerDir = (FinalEnd - MuzzleLoc).GetSafeNormal();
                 UNiagaraFunctionLibrary::SpawnSystemAtLocation(
                     GetWorld(),
                     BulletTracerFX,
                     MuzzleLoc,
-                    Direction.Rotation()
+                    TracerDir.Rotation()
                 );
             }
+
+            // 데미지 적용
             if (bBulletHit)
             {
                 AActor* HitActor = BulletHit.GetActor();
                 if (HitActor && HitActor != this)
                 {
                     float Damage = 1.0f;
+                    FVector ShotDirection = (FinalEnd - MuzzleLoc).GetSafeNormal();
                     UGameplayStatics::ApplyPointDamage(HitActor, Damage,
-                        CamDir, BulletHit, GetController(), this, nullptr);
+                        ShotDirection, BulletHit, GetController(), this, nullptr);
                 }
             }
         }
@@ -482,7 +490,7 @@ void APlayerCharacter::PerformFire()
 
     float Duration = FireMontage ? FireMontage->GetPlayLength() : 0.3f;
     GetWorldTimerManager().SetTimer(FireTimerHandle, this, &APlayerCharacter::ResetIsFiring, Duration, false);
-} 
+}
 
 
 
