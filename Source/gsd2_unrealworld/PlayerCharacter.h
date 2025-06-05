@@ -26,15 +26,13 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Class")
     TSubclassOf<AActor> OtherBPClass;
 
-    // ▼ 대시 애니메이션 함수
-    UFUNCTION(BlueprintCallable, Category = "Dash")
-    void PlayDashAnimation();
-
     // ▼ 사운드
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
     USoundBase* FireSound;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
     USoundBase* ReloadSound;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    USoundBase* PickupSound;
 
     // ▼ 무기 및 전투 변수
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
@@ -45,6 +43,9 @@ public:
     int32 MaxAmmo = 30;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
     int32 CurrentAmmo = 30;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Combat")
+    UNiagaraSystem* BulletTracerFX;
 
     // ▼ 탄창 UI 위젯
     UPROPERTY(EditDefaultsOnly, Category = UI)
@@ -64,10 +65,13 @@ public:
     // ▼ 상호작용(물건집기) 몽타주
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimMontage* InteractMontage;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    UAnimMontage* CarryingMontage;
 
     // ▼ 장전/격발
     UPROPERTY(EditDefaultsOnly, Category = UI)
     TSubclassOf<UUserWidget> CrosshairWidgetClass;
+    UUserWidget* CrosshairWidget = nullptr;
     UFUNCTION(BlueprintCallable, Category = "Weapon")
     void Reload();
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
@@ -78,7 +82,21 @@ public:
     void OnFire();
     // ▼ 물건 집기(애니 끝나고 실제 집기 함수)
     void AttachPendingPickup();
+    UPROPERTY(BlueprintReadOnly, Category = "Life")
+    bool bIsDead = false;
+    FVector LastMoveInputDirection;
+    float LastDashInputTime = -1.f;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Dash")
+    bool bIsDashing = false;
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Reload")
+    bool bIsReloading = false;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interact")
+    bool bIsInteracting = false;
+
+    UFUNCTION(BlueprintPure)
+    bool IsSitting() const;
 protected:
     // ▼ 언리얼 표준 콜백
     virtual void BeginPlay() override;
@@ -96,12 +114,23 @@ protected:
     float TargetArmLength;
     FVector TargetSocketOffset;
     float TargetFOV;
+    // 더블탭용 타임스탬프
+    float LastWInputTime = -1.f;
+    float LastAInputTime = -1.f;
+    float LastSInputTime = -1.f;
+    float LastDInputTime = -1.f;
 
+    // 방향별 키 Release 처리
+    void OnMoveKeyReleased(FKey ReleasedKey);
     // ▼ 카메라/스프링암
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     USpringArmComponent* CameraBoom;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     UCameraComponent* FollowCamera;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+    UCameraComponent* FirstPersonCamera;
+
 
     // ▼ 카메라 에임 전환
     void ToggleAim();
@@ -128,14 +157,10 @@ protected:
     // ▼ 공격/장전 관련
     UFUNCTION()
     void ResetIsFiring();
-    bool bIsReloading = false;
-
     UPROPERTY(EditDefaultsOnly, Category = "Combat")
     UNiagaraSystem* MuzzleFlashFX;
 
     // ▼ 상태 변수
-    UPROPERTY(BlueprintReadOnly, Category = "Life")
-    bool bIsDead = false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimMontage* DeathMontage;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
@@ -146,14 +171,26 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "Life")
     void Die();
     void UpdateHealthUI();
-    UPROPERTY(BlueprintReadOnly, Category = "Dash")
-    bool bIsDashing = false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dash")
     UAnimMontage* SprintMontage;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-    UAnimMontage* Fire_Montage;
+    UAnimMontage* AimStartMontage;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+    UAnimMontage* AimingMontage;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+    UAnimMontage* FireMontage;
+
+    UFUNCTION()
+    void ToggleSit();  // C 키에 바인딩할 함수
+    void PerformFire();
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Sit")
+    bool bIsSitting = false;
+    UPROPERTY(BlueprintReadWrite, Category = "Combat")
+    bool bIsFiring = false;
+    UPROPERTY(BlueprintReadWrite, Category = "Combat")
+    bool bIsAimStartPlayed = false;
     UPROPERTY(EditAnywhere, Category = "Pickup")
-    FName HandSocketName = "weapon_socket";
+    FName HandSocketName = "pickup_socket";
     UPROPERTY()
     AActor* HeldItem = nullptr;
 
@@ -173,7 +210,7 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Dash", meta = (ClampMin = "0.1"))
     float DashCooldown = 5.0f;
     UPROPERTY(EditAnywhere, Category = "Dash", meta = (ClampMin = "0.1"))
-    float DoubleTapThreshold = 0.3f;
+    float DoubleTapThreshold = 0.25f;
     float LastForwardInputTime = -1.0f;
     float LastBackwardInputTime = -1.0f;
     float LastRightInputTime = -1.0f;
@@ -182,11 +219,12 @@ protected:
     FTimerHandle DashTimerHandle;
     FTimerHandle DashCooldownTimerHandle;
     FTimerHandle FireTimerHandle;
-
+    FTimerHandle AimStartResetHandle;
     UPROPERTY(EditDefaultsOnly, Category = "Combat")
     UParticleSystem* MuzzleFlash;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
     USceneComponent* MuzzleLocation;
+    void ResetAimStartPlayed();
 
     UFUNCTION(BlueprintCallable, Category = "Life")
     void ReceiveDamage(float DamageAmount);
@@ -198,7 +236,4 @@ protected:
         AActor* DamageCauser
     ) override;
 
-    // ▼ 상호작용 플래그
-    UPROPERTY(BlueprintReadOnly)
-    bool bIsInteracting = false;
 };
