@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "MyAnimInstance.h"
+#include "InteractableActor.h"
 
 // 생성자
 APlayerCharacter::APlayerCharacter()
@@ -552,9 +553,43 @@ void APlayerCharacter::Reload()
             Anim->bIsReloading = false;
     }
 }
+void APlayerCharacter::Interact() {
+    // 0. 이미 잡고 있는 경우 → 놓기
+    if (bIsHoldingSomething && InteractedActor)
+    {
+        InteractedActor->OnGrabEnd();
+        InteractedActor = nullptr;
+        bIsHoldingSomething = false;
+        return;
+    }
 
+    // 1. 카메라 forward 벡터
+    FVector Start = FollowCamera->GetComponentLocation();
+    FVector Forward = FollowCamera->GetForwardVector();
+    FVector End = Start + Forward * 300.f;
+
+    // 2. Trace 수행
+    FHitResult Hit;
+    FCollisionQueryParams Params;
+    Params.AddIgnoredActor(this); // 자기 자신 제외
+
+    bool bHit = GetWorld()->LineTraceSingleByChannel(
+        Hit, Start, End, ECC_Visibility, Params);
+
+    // 3. Cast 시도
+    AInteractableActor* HitActor = Cast<AInteractableActor>(Hit.GetActor());
+    if (!bHit || !HitActor) return;
+
+    // 4. bIsGrabbable 체크
+    if (!HitActor->bIsGrabbable) return;
+
+    // 5. 잡기 실행
+    InteractedActor = HitActor;
+    InteractedActor->OnGrab();
+    bIsHoldingSomething = true;
+}
 // 상호작용(물건 집기/버리기)
-void APlayerCharacter::Interact()
+/*void APlayerCharacter::Interact()
 {
     if (IsSitting()) return; // 앉아있으면 상호작용 무시
     if (HeldItem)
@@ -660,7 +695,7 @@ void APlayerCharacter::AttachPendingPickup()
     PendingPickupActor = nullptr;
     PendingPickupMesh = nullptr;
     GetWorldTimerManager().ClearTimer(PickupTimerHandle);
-}
+}*/
 void APlayerCharacter::UpdateHealthUI()
 {
     if (GamePlayUIWidget)

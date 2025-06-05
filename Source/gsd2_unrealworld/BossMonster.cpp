@@ -23,12 +23,17 @@ ABossMonster::ABossMonster() {
 	LongRangeAttack = 1500.f; // ���Ÿ� ���� ����
 	AttackCooldown = 1.0f; // ���� ��Ÿ��
 	GetCharacterMovement()->MaxWalkSpeed = 400.f; // �ȴ� �ӵ� ����
+
+	HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
+	HealthBarWidget->SetupAttachment(RootComponent); // ��Ʈ ������Ʈ�� ����(ü�¹ٰ� ���͸� ����ٴ�)
+	HealthBarWidget->SetWidgetSpace(EWidgetSpace::World);//ũ�⸦ ���� ũ�⿡ ����
+	HealthBarWidget->InitWidget(); // ���� �ʱ�ȭ
 }
 
 void ABossMonster::BeginPlay() {
 	Super::BeginPlay();
 
-	if (BossHealthWidgetClass)
+	/*if (BossHealthWidgetClass)
 	{
 		BossHealthUI = CreateWidget<UMonsterHealthWidget>(GetWorld(), BossHealthWidgetClass);
 		if (BossHealthUI)
@@ -36,29 +41,39 @@ void ABossMonster::BeginPlay() {
 			BossHealthUI->AddToViewport();
 			BossHealthUI->SetHealthPercent(1.0f);
 		}
-	}
+	}*/
 }
 
 void ABossMonster::Tick(float DeltaTime) {};
 void ABossMonster::UpdateHealthBar()
 {
-	if (BossHealthUI)
+	if (HealthBarWidget && HealthBarWidget->GetUserWidgetObject())
+	{
+		UMonsterHealthWidget* HealthUI = Cast<UMonsterHealthWidget>(HealthBarWidget->GetUserWidgetObject());
+		if (HealthUI)
+		{
+			float Percent = (MaxHealth > 0.f) ? FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f) : 0.f; // ü�� ���� ��� (0~1 ���̷� ����)
+			HealthUI->SetHealthPercent(Percent);
+			UE_LOG(LogTemp, Warning, TEXT("Health = %.1f / %.1f (%.2f%%)"), CurrentHealth, MaxHealth, (CurrentHealth / MaxHealth) * 100.f);
+		}
+	}
+	/*if (BossHealthUI)
 	{
 		float Percent = (MaxHealth > 0.f) ? (CurrentHealth / MaxHealth) : 0.f;
 		BossHealthUI->SetHealthPercent(Percent);
-	}
+	}*/
 }
 
 void ABossMonster::Die() // ���Ͱ� �׾��� �� ȣ��Ǵ� �Լ�
-
 {
 	Super::Die();
 
-	if (BossHealthUI)
+	/*if (BossHealthUI)
 	{
 		BossHealthUI->RemoveFromViewport(); // ü�¹� ���� ����
 		BossHealthUI = nullptr; // ������ �ʱ�ȭ
-	}
+	}*/
+	OnMonsterDied.Broadcast();
 	SetLifeSpan(3.0f);
 }
 
@@ -229,6 +244,9 @@ void ABossMonster::Attack2Doing() { // Attack2 ���Ͱ� ������
 	SetActorEnableCollision(false); // ������ �浹�� ��Ȱ��ȭ
 	AnimInstance->Montage_Stop(0.0f); //��Ÿ�� ���߱�
 	ProphecyAttack2(); // ���� ����Ʈ + ���� ����
+	if (HealthBarWidget) {
+		HealthBarWidget->SetVisibility(false); // ü�¹� ����
+	}
 
 }
 
@@ -290,7 +308,11 @@ void ABossMonster::ApplyAttack2() // Attack2 ����
 		);
 	}
 
-	ProphecyPositions.Empty();
+	ProphecyPositions.Empty(); // 
+
+	if (HealthBarWidget) {
+		HealthBarWidget->SetVisibility(true); // ü�¹� ����
+	}
 
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);

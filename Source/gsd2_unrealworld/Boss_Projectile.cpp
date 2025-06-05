@@ -10,6 +10,8 @@ ABoss_Projectile::ABoss_Projectile()
 	Collision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision"));
 	RootComponent = Collision;
 	Collision->InitCapsuleSize(30.f, 30.f);
+	Collision->SetCollisionResponseToAllChannels(ECR_Ignore); // 모든 채널 무시
+	Collision->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block); // GameTraceChannel1(Projectile) 채널은 충돌 허용
 
 	// FX �ð� ����Ʈ
 	ProjectileEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ProjectileEffect"));

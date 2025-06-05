@@ -7,8 +7,10 @@
 #include "MonsterAIControllerBase.h"
 #include "Boss_Projectile.h"
 #include "MonsterHealthWidget.h"
+#include "Delegates/DelegateCombinations.h" 
 #include "BossMonster.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMonsterDiedSignature);
 /**
  * 
  */
@@ -121,5 +123,8 @@ public:
 	void SpawnAttack3Projectile(); // Attack3 �߻�ü ����
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void ShootAttack3Projectile(); // Attack1 �߻�ü �߻�
+
+	UPROPERTY(BlueprintAssignable, Category = "Boss")
+	FOnMonsterDiedSignature OnMonsterDied;
 
 };

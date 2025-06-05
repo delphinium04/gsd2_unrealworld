@@ -101,6 +101,13 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsSitting() const;
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
+	bool bIsHoldingSomething = false;
+
+	/** 현재 들고 있는 상호작용 오브젝트 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
+	class AInteractableActor* InteractedActor = nullptr;
+
 	// ▼ 언리얼 표준 콜백
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

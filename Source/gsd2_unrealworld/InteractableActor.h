@@ -40,19 +40,18 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnReset();
 
+
+public:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnGrab();
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnGrabEnd();
 
-
-public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteract, AInteractableActor*, Caller);
 	UPROPERTY(BlueprintAssignable)
 	FOnInteract OnInteracted;
 
-protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Interactable")
 	bool bIsGrabbable = false;
 

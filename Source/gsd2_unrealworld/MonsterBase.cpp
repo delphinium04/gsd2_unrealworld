@@ -75,8 +75,6 @@ void AMonsterBase::Die()
 		HealthBarWidget->SetVisibility(false); // ü�¹� ����
 	}
 	SetLifeSpan(5.0f); // 5�� �Ŀ� �ڵ� ����
-
-	
 }
 
 float AMonsterBase::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
