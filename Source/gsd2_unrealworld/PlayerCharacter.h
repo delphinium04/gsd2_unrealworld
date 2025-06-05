@@ -171,13 +171,9 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "Life")
     void Die();
     void UpdateHealthUI();
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dash")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimMontage* SprintMontage;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-    UAnimMontage* AimStartMontage;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-    UAnimMontage* AimingMontage;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimMontage* FireMontage;
 
     UFUNCTION()
